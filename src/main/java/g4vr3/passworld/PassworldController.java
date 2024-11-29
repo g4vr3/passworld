@@ -11,11 +11,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-
-
-public class PassworldController implements FocusListener {
+public class PassworldController {
     @FXML
     TextField passwordField;
     @FXML
@@ -48,8 +44,6 @@ public class PassworldController implements FocusListener {
             }
         });
     }
-
-
 
     @FXML
     private void copyToClipboard() {
@@ -135,15 +129,5 @@ public class PassworldController implements FocusListener {
 
         passwordStrengthProgressBar.setVisible(true); // Muestra el ProgressBar
         passwordStrengthLabel.setVisible(true);  // Muestra la etiqueta de fortaleza
-    }
-
-    @Override
-    public void focusGained(FocusEvent e) {
-
-    }
-
-    @Override
-    public void focusLost(FocusEvent e) {
-
     }
 }
