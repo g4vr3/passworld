@@ -36,25 +36,33 @@
                                         <Font name="Helvetica Neue Medium" size="14.0" />
                                     </font>
                                 </Label>
+                        <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@password_icon.png" />
+                           </image>
+                        </ImageView>
                                 <Region HBox.hgrow="ALWAYS" />
                                 <Label fx:id="passwordStrengthLabel" prefHeight="20.0">
                                     <HBox.margin>
                                         <Insets />
                                     </HBox.margin>
                                 </Label>
-                                <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0" stylesheets="@pass_strenght-bar.css" />
+                                <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0" stylesheets="@pass_strenght-bar.css" visible="false" />
                             </children>
                         </HBox>
                   <HBox alignment="CENTER" style="-fx-border-color: #D5D5D5; -fx-background-color: #FFFFFF; -fx-background-radius: 5; -fx-border-radius: 5;">
                      <children>
-                             <TextField fx:id="passwordField" prefWidth="200" promptText="Pulsa el botón para generar una contraseña" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
+                             <TextField fx:id="passwordField" editable="false" prefWidth="200" promptText="Pulsa el botón &quot;+&quot; para generar una contraseña" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
                            <font>
                               <Font name="Helvetica Neue" size="13.0" />
                            </font></TextField>
-                        <ImageView fx:id="copyPasswordImageView" fitHeight="25.0" fitWidth="25.0" onMouseClicked="#copyToClipboard" pickOnBounds="true" preserveRatio="true" visible="false">
+                        <ImageView fx:id="copyPasswordImageView" fitHeight="15.0" fitWidth="15.0" onMouseClicked="#copyToClipboard" pickOnBounds="true" preserveRatio="true" visible="false">
                            <image>
                               <Image url="@copy_pass.png" />
                            </image>
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
                         </ImageView>
                      </children>
                   </HBox>
@@ -113,24 +121,33 @@
                   <Insets />
                </VBox.margin>
                <children>
-                  <Label prefHeight="20.0" text="Longitud de la contraseña">
-                     <font>
-                        <Font name="Helvetica Neue Medium" size="14.0" />
-                     </font>
-                  </Label>
+                  <HBox alignment="CENTER_LEFT" spacing="5.0">
+                     <children>
+                        <Label prefHeight="20.0" text="Longitud de la contraseña">
+                           <font>
+                              <Font name="Helvetica Neue Medium" size="14.0" />
+                           </font>
+                        </Label>
+                        <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@length_icon.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </HBox>
                       <Slider fx:id="passwordLengthSlider" blockIncrement="5.0" majorTickUnit="5.0" max="25.0" min="5.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="5.0" />
                </children>
             </VBox>
             <HBox alignment="CENTER" fillHeight="false" onMouseClicked="#generatePassword" prefHeight="25.0" style="-fx-background-color: linear-gradient(#000000, #1C1C1C); -fx-background-radius: 5;" VBox.vgrow="NEVER">
                <children>
-                      <Button alignment="CENTER" mnemonicParsing="false" onAction="#generatePassword" style="-fx-text-fill: #FFFFFF; -fx-background-color: transparent;" text="Generar Contraseña" textAlignment="CENTER" HBox.hgrow="NEVER">
+                      <Button alignment="CENTER" mnemonicParsing="false" onAction="#generatePassword" style="-fx-text-fill: #FFFFFF; -fx-background-color: transparent;" text="Nueva contraseña" textAlignment="CENTER" HBox.hgrow="NEVER">
                           <font>
                               <Font name="Helvetica Neue Medium" size="14.0" />
                           </font>
                       </Button>
                   <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@password_icon.png" />
+                        <Image url="@create_icon.png" />
                      </image>
                   </ImageView>
                </children>
