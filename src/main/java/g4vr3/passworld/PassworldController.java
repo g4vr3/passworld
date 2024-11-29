@@ -1,6 +1,7 @@
 package g4vr3.passworld;
 
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -10,8 +11,11 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
-public class PassworldController {
+
+public class PassworldController implements FocusListener {
     @FXML
     TextField passwordField;
     @FXML
@@ -28,12 +32,24 @@ public class PassworldController {
     CheckBox specialCharCheckbox;
     @FXML
     Slider passwordLengthSlider;
+    @FXML
+    Button generatePasswordButton;
 
     @FXML
     public void initialize() {
-        passwordStrengthProgressBar.setVisible(false);
-        passwordStrengthLabel.setVisible(false);
+        // Focus en inicio para el checkbox de mayúsculas y minúsculas,
+        // evitando así darle el foco inicial al passwordField y que se oculte su prompt text
+        Platform.runLater(() -> upperAndLowerCasseCheckbox.requestFocus());
+
+
+        passwordField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                passwordField.selectAll();  // Selecciona todo el texto cuando recibe el foco
+            }
+        });
     }
+
+
 
     @FXML
     private void copyToClipboard() {
@@ -119,5 +135,15 @@ public class PassworldController {
 
         passwordStrengthProgressBar.setVisible(true); // Muestra el ProgressBar
         passwordStrengthLabel.setVisible(true);  // Muestra la etiqueta de fortaleza
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+
     }
 }
