@@ -161,16 +161,16 @@
                   </VBox>
                   <HBox alignment="CENTER" fillHeight="false" onMouseClicked="#generatePassword" prefHeight="25.0" style="-fx-background-color: linear-gradient(#000000, #1C1C1C); -fx-background-radius: 5;" VBox.vgrow="NEVER">
                      <children>
+                        <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@create_icon.png" />
+                           </image>
+                        </ImageView>
                             <Button fx:id="generatePasswordButton" alignment="CENTER" defaultButton="true" focusTraversable="false" mnemonicParsing="false" onAction="#generatePassword" style="-fx-text-fill: #FFFFFF; -fx-background-color: transparent;" textAlignment="CENTER" HBox.hgrow="NEVER">
                                 <font>
                                     <Font name="Helvetica Neue Medium" size="14.0" />
                                 </font>
                             </Button>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@create_icon.png" />
-                           </image>
-                        </ImageView>
                      </children>
                   </HBox>
                   </children>

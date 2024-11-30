@@ -1,6 +1,7 @@
 /* Estilo general del ComboBox cerrado  */
 .combo-box {
     -fx-background-color: transparent; /* Fondo transparente */
+    -fx-font-size: 12px;
 }
 
 /* Estilo para la celda visible (ítem seleccionado) */
