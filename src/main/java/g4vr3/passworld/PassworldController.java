@@ -154,7 +154,7 @@ public class PassworldController {
 
     private void notifyTextCopied() {
         // Crear un Tooltip para la notificación
-        Tooltip copiedTooltip = new Tooltip("Texto copiado al portapapeles");
+        Tooltip copiedTooltip = new Tooltip(bundle.getString("toolTip_textCopiedToClipboard"));
         copiedTooltip.setAutoHide(true);
         copiedTooltip.show(passwordField.getScene().getWindow());
 
