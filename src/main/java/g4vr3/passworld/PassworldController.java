@@ -166,12 +166,12 @@ public class PassworldController {
 
     @FXML
     public void generatePassword() {
-        boolean uppercase = upperAndLowerCaseCheckbox.isSelected(); // Obtiene el estado del CheckBox de mayúsculas y minúsculas
+        boolean upperAndLowerCase = upperAndLowerCaseCheckbox.isSelected(); // Obtiene el estado del CheckBox de mayúsculas y minúsculas
         boolean numbers = numberCheckbox.isSelected(); // Obtiene el estado del CheckBox de números
         boolean specialChars = specialCharCheckbox.isSelected(); // Obtiene el estado del CheckBox de caracteres especiales
         int length = (int) passwordLengthSlider.getValue(); // Obtiene el valor del Slider de longitud de contraseña
 
-        String password = PasswordGenerator.generatePassword(uppercase, numbers, specialChars, length); // Genera la contraseña con las características seleccionadas
+        String password = PasswordGenerator.generatePassword(upperAndLowerCase, numbers, specialChars, length); // Genera la contraseña con las características seleccionadas
         passwordField.setText(password); // Muestra la contraseña en el TextField
         copyPasswordImageView.setVisible(true); // Muestra el botón de copia al portapapeles
 

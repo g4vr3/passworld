@@ -12,14 +12,15 @@ public class PasswordGenerator {
     private static final String SPECIAL_CHARACTERS = "!@#$%^&*()-_+=<>?/{}[]";
 
     // Método para generar la contraseña
-    public static String generatePassword(boolean uppercase, boolean numbers, boolean specialChars, int length) {
+    public static String generatePassword(boolean upperAndLowerCase, boolean numbers, boolean specialChars, int length) {
         String characterPool = LOWERCASE;  // Contiene minúsculas por defecto
         List<Character> passwordChars = new ArrayList<>();
 
         SecureRandom random = new SecureRandom();
 
         // Agrega al menos un carácter de cada tipo requerido
-        if (uppercase) {
+        if (upperAndLowerCase) {
+            passwordChars.add(LOWERCASE.charAt(random.nextInt(LOWERCASE.length())));
             characterPool += UPPERCASE;
             passwordChars.add(UPPERCASE.charAt(random.nextInt(UPPERCASE.length())));
         }
