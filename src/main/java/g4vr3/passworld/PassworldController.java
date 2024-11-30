@@ -181,12 +181,21 @@ public class PassworldController {
     // Método para calcular la fortaleza de la contraseña
     private int calculatePasswordStrength(String password) {
         int strength = 0;
-        if (password.length() >= 8) strength++; // Aumenta la fortaleza si la contraseña tiene al menos 8 caracteres
-        if (password.matches(".*[A-Z].*")) strength++; // Aumenta la fortaleza si la contraseña contiene al menos una letra mayúscula
-        if (password.matches(".*[0-9].*")) strength++; // Aumenta la fortaleza si la contraseña contiene al menos un número
-        if (password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) strength++; // Aumenta la fortaleza si la contraseña contiene al menos un carácter especial
-        return strength;
+
+        // Evaluar longitud de la contraseña
+        int length = password.length();
+        if (length >= 8) strength++;  // Fortalece si tiene al menos 8 caracteres
+        if (length >= 12) strength++; // Fortalece más si tiene 12 o más
+
+        // Evaluar según tipos de caracteres
+        if (password.matches(".*[A-Z].*")) strength++; // Al menos una mayúscula
+        if (password.matches(".*\\d.*")) strength++;   // Al menos un número
+        if (password.matches(".*[!@#$%^&*()\\-_=+<>?/{}\\[\\]].*")) strength++; // Al menos un carácter especial
+
+        // Evitar puntuación superior a 4
+        return Math.min(strength, 4);
     }
+
 
     // Actualiza el ProgressBar y la etiqueta según la fortaleza
     private void updateProgressBar(int strength) {
