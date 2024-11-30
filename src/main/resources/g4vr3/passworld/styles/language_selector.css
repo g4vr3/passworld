@@ -1,0 +1,27 @@
+/* Estilo general del ComboBox cerrado  */
+.combo-box {
+    -fx-background-color: transparent; /* Fondo transparente */
+}
+
+/* Estilo para la celda visible (ítem seleccionado) */
+.combo-box .cell:selected {
+    -fx-background-color: transparent; /* Fondo transparente solo para la celda visible */
+}
+
+/* Estilo de las celdas dentro de la lista desplegable */
+.combo-box .list-view .list-cell:filled {
+    -fx-background-color: transparent; /* Fondo transparente en la lista desplegable */
+}
+
+/* Estilo del ítem seleccionado en la lista desplegable */
+.combo-box .list-view .list-cell:filled:selected,
+.combo-box .list-view .list-cell:filled:selected:hover {
+    -fx-background-color: #d9d9d9;  /* Gris claro */
+    -fx-text-fill: #000000;  /* Color de texto negro */
+}
+
+/* Estilo del hover en los ítems de la lista desplegable */
+.combo-box .list-view .list-cell:hover {
+    -fx-background-color: #f0f0f0;  /* Gris claro más suave */
+    -fx-text-fill: #000000;  /* Color de texto negro */
+}
