@@ -138,6 +138,9 @@ public class PassworldController {
         passwordLengthLabel.setText(bundle.getString("passwordLengthLabel"));
 
         generatePasswordButton.setText(bundle.getString("generatePasswordButton"));
+
+        // Actualiza la etiqueta de fortaleza si ya existe una contraseña generada
+        updateStrengthLabelOnLanguageChange();
     }
 
     @FXML
@@ -225,4 +228,18 @@ public class PassworldController {
         passwordStrengthProgressBar.setVisible(true); // Muestra el ProgressBar
         passwordStrengthLabel.setVisible(true);  // Muestra la etiqueta de fortaleza
     }
+
+    // Método para actualizar el idioma de la etiqueta de la fortaleza de la contraseña cuando cambie el idioma
+    private void updateStrengthLabelOnLanguageChange() {
+        if (passwordField.getText().isEmpty()) {
+            return; // No actualiza si no hay una contraseña generada
+        }
+
+        // Calcular la fortaleza de la contraseña
+        int strength = calculatePasswordStrength(passwordField.getText());
+
+        // Actualiza la fortaleza en función de la contraseña actual
+        updateProgressBar(strength);
+    }
+
 }
