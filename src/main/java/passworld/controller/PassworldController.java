@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import passworld.utils.*;
 
@@ -117,6 +118,19 @@ public class PassworldController {
         specialCharCheckbox.setText(bundle.getString("specialCharCheckbox"));
         passwordLengthLabel.setText(bundle.getString("passwordLengthLabel"));
         generatePasswordButton.setText(bundle.getString("generatePasswordButton"));
+
+        //Tooltips y accesibilidad
+        languageComboBox.setTooltip(new Tooltip(bundle.getString("toolTip_languageComboBox")));
+        passwordLabel.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLabel")));
+        passwordField.setTooltip(new Tooltip(bundle.getString("toolTip_passwordField")));
+        copyPasswordImageView.setAccessibleHelp(bundle.getString("toolTip_copyToClipboard"));
+        upperAndLowerCaseCheckbox.setTooltip(new Tooltip(bundle.getString("toolTip_upperAndLowerCaseCheckbox")));
+        numberCheckbox.setTooltip(new Tooltip(bundle.getString("toolTip_numberCheckbox")));
+        specialCharCheckbox.setTooltip(new Tooltip(bundle.getString("toolTip_specialCharCheckbox")));
+        passwordLengthLabel.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLength")));
+        passwordLengthSlider.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLength")));
+        generatePasswordButton.setTooltip(new Tooltip(bundle.getString("toolTip_generatePassword")));
+
         updateStrengthLabelOnLanguageChange();
     }
 
@@ -128,32 +142,42 @@ public class PassworldController {
         // Eliminar cualquier clase anterior al actualizar
         passwordStrengthProgressBar.getStyleClass().removeAll("red", "orange", "yellowgreen", "green");
 
-        // En función de la fortaleza, cambia el color y el texto de la etiqueta
+        // En función de la fortaleza, cambia el color, el texto y los mensajes de ayuda
         switch (strength) {
             case 0:
                 passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_0"));
                 passwordStrengthLabel.setTextFill(Color.RED);
                 passwordStrengthProgressBar.getStyleClass().add("red");
+                passwordStrengthLabel.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_0")));
+                passwordStrengthProgressBar.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_0")));
                 break;
             case 1:
                 passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_1"));
                 passwordStrengthLabel.setTextFill(Color.RED);
                 passwordStrengthProgressBar.getStyleClass().add("red");
+                passwordStrengthLabel.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_1")));
+                passwordStrengthProgressBar.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_1")));
                 break;
             case 2:
                 passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_2"));
                 passwordStrengthLabel.setTextFill(Color.ORANGE);
                 passwordStrengthProgressBar.getStyleClass().add("orange");
+                passwordStrengthLabel.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_2")));
+                passwordStrengthProgressBar.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_2")));
                 break;
             case 3:
                 passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_3"));
                 passwordStrengthLabel.setTextFill(Color.YELLOWGREEN);
                 passwordStrengthProgressBar.getStyleClass().add("yellowgreen");
+                passwordStrengthLabel.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_3")));
+                passwordStrengthProgressBar.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_3")));
                 break;
             case 4:
                 passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_4"));
                 passwordStrengthLabel.setTextFill(Color.GREEN);
                 passwordStrengthProgressBar.getStyleClass().add("green");
+                passwordStrengthLabel.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_4")));
+                passwordStrengthProgressBar.setTooltip(new Tooltip(languageSupport.getBundle().getString("toolTip_passwordStrength_4")));
                 break;
         }
 
