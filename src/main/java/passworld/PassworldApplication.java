@@ -17,8 +17,7 @@ public class PassworldApplication extends Application {
         Scene splashScene = new Scene(splashLoader.load());
         Stage splashStage = new Stage();
         splashStage.setScene(splashScene);
-        splashStage.setTitle("passworld");
-        splashStage.initStyle(StageStyle.UNDECORATED);
+        splashStage.initStyle(StageStyle.UNDECORATED); // Oculta la barra de título y botones
 
         // Desactiva el cierre por teclado
         splashStage.setOnCloseRequest(Event::consume);
