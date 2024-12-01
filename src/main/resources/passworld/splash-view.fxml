@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.media.MediaView?>
+
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="passworld.controller.SplashScreenController">
+   <children>
+      <StackPane prefHeight="400.0" prefWidth="600.0">
+         <children>
+            <MediaView fx:id="mediaView" fitHeight="200.0" fitWidth="300.0" />
+            <ProgressBar fx:id="loadingBar" progress="0.0" stylesheets="@styles/loading_bar.css" StackPane.alignment="BOTTOM_CENTER">
+               <StackPane.margin>
+                  <Insets bottom="100.0" />
+               </StackPane.margin>
+            </ProgressBar>
+         </children>
+      </StackPane>
+   </children>
+</VBox>
