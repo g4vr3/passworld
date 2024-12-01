@@ -97,7 +97,7 @@
                         <Insets />
                      </VBox.margin>
                      <children>
-                            <CheckBox fx:id="upperAndLowerCaseCheckbox" mnemonicParsing="false">
+                            <CheckBox fx:id="upperAndLowerCaseCheckbox" mnemonicParsing="false" selected="true">
                                 <font>
                                     <Font size="12.0" />
                                 </font>
@@ -111,7 +111,7 @@
                   </HBox>
                   <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <children>
-                        <CheckBox fx:id="numberCheckbox" mnemonicParsing="false">
+                        <CheckBox fx:id="numberCheckbox" mnemonicParsing="false" selected="true">
                            <font>
                               <Font size="12.0" />
                            </font>
@@ -125,7 +125,7 @@
                   </HBox>
                   <HBox alignment="CENTER_LEFT" spacing="5.0">
                      <children>
-                        <CheckBox fx:id="specialCharCheckbox" mnemonicParsing="false">
+                        <CheckBox fx:id="specialCharCheckbox" mnemonicParsing="false" selected="true">
                            <font>
                               <Font size="12.0" />
                            </font>
