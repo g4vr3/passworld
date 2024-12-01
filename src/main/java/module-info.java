@@ -4,6 +4,10 @@ module g4vr3.passworld {
     requires java.desktop;
 
 
-    opens g4vr3.passworld to javafx.fxml;
-    exports g4vr3.passworld;
+    opens passworld to javafx.fxml;
+    exports passworld;
+    exports passworld.utils;
+    opens passworld.utils to javafx.fxml;
+    exports passworld.controller;
+    opens passworld.controller to javafx.fxml;
 }

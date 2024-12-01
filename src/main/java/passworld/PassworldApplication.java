@@ -1,4 +1,4 @@
-package g4vr3.passworld;
+package passworld;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

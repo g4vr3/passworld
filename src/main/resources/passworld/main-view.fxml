@@ -17,7 +17,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="g4vr3.passworld.PassworldController">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="passworld.controller.PassworldController">
    <children>
       <BorderPane minHeight="-Infinity" minWidth="-Infinity">
           <top>
@@ -25,13 +25,13 @@
                <children>
                     <ImageView fitHeight="100.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
                         <image>
-                            <Image url="@passworld_logo.png" />
+                            <Image url="@images/passworld_logo.png" />
                         </image>
                     </ImageView>
                   <Region HBox.hgrow="ALWAYS" />
                   <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@language_icon.png" />
+                        <Image url="@images/language_icon.png" />
                      </image>
                   </ImageView>
                   <ComboBox fx:id="languageComboBox" stylesheets="@styles/language_selector.css" />
@@ -55,7 +55,7 @@
                                       </Label>
                               <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@password_icon.png" />
+                                    <Image url="@images/password_icon.png" />
                                  </image>
                               </ImageView>
                                       <Region HBox.hgrow="ALWAYS" />
@@ -77,9 +77,9 @@
                                     <Font name="Helvetica Neue" size="13.0" />
                                  </font>
                               </TextField>
-                              <ImageView fx:id="copyPasswordImageView" fitHeight="15.0" fitWidth="15.0" onMouseClicked="#copyToClipboard" pickOnBounds="true" preserveRatio="true" visible="false">
+                              <ImageView fx:id="copyPasswordImageView" fitHeight="15.0" fitWidth="15.0" onMouseClicked="#copyPasswordToClipboard" pickOnBounds="true" preserveRatio="true" visible="false">
                                  <image>
-                                    <Image url="@copy_pass.png" />
+                                    <Image url="@images/copy_pass.png" />
                                  </image>
                                  <HBox.margin>
                                     <Insets right="5.0" />
@@ -151,7 +151,7 @@
                               </Label>
                               <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
                                  <image>
-                                    <Image url="@length_icon.png" />
+                                    <Image url="@images/length_icon.png" />
                                  </image>
                               </ImageView>
                            </children>
@@ -163,7 +163,7 @@
                      <children>
                         <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@create_icon.png" />
+                              <Image url="@images/create_icon.png" />
                            </image>
                         </ImageView>
                             <Button fx:id="generatePasswordButton" alignment="CENTER" defaultButton="true" focusTraversable="false" mnemonicParsing="false" onAction="#generatePassword" style="-fx-text-fill: #FFFFFF; -fx-background-color: transparent;" textAlignment="CENTER" HBox.hgrow="NEVER">

@@ -1,4 +1,4 @@
-package g4vr3.passworld;
+package passworld.utils;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
