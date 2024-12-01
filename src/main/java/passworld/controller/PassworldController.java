@@ -4,14 +4,12 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-
 import javafx.scene.paint.Color;
 import passworld.utils.*;
 
 import java.util.ResourceBundle;
 
 public class PassworldController {
-    private ResourceBundle bundle;
     private final LanguageSupport languageSupport = new LanguageSupport();
 
     @FXML
@@ -44,6 +42,9 @@ public class PassworldController {
         // Internacionalización: soporte para idiomas.
         setLanguageSupport();
 
+        // Despliega lista de idiomas soportados al hacer focus al ComboBox
+        Accessibility.setShowListOnFocus(languageComboBox);
+
         // Focus en inicio para el checkbox de mayúsculas y minúsculas,
         // evitando así darle el foco inicial al passwordField y que se oculte su prompt text
         Platform.runLater(() -> upperAndLowerCaseCheckbox.requestFocus());
@@ -51,11 +52,12 @@ public class PassworldController {
         // Selecciona todo el texto al enfocar el TextField
         Accessibility.setSelectAllOnFocus(passwordField);
 
-        // Añade el atajo de teclado Ctrl+C para copiar el contenido y mostrar la notificación
-        // Uso de Platform.runLater para asegurar que el Scene ya está disponible
+        // Añade el atajo de teclado Ctrl+C para copiar el contenido
+        // Se le pasa el controlador como parámetro, ya que este se encargará de llamar al Notifier para mostrar la notificación
+        // Uso de Platform.runLater para asegurar que el Scene ya esté disponible
         Platform.runLater(() -> {
             if (passwordField.getScene() != null) {
-                Accessibility.addCopyShortcut(passwordField, passwordField.getScene().getWindow());
+                Accessibility.addCopyShortcut(passwordField, this);
             }
         });
     }
@@ -71,15 +73,21 @@ public class PassworldController {
         passwordField.setText(password); // Muestra la contraseña en el TextField
         copyPasswordImageView.setVisible(true); // Muestra el botón de copia al portapapeles
 
-        updatePasswordStrength(PasswordEvaluator.calculateStrength(password)); // Actualiza la información de la fortaleza de la contraseña (ProgressBar y Label)
+        updatePasswordStrengthInfo(PasswordEvaluator.calculateStrength(password)); // Actualiza la información de la fortaleza de la contraseña (ProgressBar y Label)
     }
 
     @FXML
     private void copyPasswordToClipboard() {
-        // Verifica si hay una contraseña en el TextField antes de llamar copyAndNotify
+        // Verifica si hay una contraseña en el TextField antes de copiar y notificar
         if (!passwordField.getText().isEmpty()) {
-            Accessibility.copyAndNotify(passwordField, passwordField.getScene().getWindow());
+            Accessibility.copyToClipboard(passwordField);
+            notifyPasswordCopiedToClipboard();
         }
+    }
+
+    // Método que llama al Notifier para notificar que la contraseña se copió al portapapeles
+    public void notifyPasswordCopiedToClipboard() {
+        Notifier.showNotification(passwordField.getScene().getWindow(), languageSupport.getBundle().getString("toolTip_textCopiedToClipboard"));
     }
 
     private void setLanguageSupport() {
@@ -89,18 +97,19 @@ public class PassworldController {
         // Configura el idioma predeterminado del sistema
         String systemLanguage = languageSupport.getSystemLanguage();
         languageComboBox.setValue(systemLanguage);
-        bundle = languageSupport.loadLanguage(systemLanguage);
+        languageSupport.loadLanguage(systemLanguage);
         setUITexts();
 
         // Listener para cambios en el ComboBox
         languageComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            bundle = languageSupport.loadLanguage(newValue);
+            languageSupport.loadLanguage(newValue);
             setUITexts();
         });
     }
 
     // Establece los textos de la interfaz con los valores del ResourceBundle
     private void setUITexts() {
+        ResourceBundle bundle = languageSupport.getBundle();  // Obtener el ResourceBundle desde LanguageSupport
         passwordLabel.setText(bundle.getString("passwordLabel"));
         passwordField.setPromptText(bundle.getString("prompt_passwordField"));
         upperAndLowerCaseCheckbox.setText(bundle.getString("upperAndLowerCaseCheckbox"));
@@ -111,14 +120,8 @@ public class PassworldController {
         updateStrengthLabelOnLanguageChange();
     }
 
-    // Notifica que se ha copiado la contraseña al portapapeles
-    private void notifyTextCopiedToClipboard() {
-        // Se le envía la ventana actual y el mensaje
-        Notifier.showNotification(passwordField.getScene().getWindow(), bundle.getString("toolTip_textCopiedToClipboard"));
-    }
-
     // Actualiza el ProgressBar y la etiqueta según la fortaleza
-    private void updatePasswordStrength(int strength) {
+    private void updatePasswordStrengthInfo(int strength) {
         double progress = strength / 4.0;  // Divide la fortaleza entre 4 para obtener un valor entre 0 y 1
         passwordStrengthProgressBar.setProgress(progress + 0.1);  // Actualiza el progreso del ProgressBar con un mínimo de 0.1
 
@@ -128,27 +131,27 @@ public class PassworldController {
         // En función de la fortaleza, cambia el color y el texto de la etiqueta
         switch (strength) {
             case 0:
-                passwordStrengthLabel.setText(bundle.getString("passwordStrengthLabel_0"));
+                passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_0"));
                 passwordStrengthLabel.setTextFill(Color.RED);
                 passwordStrengthProgressBar.getStyleClass().add("red");
                 break;
             case 1:
-                passwordStrengthLabel.setText(bundle.getString("passwordStrengthLabel_1"));
+                passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_1"));
                 passwordStrengthLabel.setTextFill(Color.RED);
                 passwordStrengthProgressBar.getStyleClass().add("red");
                 break;
             case 2:
-                passwordStrengthLabel.setText(bundle.getString("passwordStrengthLabel_2"));
+                passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_2"));
                 passwordStrengthLabel.setTextFill(Color.ORANGE);
                 passwordStrengthProgressBar.getStyleClass().add("orange");
                 break;
             case 3:
-                passwordStrengthLabel.setText(bundle.getString("passwordStrengthLabel_3"));
+                passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_3"));
                 passwordStrengthLabel.setTextFill(Color.YELLOWGREEN);
                 passwordStrengthProgressBar.getStyleClass().add("yellowgreen");
                 break;
             case 4:
-                passwordStrengthLabel.setText(bundle.getString("passwordStrengthLabel_4"));
+                passwordStrengthLabel.setText(languageSupport.getBundle().getString("passwordStrengthLabel_4"));
                 passwordStrengthLabel.setTextFill(Color.GREEN);
                 passwordStrengthProgressBar.getStyleClass().add("green");
                 break;
@@ -168,7 +171,6 @@ public class PassworldController {
         int strength = PasswordEvaluator.calculateStrength(passwordField.getText());
 
         // Actualiza la fortaleza en función de la contraseña actual
-        updatePasswordStrength(strength);
+        updatePasswordStrengthInfo(strength);
     }
-
 }

@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class LanguageSupport {
+    private ResourceBundle bundle;
 
     // Lista de idiomas soportados
     private static final ObservableList<String> supportedLanguages = FXCollections.observableArrayList(
@@ -20,25 +21,30 @@ public class LanguageSupport {
     // Método para obtener el idioma predeterminado del sistema
     public String getSystemLanguage() {
         Locale systemLocale = Locale.getDefault();
-        String systemLanguage = systemLocale.getDisplayLanguage();
-
-        return switch (systemLanguage.toLowerCase()) {
-            case "spanish" -> "Español";
-            case "english" -> "English";
-            case "german" -> "Deutsch";
+        return switch (systemLocale.getLanguage()) {
+            case "es" -> "Español";
+            case "en" -> "English";
+            case "de" -> "Deutsch";
             default -> "Español"; // Español por defecto si no está soportado
         };
     }
 
     // Método para cargar el ResourceBundle basado en el idioma seleccionado
-    public ResourceBundle loadLanguage(String language) {
+    public void loadLanguage(String language) {
+        // Verifica si el idioma seleccionado es soportado, si no carga Español por defecto
         String languageCode = switch (language) {
-            case "Español" -> "es";
             case "English" -> "en";
             case "Deutsch" -> "de";
-            default -> "es";
+            default -> "es"; // Español por defecto si el idioma no está soportado
         };
 
-        return ResourceBundle.getBundle("passworld/resource_bundle/lang_" + languageCode);
+        // Carga el ResourceBundle correspondiente al idioma seleccionado
+        bundle = ResourceBundle.getBundle("passworld.resource_bundle.lang_" + languageCode);
     }
+
+    // Método para obtener el ResourceBundle cargado
+    public ResourceBundle getBundle() {
+        return bundle;
+    }
+
 }
