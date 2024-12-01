@@ -58,12 +58,12 @@ public class SplashScreenController {
 
     // Método para mostrar la ventana principal
     private void showMainApplication() {
-        // Aquí cargarás tu ventana principal, como la de tu aplicación Passworld
+        // Cargar ventana principal y mostrarla
         Stage mainStage = new Stage();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/passworld/main-view.fxml"));
         try {
             Scene scene = new Scene(loader.load(), 600, 400);
-            mainStage.setTitle("Passworld");
+            mainStage.setTitle("passworld");
             mainStage.setScene(scene);
             mainStage.show();
         } catch (IOException e) {
