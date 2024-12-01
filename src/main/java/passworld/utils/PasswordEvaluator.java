@@ -9,6 +9,7 @@ public class PasswordEvaluator {
         // Evaluar la longitud de la contraseña
         int length = password.length();
         if (length >= 8) strength++;
+            else strength--;
         if (length >= 12) strength++;
 
         // Evaluar según los tipos de caracteres
@@ -16,7 +17,7 @@ public class PasswordEvaluator {
         if (password.matches(".*\\d.*")) strength++;     // Al menos un número
         if (password.matches(".*[!@#$%^&*()\\-_=+<>?/{}\\[\\]].*")) strength++; // Al menos un carácter especial
 
-        // Evitar puntuación superior a 4
-        return Math.min(strength, 4);
+        // Evitar puntuación superior a 4 e inferior a 0
+        return Math.max(0, Math.min(strength, 4));
     }
 }
