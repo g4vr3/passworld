@@ -34,7 +34,7 @@
                         <Image url="@images/language_icon.png" />
                      </image>
                   </ImageView>
-                  <ComboBox fx:id="languageComboBox" stylesheets="@styles/language_selector.css" />
+                  <ComboBox fx:id="languageComboBox" styleClass="language-selector" stylesheets="@styles/styles.css" />
                </children>
                <BorderPane.margin>
                   <Insets left="100.0" right="100.0" />
@@ -53,11 +53,6 @@
                                               <Font name="Helvetica Neue Medium" size="14.0" />
                                           </font>
                                       </Label>
-                              <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@images/password_icon.png" />
-                                 </image>
-                              </ImageView>
                                       <Region HBox.hgrow="ALWAYS" />
                                       <Label fx:id="passwordStrengthLabel" prefHeight="20.0">
                                           <HBox.margin>
@@ -67,25 +62,22 @@
                                     <Font name="Helvetica Neue Medium" size="13.0" />
                                  </font>
                                       </Label>
-                                      <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0" stylesheets="@styles/pass_strenght-bar.css" visible="false" />
+                                      <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0" styleClass="strength-bar" stylesheets="@styles/styles.css" visible="false" />
                                   </children>
                               </HBox>
                         <HBox alignment="CENTER" style="-fx-border-color: #D5D5D5; -fx-background-color: #FFFFFF; -fx-background-radius: 5; -fx-border-radius: 5;">
                            <children>
-                                   <TextField fx:id="passwordField" editable="false" prefWidth="200" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
+                                   <TextField fx:id="passwordField" editable="false" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Helvetica Neue" size="13.0" />
                                  </font>
                               </TextField>
-                              <ImageView fx:id="copyPasswordImageView" fitHeight="15.0" fitWidth="15.0" onMouseClicked="#copyPasswordToClipboard" pickOnBounds="true" preserveRatio="true" visible="false">
-                                 <image>
-                                    <Image url="@images/copy_pass.png" />
-                                 </image>
-                                 <HBox.margin>
-                                    <Insets right="5.0" />
-                                 </HBox.margin>
-                              </ImageView>
+                              <Button fx:id="copyPasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#copyPasswordToClipboard" styleClass="icon-button" stylesheets="@styles/styles.css" visible="false" HBox.hgrow="NEVER" />
+                              <Button fx:id="savePasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#savePassword" styleClass="icon-button" stylesheets="@styles/styles.css" visible="false" HBox.hgrow="NEVER" />
                            </children>
+                           <padding>
+                              <Insets right="5.0" />
+                           </padding>
                         </HBox>
                           </children>
                           <VBox.margin>
@@ -142,37 +134,24 @@
                         <Insets />
                      </VBox.margin>
                      <children>
-                        <HBox alignment="BOTTOM_LEFT" spacing="5.0">
-                           <children>
-                              <Label fx:id="passwordLengthLabel" prefHeight="20.0">
-                                 <font>
-                                    <Font name="Helvetica Neue Medium" size="14.0" />
-                                 </font>
-                              </Label>
-                              <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
-                                 <image>
-                                    <Image url="@images/length_icon.png" />
-                                 </image>
-                              </ImageView>
-                           </children>
-                        </HBox>
+                        <Label fx:id="passwordLengthLabel" prefHeight="20.0">
+                           <font>
+                              <Font name="Helvetica Neue Medium" size="14.0" />
+                           </font>
+                        </Label>
                             <Slider fx:id="passwordLengthSlider" blockIncrement="5.0" majorTickUnit="5.0" max="25.0" min="5.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="12.0" />
                      </children>
                   </VBox>
-                  <HBox alignment="CENTER" fillHeight="false" onMouseClicked="#generatePassword" prefHeight="25.0" style="-fx-background-color: linear-gradient(#000000, #1C1C1C); -fx-background-radius: 5;" VBox.vgrow="NEVER">
-                     <children>
-                        <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@images/create_icon.png" />
-                           </image>
-                        </ImageView>
-                            <Button fx:id="generatePasswordButton" alignment="CENTER" defaultButton="true" focusTraversable="false" mnemonicParsing="false" onAction="#generatePassword" style="-fx-text-fill: #FFFFFF; -fx-background-color: transparent;" textAlignment="CENTER" HBox.hgrow="NEVER">
-                                <font>
-                                    <Font name="Helvetica Neue Medium" size="14.0" />
-                                </font>
-                            </Button>
-                     </children>
-                  </HBox>
+                  <Button fx:id="generatePasswordButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#generatePassword" styleClass="primary" stylesheets="@styles/styles.css">
+                     <font>
+                        <Font name="Helvetica Neue Medium" size="14.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="viewMyPasswordsButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewPasswords" styleClass="secondary" stylesheets="@styles/styles.css">
+                     <font>
+                        <Font name="Helvetica Neue Medium" size="14.0" />
+                     </font>
+                  </Button>
                   </children>
               </VBox>
           </center>

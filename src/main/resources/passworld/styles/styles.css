@@ -1,0 +1,194 @@
+/* Estilo básico para el ProgressBar de splash screen */
+.loading-bar {
+    -fx-background-color: transparent; /* Fondo transparente por defecto */
+    -fx-pref-height: 10px;  /* Altura del ProgressBar */
+    -fx-pref-width: 300px;  /* Ancho del ProgressBar */
+}
+
+/* Estilo del track */
+.loading-bar .track {
+    -fx-background-color: transparent; /* Fondo transparente por defecto */
+    -fx-border-color: transparent;  /* Eliminar bordes del track */
+    -fx-background-radius: 10px;  /* Bordes redondeados */
+}
+
+.loading-bar .bar {
+    -fx-background-color: black;
+}
+
+/* Botones de icono */
+.icon-button {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+    -fx-min-width: 20px; /* Asegura que el botón no se haga más pequeño que 20px */
+    -fx-min-height: 20px;
+    -fx-padding: 0; /* Elimina cualquier padding */
+}
+
+/* Estilo para los iconos */
+.icon {
+    -fx-fit-width: 15px; /* Asegura que la imagen se ajuste exactamente */
+    -fx-fit-height: 15px;
+    -fx-preserve-ratio: true; /* Mantiene la proporción de la imagen */
+}
+
+/* Estilo de los botones primarios */
+.button.primary {
+    -fx-background-color: #000000;
+    -fx-text-fill: #ffffff;
+    -fx-border-width: 1px;
+    -fx-border-color: #000000;
+    -fx-padding: 8px 16px; /* Padding */
+    -fx-font-size: 14px; /* Tamaño de fuente para los botones */
+}
+
+/* Estilo general del ComboBox de idiomas */
+.language-selector {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-font-size: 12px;
+}
+
+/* Estilo para la celda visible (ítem seleccionado) */
+.language-selector .cell:selected {
+    -fx-background-color: transparent; /* Fondo transparente solo para la celda visible */
+}
+
+/* Estilo de las celdas dentro de la lista desplegable */
+.language-selector .list-view .list-cell:filled {
+    -fx-background-color: transparent; /* Fondo transparente en la lista desplegable */
+}
+
+/* Estilo del ítem seleccionado en la lista desplegable */
+.language-selector .list-view .list-cell:filled:selected,
+.language-selector .list-view .list-cell:filled:selected:hover {
+    -fx-background-color: #d9d9d9;  /* Gris claro */
+    -fx-text-fill: #000000;  /* Color de texto negro */
+}
+
+/* Estilo del hover en los ítems de la lista desplegable */
+.language-selector .list-view .list-cell:hover {
+    -fx-background-color: #f0f0f0;  /* Gris claro más suave */
+    -fx-text-fill: #000000;  /* Color de texto negro */
+}
+
+/* Estilo básico para el ProgressBar de fortaleza de contraseña */
+.strength-bar {
+    -fx-background-color: transparent; /* Fondo transparente por defecto */
+    -fx-pref-height: 10px;  /* Altura del ProgressBar */
+    -fx-pref-width: 100px;  /* Ancho del ProgressBar */
+}
+
+/* Ocultar el borde no deseado del ProgressBar */
+.strength-bar .track {
+    -fx-border-color: transparent;  /* Eliminar bordes del track */
+    -fx-background-radius: 10px;  /* Bordes redondeados */
+    -fx-border-radius: 10px; /* Bordes redondeados */
+}
+
+/* Estilo del ProgressBar según la fortaleza */
+.strength-bar .bar {
+    -fx-background-radius: 10px;  /* Bordes redondeados para la barra de progreso */
+    -fx-border-radius: 10px;
+    -fx-border-color: transparent;  /* Eliminar borde de la barra */
+}
+
+/* Colores específicos según la fortaleza de la contraseña */
+.strength-bar.red .bar {
+    -fx-background-color: red;  /* Barra roja para una contraseña débil */
+}
+.strength-bar.orange .bar {
+    -fx-background-color: orange;  /* Barra naranja para una contraseña media */
+}
+.strength-bar.yellowgreen .bar {
+    -fx-background-color: yellowgreen;  /* Barra amarillo-verde para una contraseña fuerte */
+}
+.strength-bar.green .bar {
+    -fx-background-color: green;  /* Barra verde para una contraseña muy fuerte */
+}
+
+/* Estilo de los TextFields */
+.text-field {
+    -fx-text-fill: black; /* Color del texto en negro */
+    -fx-border-width: 1; /* Grosor del borde */
+    -fx-padding: 5; /* Espaciado interno */
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-background-radius: 5; /* Bordes redondeados */
+}
+
+/* Estilo de los botones */
+.button {
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+/* Estilos para VBox */
+.vbox {
+    -fx-alignment: center; /* Alineación de los elementos en el centro */
+}
+
+/* Estilo de los botones de cancelar */
+.button.secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #000000; /* Color de texto negro */
+    -fx-border-width: 1;
+    -fx-border-color: #000000;
+    -fx-padding: 8px 16px;
+    -fx-font-size: 14px;
+}
+
+/* Estilo del contenedor del Dialog */
+.dialog-pane {
+    -fx-padding: 10; /* Espaciado alrededor del contenido */
+}
+
+/* Estilo de la tabla */
+.table-view {
+    -fx-focus-color: transparent;  /* Eliminar borde azul por foco en la tabla */
+    -fx-faint-focus-color: transparent; /* Eliminar color tenue de foco */
+    -fx-border-color: D5D5D5;
+    -fx-border-radius: 5px;
+}
+
+/* Barra de desplazamiento */
+.scroll-bar {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-border-radius: 10px;            /* Bordes redondeados */
+    -fx-background-radius: 10px;        /* Bordes redondeados */
+    -fx-pref-width: 8px;            /* Ancho de la barra de desplazamiento */
+}
+
+/* Estilo para el deslizante de la barra de desplazamiento (thumb) */
+.scroll-bar .thumb {
+    -fx-background-color: #D5D5D5;  /* Fondo gris oscuro para el thumb */
+    -fx-background-radius: 10px;    /* Bordes redondeados */
+}
+
+/* Efecto de las filas seleccionadas en el TableView */
+.table-row-cell:focused {
+    -fx-background-color: #D5D5D5;  /* Fondo gris claro para la fila seleccionada */
+    -fx-text-fill: black;            /* Texto negro para mayor contraste */
+    -fx-border-color: transparent;   /* Eliminar borde azul */
+}
+.table-row-cell:focused {
+    -fx-background-color: #D5D5D5;  /* Fondo gris claro para la fila seleccionada */
+    -fx-text-fill: black;            /* Texto negro para mayor contraste */
+    -fx-border-color: transparent;   /* Eliminar borde azul */
+}
+
+/* Estilo del placeholder en TableView */
+.table-view .placeholder {
+    -fx-text-fill: #999999; /* Texto gris para el placeholder */
+    -fx-font-size: 14px;    /* Tamaño de fuente un poco más grande */
+}
+
+/* Borde de las columnas en la tabla */
+.table-view .column-header {
+    -fx-border-color: transparent; /* Eliminar borde del encabezado */
+    -fx-background-color: transparent; /* Hacer el fondo del encabezado transparente */
+}
+
+/* Ajuste de tamaño para las columnas */
+.table-column .header {
+    -fx-padding: 10px;
+}

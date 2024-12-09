@@ -3,6 +3,8 @@ module g4vr3.passworld {
     requires javafx.fxml;
     requires java.desktop;
     requires javafx.media;
+    requires jbcrypt;
+    requires java.sql;
 
 
     opens passworld to javafx.fxml;
@@ -11,4 +13,8 @@ module g4vr3.passworld {
     opens passworld.utils to javafx.fxml;
     exports passworld.controller;
     opens passworld.controller to javafx.fxml;
+    exports passworld.data;
+    opens passworld.data to javafx.fxml;
+    exports passworld.service;
+    opens passworld.service to javafx.fxml;
 }

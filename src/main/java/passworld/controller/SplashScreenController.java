@@ -2,19 +2,15 @@ package passworld.controller;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
-import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.IOException;
 import java.util.Objects;
 
 public class SplashScreenController {
@@ -58,16 +54,7 @@ public class SplashScreenController {
 
     // Método para mostrar la ventana principal
     private void showMainApplication() {
-        // Cargar ventana principal y mostrarla
-        Stage mainStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/passworld/main-view.fxml"));
-        try {
-            Scene scene = new Scene(loader.load(), 600, 400);
-            mainStage.setTitle("passworld");
-            mainStage.setScene(scene);
-            mainStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        PassworldController pwController = new PassworldController();
+        pwController.showView();
     }
 }

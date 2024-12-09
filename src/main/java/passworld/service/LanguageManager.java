@@ -1,4 +1,4 @@
-package passworld.utils;
+package passworld.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -6,20 +6,20 @@ import javafx.collections.ObservableList;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-public class LanguageSupport {
-    private ResourceBundle bundle;
+public class LanguageManager {
+    private static ResourceBundle bundle;
 
     // Lista de idiomas soportados
     private static final ObservableList<String> supportedLanguages = FXCollections.observableArrayList(
             "Español", "English", "Deutsch"
     );
 
-    public ObservableList<String> getSupportedLanguages() {
+    public static ObservableList<String> getSupportedLanguages() {
         return supportedLanguages;
     }
 
     // Método para obtener el idioma predeterminado del sistema
-    public String getSystemLanguage() {
+    public static String getSystemLanguage() {
         Locale systemLocale = Locale.getDefault();
         return switch (systemLocale.getLanguage()) {
             case "es" -> "Español";
@@ -30,7 +30,7 @@ public class LanguageSupport {
     }
 
     // Método para cargar el ResourceBundle basado en el idioma seleccionado
-    public void loadLanguage(String language) {
+    public static void loadLanguage(String language) {
         // Verifica si el idioma seleccionado es soportado, si no carga Español por defecto
         String languageCode = switch (language) {
             case "English" -> "en";
@@ -43,7 +43,7 @@ public class LanguageSupport {
     }
 
     // Método para obtener el ResourceBundle cargado
-    public ResourceBundle getBundle() {
+    public static ResourceBundle getBundle() {
         return bundle;
     }
 
