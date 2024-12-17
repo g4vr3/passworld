@@ -14,7 +14,6 @@ import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
 
-import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -35,13 +34,15 @@ public class MyPasswordsController {
 
     // Método para cargar la vista
     public static void showView() {
+        // Obtener el ResourceBundle para manejar los textos en el idioma adecuado
+        ResourceBundle bundle = LanguageManager.getBundle();
         try {
             // Cargar el archivo FXML
             FXMLLoader loader = new FXMLLoader(MyPasswordsController.class.getResource("/passworld/my-passwords-view.fxml"));
             Stage myPasswordsStage = new Stage();
             Scene scene = new Scene(loader.load(), 600, 450);
             scene.getStylesheets().add(MyPasswordsController.class.getResource("/passworld/styles/styles.css").toExternalForm());
-            myPasswordsStage.setTitle("passworld");
+            myPasswordsStage.setTitle("passworld - " + bundle.getString("my_passwords_title"));
             myPasswordsStage.setScene(scene);
             myPasswordsStage.show();
         } catch (IOException e) {
@@ -49,7 +50,7 @@ public class MyPasswordsController {
         }
     }
 
-    // Método de inicialización que se llama cuando el FXML se carga
+    // Método de inicialización que se llama cuando el FXML se cargar
     @FXML
     public void initialize() {
         // Obtener el ResourceBundle para manejar los textos en el idioma adecuado

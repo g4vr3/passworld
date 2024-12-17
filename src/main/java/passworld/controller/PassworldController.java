@@ -120,6 +120,12 @@ public class PassworldController {
         saveImageView.getStyleClass().add("icon");
         savePasswordButton.setGraphic(saveImageView);
 
+        // Botón de mis contraseñas
+        Image vaultIcon = new Image(getClass().getResource("/passworld/images/vault_icon.png").toExternalForm());
+        ImageView vaultImageView = new ImageView(vaultIcon);
+        vaultImageView.getStyleClass().add("icon");
+        viewMyPasswordsButton.setGraphic(vaultImageView);
+
         // Label longitud contraseña
         Image lengthIcon = new Image(getClass().getResource("/passworld/images/length_icon.png").toExternalForm());
         ImageView lengthImageView = new ImageView(lengthIcon);
@@ -256,6 +262,7 @@ public class PassworldController {
         passwordLengthLabel.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLength")));
         passwordLengthSlider.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLength")));
         generatePasswordButton.setTooltip(new Tooltip(bundle.getString("toolTip_generatePassword")));
+        viewMyPasswordsButton.setTooltip(new Tooltip(bundle.getString("toolTip_viewMyPasswords")));
 
         updateStrengthLabelOnLanguageChange();
     }
