@@ -1,11 +1,11 @@
 package passworld.utils;
 
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import passworld.controller.PassworldController;
 
 public class Accessibility {
@@ -19,7 +19,7 @@ public class Accessibility {
         });
     }
 
-    public static void setShowListOnFocus(ComboBox<String> comboBox) {
+    public static void setShowLanguageListOnFocus(ComboBox<String> comboBox) {
         // Muestra la lista de idiomas cuando se hace focus en el ComboBox
         comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {  // Si el ComboBox obtiene el focus
@@ -29,32 +29,44 @@ public class Accessibility {
     }
 
     // Atajo de teclado para copiar el contenido y mostrar notificación
-    public static void addCopyShortcut(TextField textField, PassworldController controller) {
-        textField.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+    public static void addCopyShortcut(TextField passwordField, PassworldController controller) {
+        passwordField.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            // Verificar si el campo de texto no está vacío
+            if (passwordField.getText().isEmpty()) {
+                return; // No hacer nada si el campo está vacío
+            }
+
             // Si el SO es macOS -> CMD + C
             // Si el SO es otro -> CTRL + C
             if (isMac()) {
-                if (event.getCode() == KeyCode.C && event.isMetaDown()) {  // CMD + C
-                    copyToClipboard(textField);  // Copia el texto
-                    controller.notifyPasswordCopiedToClipboard(); // Muestra la notificación
-                    event.consume();  // Evita que el evento se propague
+                if (event.getCode() == KeyCode.C && event.isMetaDown()) { // CMD + C
+                    controller.copyPasswordToClipboard(); // Llama al método del controlador
                 }
             } else {
-                if (event.getCode() == KeyCode.C && event.isControlDown()) {  // CTRL + C
-                    copyToClipboard(textField);  // Copia el texto
-                    controller.notifyPasswordCopiedToClipboard(); // Muestra la notificación
-                    event.consume();  // Evita que el evento se propague
+                if (event.getCode() == KeyCode.C && event.isControlDown()) { // CTRL + C
+                    controller.copyPasswordToClipboard(); // Llama al método del controlador
                 }
             }
         });
     }
 
-    // Método para copiar el texto al portapapeles
-    public static void copyToClipboard(TextField textField) {
-        String text = textField.getText();  // Obtiene el texto del TextField
-        ClipboardContent content = new ClipboardContent();
-        content.putString(text);  // Coloca el texto en el portapapeles
-        Clipboard.getSystemClipboard().setContent(content);  // Establece el contenido del portapapeles
+    // Atajo de teclado para guardar la contraseña
+    public static void addSavePasswordShortcut(Scene scene, PassworldController controller) {
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (isMac()) {
+                // CMD + G (Mac)
+                if (event.getCode() == KeyCode.G && event.isMetaDown()) {
+                    controller.savePassword();
+                    event.consume(); // Prevenir la propagación del evento
+                }
+            } else {
+                // CTRL + G (Windows/Linux)
+                if (event.getCode() == KeyCode.G && event.isControlDown()) {
+                    controller.savePassword();
+                    event.consume(); // Prevenir la propagación del evento
+                }
+            }
+        });
     }
 
 
@@ -62,4 +74,6 @@ public class Accessibility {
     private static boolean isMac() {
         return System.getProperty("os.name").toLowerCase().contains("mac");
     }
+
+
 }
