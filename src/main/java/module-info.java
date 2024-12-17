@@ -1,4 +1,4 @@
-module g4vr3.passworld {
+module passworld {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.desktop;
