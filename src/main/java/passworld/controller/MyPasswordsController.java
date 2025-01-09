@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
@@ -17,6 +18,7 @@ import passworld.service.LanguageManager;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class MyPasswordsController {
@@ -30,8 +32,6 @@ public class MyPasswordsController {
     @FXML
     private TableColumn<PasswordDTO, String> passwordColumn;
 
-    private ObservableList<PasswordDTO> passwordList;
-
     // Método para cargar la vista
     public static void showView() {
         // Obtener el ResourceBundle para manejar los textos en el idioma adecuado
@@ -42,6 +42,7 @@ public class MyPasswordsController {
             Stage myPasswordsStage = new Stage();
             Scene scene = new Scene(loader.load(), 600, 450);
             scene.getStylesheets().add(MyPasswordsController.class.getResource("/passworld/styles/styles.css").toExternalForm());
+            myPasswordsStage.getIcons().add(new Image(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png")));
             myPasswordsStage.setTitle("passworld - " + bundle.getString("my_passwords_title"));
             myPasswordsStage.setScene(scene);
             myPasswordsStage.show();
@@ -80,7 +81,7 @@ public class MyPasswordsController {
         try {
             // Obtener todas las contraseñas de la base de datos
             List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
-            passwordList = FXCollections.observableArrayList(passwords);
+            ObservableList<PasswordDTO> passwordList = FXCollections.observableArrayList(passwords);
 
             // Establecer la lista de contraseñas en el TableView
             passwordTable.setItems(passwordList);

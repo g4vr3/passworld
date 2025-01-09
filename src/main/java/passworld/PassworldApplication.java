@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import passworld.data.DDL;
@@ -20,6 +21,7 @@ public class PassworldApplication extends Application {
         FXMLLoader splashLoader = new FXMLLoader(getClass().getResource("splash-view.fxml"));
         Scene splashScene = new Scene(splashLoader.load());
         Stage splashStage = new Stage();
+
         splashStage.setScene(splashScene);
         splashStage.initStyle(StageStyle.UNDECORATED); // Oculta la barra de título y botones
 

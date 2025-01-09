@@ -18,6 +18,7 @@ import passworld.utils.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class PassworldController {
@@ -58,6 +59,7 @@ public class PassworldController {
         try {
             Scene scene = new Scene(loader.load(), 600, 450);
             scene.getStylesheets().add(getClass().getResource("/passworld/styles/styles.css").toExternalForm());
+            mainStage.getIcons().add(new Image(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png")));
             mainStage.setTitle("passworld");
             mainStage.setScene(scene);
             mainStage.show();
