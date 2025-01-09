@@ -24,14 +24,17 @@ public class DialogUtil {
 
         // Configurar botones
         ButtonType saveButtonType = new ButtonType(bundle.getString("save_button"), ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        ButtonType cancelButtonType = new ButtonType(bundle.getString("cancel_button"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        // Agregar los botones al cuadro de diálogo
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, cancelButtonType);
 
         // Estilo para el botón de Guardar
         Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
         saveButton.getStyleClass().add("primary");
 
         // Estilo para el botón de Cancelar
-        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelButtonType);
         cancelButton.getStyleClass().add("secondary");
 
         // Agregar el icono al botón de guardar
@@ -118,18 +121,21 @@ public class DialogUtil {
         dialog.getDialogPane().getStylesheets().add(
                 DialogUtil.class.getResource("/passworld/styles/styles.css").toExternalForm()
         );
-        dialog.setTitle("passworld - "  + bundle.getString("dialog_title_unlock_vault"));
+        dialog.setTitle("passworld - " + bundle.getString("dialog_title_unlock_vault"));
 
         // Configurar botones
         ButtonType unlockButtonType = new ButtonType(bundle.getString("unlock_button"), ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(unlockButtonType, ButtonType.CANCEL);
+        ButtonType cancelButtonType = new ButtonType(bundle.getString("cancel_button"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        // Agregar los botones al cuadro de diálogo
+        dialog.getDialogPane().getButtonTypes().addAll(unlockButtonType, cancelButtonType);
 
         // Estilo para el botón de desbloquear
         Button unlockButton = (Button) dialog.getDialogPane().lookupButton(unlockButtonType);
         unlockButton.getStyleClass().add("primary");
 
         // Estilo para el botón de Cancelar
-        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelButtonType);
         cancelButton.getStyleClass().add("secondary");
 
         // Agregar el icono al botón de desbloquear
