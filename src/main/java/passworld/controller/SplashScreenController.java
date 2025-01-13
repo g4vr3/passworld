@@ -36,7 +36,7 @@ public class SplashScreenController {
         // Crear Timeline para actualizar la barra de progreso gradualmente
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.ZERO, new KeyValue(loadingBar.progressProperty(), 0)), // Empieza en 0
-                new KeyFrame(Duration.seconds(3), new KeyValue(loadingBar.progressProperty(), 1)) // En 3 segundos llega al 100%
+                new KeyFrame(Duration.seconds(1), new KeyValue(loadingBar.progressProperty(), 1)) // En 3 segundos llega al 100%
         );
 
         timeline.setOnFinished(event -> closeSplashScreen()); // Cerrar la Splash Screen al terminar timeline

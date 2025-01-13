@@ -110,16 +110,16 @@
 /* Estilo de los TextFields */
 .text-field {
     -fx-text-fill: black; /* Color del texto en negro */
-    -fx-border-width: 1; /* Grosor del borde */
-    -fx-padding: 5; /* Espaciado interno */
+    -fx-border-width: 1px; /* Grosor del borde */
+    -fx-padding: 5px; /* Espaciado interno */
     -fx-font-size: 14px; /* Tamaño de fuente */
-    -fx-background-radius: 5; /* Bordes redondeados */
+    -fx-background-radius: 5px; /* Bordes redondeados */
 }
 
 /* Estilo de los botones */
 .button {
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
 }
 
 /* Estilos para VBox */
@@ -131,7 +131,7 @@
 .button.secondary {
     -fx-background-color: transparent;
     -fx-text-fill: #000000; /* Color de texto negro */
-    -fx-border-width: 1;
+    -fx-border-width: 1px;
     -fx-border-color: #000000;
     -fx-padding: 8px 16px;
     -fx-font-size: 14px;
@@ -139,15 +139,7 @@
 
 /* Estilo del contenedor del Dialog */
 .dialog-pane {
-    -fx-padding: 10; /* Espaciado alrededor del contenido */
-}
-
-/* Estilo de la tabla */
-.table-view {
-    -fx-focus-color: transparent;  /* Eliminar borde azul por foco en la tabla */
-    -fx-faint-focus-color: transparent; /* Eliminar color tenue de foco */
-    -fx-border-color: D5D5D5;
-    -fx-border-radius: 5px;
+    -fx-padding: 10px; /* Espaciado alrededor del contenido */
 }
 
 /* Barra de desplazamiento */
@@ -164,31 +156,68 @@
     -fx-background-radius: 10px;    /* Bordes redondeados */
 }
 
-/* Efecto de las filas seleccionadas en el TableView */
-.table-row-cell:focused {
-    -fx-background-color: #D5D5D5;  /* Fondo gris claro para la fila seleccionada */
-    -fx-text-fill: black;            /* Texto negro para mayor contraste */
-    -fx-border-color: transparent;   /* Eliminar borde azul */
-}
-.table-row-cell:focused {
-    -fx-background-color: #D5D5D5;  /* Fondo gris claro para la fila seleccionada */
-    -fx-text-fill: black;            /* Texto negro para mayor contraste */
-    -fx-border-color: transparent;   /* Eliminar borde azul */
+/* Estilo de la tabla sin fondo */
+.table-view {
+    -fx-background-color: transparent;  /* Fondo transparente */
+    -fx-focus-color: transparent;  /* Eliminar borde azul por foco en la tabla */
+    -fx-faint-focus-color: transparent; /* Eliminar color tenue de foco */
+    -fx-border-color: transparent;  /* Eliminar borde alrededor de la tabla */
 }
 
-/* Estilo del placeholder en TableView */
+/* Placeholder de la tabla */
 .table-view .placeholder {
-    -fx-text-fill: #999999; /* Texto gris para el placeholder */
-    -fx-font-size: 14px;    /* Tamaño de fuente un poco más grande */
+    -fx-alignment: top-left;
 }
 
-/* Borde de las columnas en la tabla */
+
+/* filas */
+.table-row-cell {
+    -fx-pref-height: 40px;
+    -fx-background-color: transparent;  /* Fondo transparente */
+    -fx-border-color: #d5d5d5;  /* Línea separadora entre filas */
+    -fx-border-width: 0 0 1px 0;  /* Solo borde inferior */
+}
+
+/* Texto de las celdas seleccionadas */
+.table-row-cell:selected .text,
+.table-cell:selected .text {
+    -fx-fill: black; /* Cambia esto al color deseado */
+}
+
+/* Celdas seleccionadas */
+.table-row-cell:selected,
+.table-cell:selected {
+    -fx-background-color: #d5d5d5;
+}
+
+/* Estilo de las celdas (sin borde y fondo transparente) */
+.table-cell {
+    -fx-background-color: transparent;  /* Fondo transparente para las celdas */
+    -fx-border-color: transparent;  /* Sin bordes */
+}
+
 .table-view .column-header {
-    -fx-border-color: transparent; /* Eliminar borde del encabezado */
-    -fx-background-color: transparent; /* Hacer el fondo del encabezado transparente */
+    -fx-padding: 20px 0px;     /* Espaciado alrededor del texto */
+    -fx-background-color: rgb(244, 244, 244); /* Fondo gris claro */
 }
 
-/* Ajuste de tamaño para las columnas */
-.table-column .header {
-    -fx-padding: 10px;
+/* Texto del encabezado de la tabla */
+.table-view .column-header .label {
+    -fx-alignment: top-left; /* Alineación del contenido del encabezado a la izquierda */
+    -fx-pref-height: 25px;
+    -fx-text-alignment: left;  /* Alineación del texto a la izquierda */
+    -fx-font-weight: bold;     /* Negrita */
+    -fx-font-size: 16px;       /* Tamaño del texto */
+    -fx-text-fill: black;      /* Color del texto */
+}
+
+/* Estilo de los Label dentro de cada fila (Descripción y URL) */
+.description-label {
+    -fx-font-size: 14px;  /* Tamaño de fuente normal para la descripción */
+}
+
+.url-label {
+    -fx-font-size: 12px;  /* Tamaño de fuente más pequeño para la URL */
+    -fx-text-fill: gray;  /* Color gris para la URL */
+    -fx-padding: 0;  /* Sin espacio entre las etiquetas */
 }

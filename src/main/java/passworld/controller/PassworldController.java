@@ -18,7 +18,6 @@ import passworld.utils.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class PassworldController {
@@ -182,7 +181,7 @@ public class PassworldController {
 
         if (!password.isEmpty()) {
             // Llama al método utilitario para mostrar el diálogo
-            DialogUtil.showPasswordDialog(password).ifPresent(passwordDTO -> {
+            DialogUtil.showPasswordCreationDialog(password).ifPresent(passwordDTO -> {
                 try {
                     // Llama a PasswordManager para guardar los datos
                     if (PasswordManager.savePassword(passwordDTO)) {

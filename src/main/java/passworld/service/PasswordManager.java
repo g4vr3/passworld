@@ -15,7 +15,15 @@ public class PasswordManager {
         return PasswordDAO.createPassword(passwordDTO);
     }
 
-    // Valida los datos del PasswordDTO.
+    public static boolean deletePassword(PasswordDTO passwordDTO) throws SQLException {
+        return PasswordDAO.deletePassword(passwordDTO.getId());
+    }
+
+    public static boolean updatePassword(PasswordDTO passwordToUpdate, String description, String url, String password) throws SQLException {
+        return PasswordDAO.updatePassword(passwordToUpdate.getId(), description, url, password);
+    }
+
+    // Validar los datos del PasswordDTO.
     private static void validatePasswordData(PasswordDTO passwordDTO) {
         ResourceBundle bundle = LanguageManager.getBundle();
         if (passwordDTO.getPassword() == null || passwordDTO.getPassword().isEmpty()) {
