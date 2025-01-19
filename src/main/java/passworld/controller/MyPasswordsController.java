@@ -44,7 +44,10 @@ public class MyPasswordsController {
 
     private ObservableList<PasswordDTO> originalPasswordList = FXCollections.observableArrayList(); // Almacena la lista original
 
-    static ResourceBundle bundle = LanguageManager.getBundle();
+    // Auxiliar para obtener el ResourceBundle dinámicamente
+    private static ResourceBundle getBundle() {
+        return LanguageManager.getBundle();
+    }
 
     public static void showView() {
         try {
@@ -53,7 +56,7 @@ public class MyPasswordsController {
             Scene scene = new Scene(loader.load(), 600, 450);
             scene.getStylesheets().add(MyPasswordsController.class.getResource("/passworld/styles/styles.css").toExternalForm());
             myPasswordsStage.getIcons().add(new Image(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png")));
-            myPasswordsStage.setTitle("passworld - " + bundle.getString("my_passwords_title"));
+            myPasswordsStage.setTitle("passworld - " + getBundle().getString("my_passwords_title"));
             myPasswordsStage.setScene(scene);
             myPasswordsStage.show();
         } catch (IOException e) {
@@ -64,7 +67,7 @@ public class MyPasswordsController {
     @FXML
     public void initialize() {
         // Establecer el mensaje de marcador de posición cuando no hay datos
-        passwordTable.setPlaceholder(new Label(bundle.getString("no_data_to_display")));
+        passwordTable.setPlaceholder(new Label(getBundle().getString("no_data_to_display")));
 
         setBackButton(); // Configurar el botón de salir
         loadPasswords(); // Cargar las contraseñas en la tabla
@@ -78,7 +81,7 @@ public class MyPasswordsController {
         hideTableHeader(); // Ocultar el encabezado de la tabla
 
         // Etiqueta de descripción de los registros mostrados en la tabla
-        MyPasswordsHeaderLabel.setText(bundle.getString("password_entry_header_all"));
+        MyPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
 
         // Agregar el listener para el ComboBox
         sortComboBox.setOnAction(event -> sortPasswords());
@@ -120,14 +123,14 @@ public class MyPasswordsController {
 
         // Añadir opciones al ComboBox
         sortComboBox.setItems(FXCollections.observableArrayList(
-                bundle.getString("sort_newest_to_oldest"),
-                bundle.getString("sort_oldest_to_newest"),
-                bundle.getString("sort_az"),
-                bundle.getString("sort_za")
+                getBundle().getString("sort_newest_to_oldest"),
+                getBundle().getString("sort_oldest_to_newest"),
+                getBundle().getString("sort_az"),
+                getBundle().getString("sort_za")
         ));
 
         // Seleccionar por defecto la opción "Más reciente a más antigua"
-        sortComboBox.getSelectionModel().select(bundle.getString("sort_newest_to_oldest"));
+        sortComboBox.getSelectionModel().select(getBundle().getString("sort_newest_to_oldest"));
     }
 
     private void sortPasswords() {
@@ -138,10 +141,10 @@ public class MyPasswordsController {
         }
 
         // Obtener las cadenas de ordenación del archivo de recursos
-        String sortAZ = bundle.getString("sort_az");
-        String sortZA = bundle.getString("sort_za");
-        String sortNewestToOldest = bundle.getString("sort_newest_to_oldest");
-        String sortOldestToNewest = bundle.getString("sort_oldest_to_newest");
+        String sortAZ = getBundle().getString("sort_az");
+        String sortZA = getBundle().getString("sort_za");
+        String sortNewestToOldest = getBundle().getString("sort_newest_to_oldest");
+        String sortOldestToNewest = getBundle().getString("sort_oldest_to_newest");
 
         if (selectedSortOrder.equals(sortAZ)) {
             FXCollections.sort(originalPasswordList, (p1, p2) -> p1.getDescription().compareToIgnoreCase(p2.getDescription()));
@@ -219,7 +222,7 @@ public class MyPasswordsController {
                 descriptionLabel.getStyleClass().add("description-label");
 
                 // Mostrar nombre de usuario
-                Label usernameLabel = new Label(password.getUsername() != null ? password.getUsername() : bundle.getString("no_username_provided"));
+                Label usernameLabel = new Label(password.getUsername() != null ? password.getUsername() : getBundle().getString("no_username_provided"));
                 usernameLabel.getStyleClass().add("username-label");
 
                 // Crear layout para ambas etiquetas
@@ -301,14 +304,14 @@ public class MyPasswordsController {
             // Llamar al PasswordManager para eliminar la contraseña
             boolean success = PasswordManager.deletePassword(password);
             if (success) {
-                Notifier.showNotification(window, bundle.getString("password_deleted_successfully"));
+                Notifier.showNotification(window, getBundle().getString("password_deleted_successfully"));
                 loadPasswords();
             } else {
-                Notifier.showNotification(window, bundle.getString("password_deleted_failed"));
+                Notifier.showNotification(window, getBundle().getString("password_deleted_failed"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            Notifier.showNotification(window, bundle.getString("toolTip_database_error"));
+            Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
     }
 
@@ -319,14 +322,14 @@ public class MyPasswordsController {
             // Llamar al PasswordManager para actualizar la contraseña
             boolean success = PasswordManager.updatePassword(passwordToUpdate, description, username, url, password);
             if (success) {
-                Notifier.showNotification(window, bundle.getString("password_updated_successfully"));
+                Notifier.showNotification(window, getBundle().getString("password_updated_successfully"));
                 loadPasswords();
             } else {
-                Notifier.showNotification(window, bundle.getString("password_updated_failed"));
+                Notifier.showNotification(window, getBundle().getString("password_updated_failed"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            Notifier.showNotification(window, bundle.getString("toolTip_database_error"));
+            Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
     }
 }
