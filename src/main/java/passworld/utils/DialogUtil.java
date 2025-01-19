@@ -515,6 +515,23 @@ public class DialogUtil {
             dialog.close();
         });
 
+        // Manejar la acción del botón de eliminar
+        deleteButton.setOnAction(_ -> {
+            // Alerta para confirmación de eliminación
+            Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationDialog.setTitle(getBundle().getString("delete_confirmation_title"));
+            confirmationDialog.setHeaderText(getBundle().getString("delete_confirmation_header"));
+            confirmationDialog.setContentText(getBundle().getString("delete_confirmation_message"));
+
+            Optional<ButtonType> confirmationResult = confirmationDialog.showAndWait(); // Recoger selección
+
+            // Si se confirma, se elimina
+            if (confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK) {
+                passwordsController.deletePassword(password);
+                dialog.close();  // Cerrar el diálogo solo si se confirma la eliminación
+            }
+        });
+
         // Mostrar el diálogo
         dialog.showAndWait();
     }
