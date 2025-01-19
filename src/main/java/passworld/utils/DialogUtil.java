@@ -25,10 +25,6 @@ public class DialogUtil {
         return LanguageManager.getBundle();
     }
 
-    // Botones genéricos
-    private static final ButtonType saveButtonType = new ButtonType(getBundle().getString("save_button"), ButtonBar.ButtonData.CANCEL_CLOSE);
-    private static final ButtonType cancelButtonType = new ButtonType(getBundle().getString("cancel_button"), ButtonBar.ButtonData.CANCEL_CLOSE);
-
     public static Optional<PasswordDTO> showPasswordCreationDialog(String password) {
         Dialog<PasswordDTO> dialog = new Dialog<>();
         dialog.getDialogPane().getStylesheets().add(
@@ -36,6 +32,10 @@ public class DialogUtil {
         );
         dialog.setTitle("passworld - " + getBundle().getString("dialog_title_save_password"));
         dialog.setWidth(400);
+
+        // Crear los botones con los textos actualizados según el idioma actual
+        ButtonType saveButtonType = new ButtonType(getBundle().getString("save_button"), ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButtonType = new ButtonType(getBundle().getString("cancel_button"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
         // Agregar los botones al cuadro de diálogo
         dialog.getDialogPane().getButtonTypes().addAll(cancelButtonType, saveButtonType);
@@ -76,6 +76,7 @@ public class DialogUtil {
         VBox descriptionBox = new VBox(5);
         Label descriptionLabel = new Label(getBundle().getString("description_label") + ": *");
         TextField descriptionField = new TextField();
+        descriptionField.setTooltip(new Tooltip(getBundle().getString("description_field_tooltip")));
         descriptionField.setPromptText(getBundle().getString("description_prompt"));
 
         // Label para mostrar mensaje de error debajo de la descripción
@@ -110,7 +111,7 @@ public class DialogUtil {
         urlBox.getChildren().addAll(urlLabel, urlField);
 
         VBox passwordBox = new VBox(5);
-        Label passwordLabel = new Label(getBundle().getString("password_label2") + ":");
+        Label passwordLabel = new Label(getBundle().getString("password_label") + ":");
         TextField passwordField = new TextField();
         passwordField.setText(password);
         passwordField.setDisable(true); // Deshabilitar el campo de la contraseña
@@ -127,7 +128,7 @@ public class DialogUtil {
         dialog.getDialogPane().setContent(vbox);
 
         // Listener para la validación en tiempo real
-        ChangeListener<String> fieldValidationListener = (observable, oldValue, newValue) -> {
+        ChangeListener<String> fieldValidationListener = (_, _, _) -> {
             boolean isDescriptionValid = !(descriptionField.getText() == null || descriptionField.getText().trim().isEmpty());
 
             // Mostrar o quitar el mensaje de error en tiempo real
@@ -179,6 +180,7 @@ public class DialogUtil {
 
         return dialog.showAndWait();
     }
+
 
     // Mostrar dialog para desbloquear base de datos
     public static Optional<String> showUnlockVaultDialog() {
@@ -314,7 +316,7 @@ public class DialogUtil {
 
         // Crear campos para Contraseña
         VBox passwordBox = new VBox(5);
-        Label passwordLabel = new Label(getBundle().getString("password_label2") + ": *");
+        Label passwordLabel = new Label(getBundle().getString("password_label") + ": *");
 
         // Crear contenedor para alternar entre PasswordField y TextField
         StackPane passwordFieldContainer = new StackPane();
@@ -322,9 +324,14 @@ public class DialogUtil {
 
         PasswordField passwordFieldHidden = new PasswordField();
         passwordFieldHidden.setText(password.getPassword());
+        passwordFieldHidden.setPromptText(getBundle().getString("password_prompt"));
+        passwordFieldHidden.setTooltip(new Tooltip(getBundle().getString("password_field_tooltip")));
         passwordFieldHidden.setPrefWidth(300);
 
-        TextField passwordFieldVisible = new TextField(password.getPassword());
+        TextField passwordFieldVisible = new TextField();
+        passwordFieldVisible.setText(password.getPassword());
+        passwordFieldVisible.setPromptText(getBundle().getString("password_prompt"));
+        passwordFieldVisible.setTooltip(new Tooltip(getBundle().getString("password_field_tooltip")));
         passwordFieldVisible.setVisible(false);
 
         // Label para mostrar mensaje de error debajo de la contraseña
@@ -382,6 +389,7 @@ public class DialogUtil {
         // Crear y configurar el botón de eliminar
         Button deleteButton = new Button(getBundle().getString("delete_button"));
         deleteButton.getStyleClass().add("secondary");
+        deleteButton.setTooltip(new Tooltip(getBundle().getString("toolTip_delete")));
 
         // Agregar el icono al botón de eliminar
         Image deleteIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/trash_icon.png")).toExternalForm());
@@ -392,6 +400,8 @@ public class DialogUtil {
         // Crear y configurar el botón de guardar
         Button saveButton = new Button(getBundle().getString("save_button"));
         saveButton.getStyleClass().add("primary");
+        saveButton.setDefaultButton(true); // Botón por defecto
+        saveButton.setTooltip(new Tooltip(getBundle().getString("toolTip_save_update")));
 
         // Agregar el icono al botón de guardar
         Image saveIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/save_icon_white.png")).toExternalForm());
@@ -410,7 +420,7 @@ public class DialogUtil {
         dialog.getDialogPane().setContent(mainContent);
 
         // Listener para la validación de campos en tiempo real
-        ChangeListener<String> fieldValidationListener = (observable, oldValue, newValue) -> {
+        ChangeListener<String> fieldValidationListener = (_, _, _) -> {
             boolean isDescriptionValid = !(descriptionField.getText() == null || descriptionField.getText().trim().isEmpty());
             boolean isPasswordValid = !(passwordFieldVisible.getText() == null || passwordFieldVisible.getText().trim().isEmpty());
 
@@ -445,6 +455,8 @@ public class DialogUtil {
                     passwordFieldVisible.getStyleClass().remove("error-border");  // Eliminar borde rojo de la contraseña
                     mandatoryPasswordLabel.setVisible(false);  // Ocultar mensaje de error para contraseña
                     mandatoryPasswordLabel.setManaged(false);  // No gestionar el label cuando no se muestra
+
+                    copyButton.setVisible(true); // Mostrar botón de copiar
                 }
 
                 // Si solo la descripción está vacía, mostrar mensaje específico para la descripción
@@ -506,8 +518,4 @@ public class DialogUtil {
         // Mostrar el diálogo
         dialog.showAndWait();
     }
-
-
-
-
 }
