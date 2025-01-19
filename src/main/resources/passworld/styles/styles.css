@@ -255,3 +255,21 @@
 .sort-box .combo-box-popup {
     -fx-background-color: #ffffff; /* Color del fondo del popup */
 }
+
+/* Estilo para los campos con error (bordes rojos) */
+.error-border {
+    -fx-border-color: red;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+/* Estilo para el label de campos obligatorios */
+.mandatoryFieldsLabel {
+    -fx-font-size: 12px;
+    -fx-text-fill: red;
+    -fx-font-family: "Helvetica Neue", sans-serif;  /* Fuente Helvetica Neue */
+}
+
+
+
+
