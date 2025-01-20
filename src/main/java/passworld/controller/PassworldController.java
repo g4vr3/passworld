@@ -242,8 +242,8 @@ public class PassworldController {
     // Establece los textos de la interfaz con los valores del ResourceBundle
     private void setUITexts() {
         ResourceBundle bundle = LanguageManager.getBundle();  // Obtener el ResourceBundle desde LanguageSupport
-        passwordLabel.setText(bundle.getString("password_label1"));
-        passwordField.setPromptText(bundle.getString("prompt_passwordField"));
+        passwordLabel.setText(bundle.getString("generatedPassword_label"));
+        passwordField.setPromptText(bundle.getString("prompt_generatedPasswordField"));
         upperAndLowerCaseCheckbox.setText(bundle.getString("upperAndLowerCaseCheckbox"));
         numberCheckbox.setText(bundle.getString("numberCheckbox"));
         specialCharCheckbox.setText(bundle.getString("specialCharCheckbox"));
@@ -253,8 +253,8 @@ public class PassworldController {
 
         //Tooltips y accesibilidad
         languageComboBox.setTooltip(new Tooltip(bundle.getString("toolTip_languageComboBox")));
-        passwordLabel.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLabel")));
-        passwordField.setTooltip(new Tooltip(bundle.getString("toolTip_passwordField")));
+        passwordLabel.setTooltip(new Tooltip(bundle.getString("toolTip_generatedPasswordLabel")));
+        passwordField.setTooltip(new Tooltip(bundle.getString("toolTip_generatedPasswordField")));
         copyPasswordButton.setTooltip(new Tooltip(bundle.getString("toolTip_copyToClipboard")));
         savePasswordButton.setTooltip(new Tooltip(bundle.getString("toolTip_savePassword")));
         upperAndLowerCaseCheckbox.setTooltip(new Tooltip(bundle.getString("toolTip_upperAndLowerCaseCheckbox")));

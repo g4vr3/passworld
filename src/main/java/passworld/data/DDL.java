@@ -4,16 +4,16 @@ import java.io.File;
 import java.sql.*;
 
 public class DDL {
-    private static String dbPath;
+    private static final String dbPath;
 
     static {
         String userHome = System.getProperty("user.home");
 
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            // En Windows, se usa AppData o una ubicación personalizada
+            // En Windows, se usa AppData
             dbPath = userHome + "\\AppData\\Local\\passworld\\passwords.db";
         } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            // En macOS, podrías usar Library/Application Support
+            // En macOS, se usa Library/Application Support
             dbPath = userHome + "/Library/Application Support/passworld/passwords.db";
         } else {
             // En Linux, utiliza .local/share
@@ -54,9 +54,11 @@ public class DDL {
     }
 
     private static void createTable(Connection conn) {
+        // SQL para crear la tabla
         String createTableSQL = "CREATE TABLE IF NOT EXISTS passwords ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "description TEXT NOT NULL, "
+                + "username TEXT, "
                 + "url TEXT, "
                 + "password TEXT NOT NULL);";
 

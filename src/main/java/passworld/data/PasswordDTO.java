@@ -3,16 +3,17 @@ package passworld.data;
 public class PasswordDTO {
     private int id;
     private String description;
+    private String username;
     private String url;
     private String password;
 
-    public PasswordDTO(String description, String url, String password) {
+    public PasswordDTO(String description, String username, String url, String password) {
         this.description = description;
+        this.username = username;
         this.url = url;
         this.password = password;
     }
 
-    // Getters y setters
     public int getId() {
         return id;
     }
@@ -27,6 +28,14 @@ public class PasswordDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getUrl() {

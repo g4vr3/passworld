@@ -43,6 +43,18 @@
     -fx-font-size: 14px; /* Tamaño de fuente para los botones */
 }
 
+/* Estilo de los botones ocultos */
+.button.hidden {
+    -fx-opacity: 0;      /* Hacer el botón completamente transparente */
+    -fx-min-width: 0;    /* Eliminar el ancho mínimo */
+    -fx-min-height: 0;   /* Eliminar la altura mínima */
+    -fx-pref-width: 0;   /* Eliminar el ancho preferido */
+    -fx-pref-height: 0;  /* Eliminar la altura preferida */
+    -fx-max-width: 0;    /* Eliminar el ancho máximo */
+    -fx-max-height: 0;   /* Eliminar la altura máxima */
+    -fx-padding: 0;      /* Eliminar el relleno */
+}
+
 /* Estilo general del ComboBox de idiomas */
 .language-selector {
     -fx-background-color: transparent; /* Fondo transparente */
@@ -196,21 +208,6 @@
     -fx-border-color: transparent;  /* Sin bordes */
 }
 
-.table-view .column-header {
-    -fx-padding: 20px 0px;     /* Espaciado alrededor del texto */
-    -fx-background-color: rgb(244, 244, 244); /* Fondo gris claro */
-}
-
-/* Texto del encabezado de la tabla */
-.table-view .column-header .label {
-    -fx-alignment: top-left; /* Alineación del contenido del encabezado a la izquierda */
-    -fx-pref-height: 25px;
-    -fx-text-alignment: left;  /* Alineación del texto a la izquierda */
-    -fx-font-weight: bold;     /* Negrita */
-    -fx-font-size: 16px;       /* Tamaño del texto */
-    -fx-text-fill: black;      /* Color del texto */
-}
-
 /* Estilo de los Label dentro de cada fila (Descripción y URL) */
 .description-label {
     -fx-font-size: 14px;  /* Tamaño de fuente normal para la descripción */
@@ -221,3 +218,58 @@
     -fx-text-fill: gray;  /* Color gris para la URL */
     -fx-padding: 0;  /* Sin espacio entre las etiquetas */
 }
+
+/* ComboBox de selección de orden de contraseñas */
+.sort-box {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-max-width: 25px;
+    -fx-max-height: 25px;
+    -fx-min-width: 25px; /* Asegura que el combo-box no se haga más pequeño que 30px */
+    -fx-min-height: 25px;
+    -fx-padding: 0; /* Elimina cualquier padding */
+}
+
+/* Estilo para los iconos del combo-box de orden de contraseñas */
+.sort-icon {
+    -fx-fit-width: 18px; /* Asegura que la imagen se ajuste exactamente */
+    -fx-fit-height: 18px;
+    -fx-preserve-ratio: true; /* Mantiene la proporción de la imagen */
+}
+
+.sort-box .arrow-button {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-padding: 0; /* Elimina cualquier padding */
+}
+
+.sort-box .arrow {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-padding: 0; /* Elimina cualquier padding */
+    -fx-shape: ""; /* Elimina la forma de la flecha */
+}
+
+.sort-box .combo-box-base {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-padding: 0; /* Elimina cualquier padding */
+}
+
+.sort-box .combo-box-popup {
+    -fx-background-color: #ffffff; /* Color del fondo del popup */
+}
+
+/* Estilo para los campos con error (bordes rojos) */
+.error-border {
+    -fx-border-color: red;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+}
+
+/* Estilo para el label de campos obligatorios */
+.mandatoryFieldsLabel {
+    -fx-font-size: 12px;
+    -fx-text-fill: red;
+    -fx-font-family: "Helvetica Neue", sans-serif;  /* Fuente Helvetica Neue */
+}
+
+
+
+
