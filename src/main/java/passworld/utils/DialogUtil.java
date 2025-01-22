@@ -421,83 +421,75 @@ public class DialogUtil {
 
         // Listener para la validación de campos en tiempo real
         ChangeListener<String> fieldValidationListener = (_, _, _) -> {
+            // Eliminar clases de error siempre al inicio
+            descriptionField.getStyleClass().remove("error-border");
+            passwordFieldVisible.getStyleClass().remove("error-border");
+
             boolean isDescriptionValid = !(descriptionField.getText() == null || descriptionField.getText().trim().isEmpty());
             boolean isPasswordValid = !(passwordFieldVisible.getText() == null || passwordFieldVisible.getText().trim().isEmpty());
 
-            // Validación de los campos
             if (!isDescriptionValid && !isPasswordValid) {
                 // Si ambos campos están vacíos, mostrar mensaje general de error
                 mandatoryFieldsLabel.setVisible(true);
                 mandatoryFieldsLabel.setManaged(true);
 
-                descriptionField.getStyleClass().add("error-border");  // Mostrar borde rojo en la descripción
+                // Establecer bordes rojos en ambos campos
+                descriptionField.getStyleClass().add("error-border");
+                passwordFieldVisible.getStyleClass().add("error-border");
+
+                // Ocultar mensajes específicos de error
                 mandatoryDescriptionLabel.setVisible(false);
                 mandatoryDescriptionLabel.setManaged(false);
-
-                passwordFieldVisible.getStyleClass().add("error-border");  // Mostrar borde rojo en la contraseña
                 mandatoryPasswordLabel.setVisible(false);
                 mandatoryPasswordLabel.setManaged(false);
-                copyButton.setVisible(false);  // Ocultar botón de copiar
 
-                saveButton.setDisable(true);  // Deshabilitar el botón de guardar
+                // Deshabilitar el botón de guardar
+                saveButton.setDisable(true);
 
+                // Ajustar la altura del diálogo
                 dialog.setHeight(390);
             } else {
                 // Si la descripción tiene un valor, eliminar el borde de error
                 if (isDescriptionValid) {
-                    descriptionField.getStyleClass().remove("error-border");  // Eliminar borde rojo de la descripción
-                    mandatoryDescriptionLabel.setVisible(false);  // Ocultar mensaje de error para descripción
-                    mandatoryDescriptionLabel.setManaged(false);  // No gestionar el label cuando no se muestra
+                    descriptionField.getStyleClass().remove("error-border");
+                    mandatoryDescriptionLabel.setVisible(false);
+                    mandatoryDescriptionLabel.setManaged(false);
+                } else {
+                    // Si la descripción está vacía y la contraseña tiene un valor
+                    mandatoryDescriptionLabel.setVisible(true);
+                    mandatoryDescriptionLabel.setManaged(true);
+                    descriptionField.getStyleClass().add("error-border");
                 }
 
                 // Si la contraseña tiene un valor, eliminar el borde de error
                 if (isPasswordValid) {
-                    passwordFieldVisible.getStyleClass().remove("error-border");  // Eliminar borde rojo de la contraseña
-                    mandatoryPasswordLabel.setVisible(false);  // Ocultar mensaje de error para contraseña
-                    mandatoryPasswordLabel.setManaged(false);  // No gestionar el label cuando no se muestra
-
-                    copyButton.setVisible(true); // Mostrar botón de copiar
+                    passwordFieldVisible.getStyleClass().remove("error-border");
+                    mandatoryPasswordLabel.setVisible(false);
+                    mandatoryPasswordLabel.setManaged(false);
+                    copyButton.setVisible(true); // Mostrar el botón de copiar
+                } else {
+                    // Si la contraseña está vacía y la descripción tiene un valor
+                    mandatoryPasswordLabel.setVisible(true);
+                    mandatoryPasswordLabel.setManaged(true);
+                    passwordFieldVisible.getStyleClass().add("error-border");
+                    copyButton.setVisible(false); // Ocultar el botón de copiar
                 }
 
-                // Si solo la descripción está vacía, mostrar mensaje específico para la descripción
-                if (!isDescriptionValid) {
-                    // Ocultar error general
-                    mandatoryFieldsLabel.setVisible(false);
-                    mandatoryFieldsLabel.setManaged(false);
+                // Si solo un campo está vacío, ocultar el mensaje general
+                mandatoryFieldsLabel.setVisible(false);
+                mandatoryFieldsLabel.setManaged(false);
 
-                    descriptionField.getStyleClass().add("error-border");  // Mostrar borde rojo en la descripción
-                    mandatoryDescriptionLabel.setVisible(true);  // Mostrar mensaje de error para descripción
-                    mandatoryDescriptionLabel.setManaged(true);  // Asegurar que el label sea gestionado
-                    saveButton.setDisable(true);  // Deshabilitar el botón de guardar
-
-                    dialog.setHeight(380);
-                }
-
-                // Si solo la contraseña está vacía, mostrar mensaje específico para la contraseña
-                if (isDescriptionValid && !isPasswordValid) {
-                    // Ocultar error general
-                    mandatoryFieldsLabel.setVisible(false);
-                    mandatoryFieldsLabel.setManaged(false);
-
-                    passwordFieldVisible.getStyleClass().add("error-border");  // Mostrar borde rojo en la contraseña
-                    mandatoryPasswordLabel.setVisible(true);  // Mostrar mensaje de error para contraseña
-                    mandatoryPasswordLabel.setManaged(true);  // Asegurar que el label sea gestionado
-                    saveButton.setDisable(true);  // Deshabilitar el botón de guardar
-                    copyButton.setVisible(false);  // Ocultar botón de copiar
-
-                    dialog.setHeight(380);
-                }
-
-                // Si ambos campos son válidos, habilitar el botón de guardar
-                if (isDescriptionValid && isPasswordValid) {
-                    saveButton.setDisable(false);  // Habilitar el botón de guardar
-
-                    dialog.setHeight(360);
-                }
+                // Ajustar la altura del diálogo
+                dialog.setHeight(380);
             }
 
-            // Deshabilitar el botón de guardar si algún campo no es válido
-            saveButton.setDisable(!isDescriptionValid || !isPasswordValid);
+            // Si ambos campos son válidos, habilitar el botón de guardar
+            if (isDescriptionValid && isPasswordValid) {
+                saveButton.setDisable(false);
+                mandatoryFieldsLabel.setVisible(false);
+                mandatoryFieldsLabel.setManaged(false);
+                dialog.setHeight(360); // Altura base
+            }
         };
 
         // Agregar listeners a los campos de entrada

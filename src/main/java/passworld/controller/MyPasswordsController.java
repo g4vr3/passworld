@@ -42,7 +42,7 @@ public class MyPasswordsController {
     @FXML
     private Label MyPasswordsHeaderLabel;
 
-    private ObservableList<PasswordDTO> originalPasswordList = FXCollections.observableArrayList(); // Almacena la lista original
+    private ObservableList<PasswordDTO> passwordList = FXCollections.observableArrayList(); // Almacena la lista original
 
     // Auxiliar para obtener el ResourceBundle dinámicamente
     private static ResourceBundle getBundle() {
@@ -72,6 +72,9 @@ public class MyPasswordsController {
         setBackButton(); // Configurar el botón de salir
         loadPasswords(); // Cargar las contraseñas en la tabla
 
+        // Mostrar u ocultar el ComboBox de ordenación según los datos
+        sortComboBox.setVisible(!passwordList.isEmpty());
+
         // Añadir después de cargar las contraseñas
         setupSortComboBox(); // Configurar el ComboBox para mostrar solo un icono
         sortPasswords(); // Ordenar las contraseñas según la opción predeterminada
@@ -86,6 +89,7 @@ public class MyPasswordsController {
         // Agregar el listener para el ComboBox
         sortComboBox.setOnAction(event -> sortPasswords());
     }
+
 
     private void setupSortComboBox() {
         // Establecer el icono para el ComboBox
@@ -147,17 +151,20 @@ public class MyPasswordsController {
         String sortOldestToNewest = getBundle().getString("sort_oldest_to_newest");
 
         if (selectedSortOrder.equals(sortAZ)) {
-            FXCollections.sort(originalPasswordList, (p1, p2) -> p1.getDescription().compareToIgnoreCase(p2.getDescription()));
+            FXCollections.sort(passwordList, (p1, p2) -> p1.getDescription().compareToIgnoreCase(p2.getDescription()));
         } else if (selectedSortOrder.equals(sortZA)) {
-            FXCollections.sort(originalPasswordList, (p1, p2) -> p2.getDescription().compareToIgnoreCase(p1.getDescription()));
+            FXCollections.sort(passwordList, (p1, p2) -> p2.getDescription().compareToIgnoreCase(p1.getDescription()));
         } else if (selectedSortOrder.equals(sortNewestToOldest)) {
-            FXCollections.reverse(originalPasswordList);
+            // Volver a ordenar por defecto (más antigua - más reciente)
+            loadPasswords();
+            // Revertir orden por defecto
+            FXCollections.reverse(passwordList);
         } else if (selectedSortOrder.equals(sortOldestToNewest)) {
             loadPasswords();
             return;
         }
 
-        passwordTable.setItems(originalPasswordList);
+        passwordTable.setItems(passwordList);
     }
 
     private void setBackButton() {
@@ -180,9 +187,13 @@ public class MyPasswordsController {
         try {
             // Obtener datos de la base de datos y almacenarlos en la lista original
             List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
-            originalPasswordList = FXCollections.observableArrayList(passwords);
-            passwordTable.setItems(originalPasswordList);
-            adjustTableHeight(originalPasswordList.size());
+            passwordList = FXCollections.observableArrayList(passwords);
+            passwordTable.setItems(passwordList);
+
+            // Mostrar u ocultar el ComboBox de ordenación
+            sortComboBox.setVisible(!passwordList.isEmpty());
+
+            adjustTableHeight(passwordList.size());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -306,6 +317,9 @@ public class MyPasswordsController {
             if (success) {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_successfully"));
                 loadPasswords();
+
+                // Actualizar la visibilidad del ComboBox de ordenación
+                sortComboBox.setVisible(!passwordList.isEmpty());
             } else {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_failed"));
             }
@@ -314,6 +328,7 @@ public class MyPasswordsController {
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
     }
+
 
     public void updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) {
         Window window = passwordTable.getScene().getWindow();
