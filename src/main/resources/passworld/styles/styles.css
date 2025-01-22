@@ -259,7 +259,7 @@
 
 /* Estilo para los campos con error (bordes rojos) */
 .error-border {
-    -fx-border-color: red;
+    -fx-border-color: red !important;
     -fx-border-width: 1;
     -fx-border-radius: 5;
 }
