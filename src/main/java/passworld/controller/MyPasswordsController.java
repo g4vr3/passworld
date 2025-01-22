@@ -42,7 +42,7 @@ public class MyPasswordsController {
     @FXML
     private Label MyPasswordsHeaderLabel;
 
-    private ObservableList<PasswordDTO> originalPasswordList = FXCollections.observableArrayList(); // Almacena la lista original
+    private ObservableList<PasswordDTO> passwordList = FXCollections.observableArrayList(); // Almacena la lista original
 
     // Auxiliar para obtener el ResourceBundle dinámicamente
     private static ResourceBundle getBundle() {
@@ -147,17 +147,20 @@ public class MyPasswordsController {
         String sortOldestToNewest = getBundle().getString("sort_oldest_to_newest");
 
         if (selectedSortOrder.equals(sortAZ)) {
-            FXCollections.sort(originalPasswordList, (p1, p2) -> p1.getDescription().compareToIgnoreCase(p2.getDescription()));
+            FXCollections.sort(passwordList, (p1, p2) -> p1.getDescription().compareToIgnoreCase(p2.getDescription()));
         } else if (selectedSortOrder.equals(sortZA)) {
-            FXCollections.sort(originalPasswordList, (p1, p2) -> p2.getDescription().compareToIgnoreCase(p1.getDescription()));
+            FXCollections.sort(passwordList, (p1, p2) -> p2.getDescription().compareToIgnoreCase(p1.getDescription()));
         } else if (selectedSortOrder.equals(sortNewestToOldest)) {
-            FXCollections.reverse(originalPasswordList);
+            // Volver a ordenar por defecto (más antigua - más reciente)
+            loadPasswords();
+            // Revertir orden por defecto
+            FXCollections.reverse(passwordList);
         } else if (selectedSortOrder.equals(sortOldestToNewest)) {
             loadPasswords();
             return;
         }
 
-        passwordTable.setItems(originalPasswordList);
+        passwordTable.setItems(passwordList);
     }
 
     private void setBackButton() {
@@ -180,9 +183,9 @@ public class MyPasswordsController {
         try {
             // Obtener datos de la base de datos y almacenarlos en la lista original
             List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
-            originalPasswordList = FXCollections.observableArrayList(passwords);
-            passwordTable.setItems(originalPasswordList);
-            adjustTableHeight(originalPasswordList.size());
+            passwordList = FXCollections.observableArrayList(passwords);
+            passwordTable.setItems(passwordList);
+            adjustTableHeight(passwordList.size());
         } catch (SQLException e) {
             e.printStackTrace();
         }
