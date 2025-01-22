@@ -72,6 +72,9 @@ public class MyPasswordsController {
         setBackButton(); // Configurar el botón de salir
         loadPasswords(); // Cargar las contraseñas en la tabla
 
+        // Mostrar u ocultar el ComboBox de ordenación según los datos
+        sortComboBox.setVisible(!passwordList.isEmpty());
+
         // Añadir después de cargar las contraseñas
         setupSortComboBox(); // Configurar el ComboBox para mostrar solo un icono
         sortPasswords(); // Ordenar las contraseñas según la opción predeterminada
@@ -86,6 +89,7 @@ public class MyPasswordsController {
         // Agregar el listener para el ComboBox
         sortComboBox.setOnAction(event -> sortPasswords());
     }
+
 
     private void setupSortComboBox() {
         // Establecer el icono para el ComboBox
@@ -185,6 +189,10 @@ public class MyPasswordsController {
             List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
             passwordList = FXCollections.observableArrayList(passwords);
             passwordTable.setItems(passwordList);
+
+            // Mostrar u ocultar el ComboBox de ordenación
+            sortComboBox.setVisible(!passwordList.isEmpty());
+
             adjustTableHeight(passwordList.size());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -309,6 +317,9 @@ public class MyPasswordsController {
             if (success) {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_successfully"));
                 loadPasswords();
+
+                // Actualizar la visibilidad del ComboBox de ordenación
+                sortComboBox.setVisible(!passwordList.isEmpty());
             } else {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_failed"));
             }
@@ -317,6 +328,7 @@ public class MyPasswordsController {
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
     }
+
 
     public void updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) {
         Window window = passwordTable.getScene().getWindow();
