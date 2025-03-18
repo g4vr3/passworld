@@ -36,6 +36,8 @@ public class MyPasswordsController {
     @FXML
     private TableColumn<PasswordDTO, Void> infoButtonColumn;
     @FXML
+    private TableColumn<PasswordDTO, Void> warningIconColumn;
+    @FXML
     private Button backButton;
     @FXML
     private ComboBox<String> sortComboBox;
@@ -214,6 +216,9 @@ public class MyPasswordsController {
         infoButtonColumn.setResizable(false);
         passwordEntryColumn.setSortable(false);
         infoButtonColumn.setSortable(false);
+        warningIconColumn.setReorderable(false);
+        warningIconColumn.setResizable(false);
+        warningIconColumn.setSortable(false);
 
         // Configurar las celdas de la columna de entrada de contraseña
         passwordEntryColumn.setCellFactory(column -> new TableCell<>() {
@@ -244,6 +249,37 @@ public class MyPasswordsController {
                 HBox hBox = new HBox(vBox);
                 hBox.setSpacing(10);
                 setGraphic(hBox);
+            }
+        });
+
+        // Configurar las celdas de la columna de icono de advertencia
+        warningIconColumn.setCellFactory(column -> new TableCell<>() {
+            private final ImageView warningIconView = new ImageView();
+
+            {
+                // Configurar el icono de advertencia
+                Image warningIcon = new Image(getClass().getResource("/passworld/images/warning_icon.png").toExternalForm());
+                warningIconView.setImage(warningIcon);
+                warningIconView.getStyleClass().add("icon");
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                } else {
+                    PasswordDTO password = getTableRow().getItem();
+                    if (password.isWeak() || password.isDuplicate() || password.isCompromised()) {
+                        setGraphic(warningIconView);
+                    } else {
+                        setGraphic(null);
+                    }
+
+                    setAlignment(Pos.CENTER);
+                    setPadding(new Insets(0, 0, 0, 0));
+                }
             }
         });
 
