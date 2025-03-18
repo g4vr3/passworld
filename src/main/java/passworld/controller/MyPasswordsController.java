@@ -313,7 +313,7 @@ public class MyPasswordsController {
 
         try {
             // Llamar al PasswordManager para eliminar la contraseña
-            boolean success = PasswordManager.deletePassword(password);
+            boolean success = PasswordManager.deletePassword(password.getId());
             if (success) {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_successfully"));
                 loadPasswords();

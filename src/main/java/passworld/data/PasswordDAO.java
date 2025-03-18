@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PasswordDAO {
-    // Obtener la URL de la base de datos
     private static final String DB_URL = DDL.getDbUrl();
 
-    // Crear una nueva contraseña
     public static boolean createPassword(PasswordDTO password) throws SQLException {
-        String sql = "INSERT INTO passwords(description, username, url, password) VALUES(?, ?, ?, ?)";
+        String sql = "INSERT INTO passwords(description, username, url, password, isWeak, isDuplicate, isCompromised) VALUES(?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -19,24 +17,70 @@ public class PasswordDAO {
             pstmt.setString(2, password.getUsername());
             pstmt.setString(3, password.getUrl());
             pstmt.setString(4, password.getPassword());
+            pstmt.setBoolean(5, password.isWeak());
+            pstmt.setBoolean(6, password.isDuplicate());
+            pstmt.setBoolean(7, password.isCompromised());
 
             int rowsAffected = pstmt.executeUpdate();
 
-            // Si se insertaron filas, obtener el id generado
             if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        int generatedId = generatedKeys.getInt(1); // Obtener el id generado
-                        password.setId(generatedId); // Establecer el id en el objeto PasswordDTO
-                        return true; // La contraseña se guardó exitosamente
+                        int generatedId = generatedKeys.getInt(1);
+                        password.setId(generatedId);
+                        return true;
                     }
                 }
             }
-            return false; // Si no se logró guardar o generar el id
+            return false;
         }
     }
 
-    // Leer todas las contraseñas
+    public static boolean updatePassword(int id, String description, String username, String url, String password, boolean isWeak, boolean isDuplicate, boolean isCompromised) throws SQLException {
+        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ? WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, description);
+            stmt.setString(2, username);
+            stmt.setString(3, url);
+            stmt.setString(4, password);
+            stmt.setBoolean(5, isWeak);
+            stmt.setBoolean(6, isDuplicate);
+            stmt.setBoolean(7, isCompromised);
+            stmt.setInt(8, id);
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        }
+    }
+
+    public static PasswordDTO readPasswordById(int id) throws SQLException {
+        String sql = "SELECT * FROM passwords WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    PasswordDTO password = new PasswordDTO(
+                            rs.getString("description"),
+                            rs.getString("username"),
+                            rs.getString("url"),
+                            rs.getString("password")
+                    );
+                    password.setId(rs.getInt("id"));
+                    password.setWeak(rs.getBoolean("isWeak"));
+                    password.setDuplicate(rs.getBoolean("isDuplicate"));
+                    password.setCompromised(rs.getBoolean("isCompromised"));
+                    return password;
+                }
+            }
+        }
+        return null;
+    }
+
     public static List<PasswordDTO> readAllPasswords() throws SQLException {
         String sql = "SELECT * FROM passwords";
         List<PasswordDTO> passwords = new ArrayList<>();
@@ -52,58 +96,24 @@ public class PasswordDAO {
                         rs.getString("url"),
                         rs.getString("password")
                 );
-                password.setId(rs.getInt("id")); // Establecer el id en el objeto PasswordDTO
+                password.setId(rs.getInt("id"));
+                password.setWeak(rs.getBoolean("isWeak"));
+                password.setDuplicate(rs.getBoolean("isDuplicate"));
+                password.setCompromised(rs.getBoolean("isCompromised"));
                 passwords.add(password);
             }
         }
         return passwords;
     }
 
-    // Eliminar una contraseña por ID
     public static boolean deletePassword(int id) throws SQLException {
         String sql = "DELETE FROM passwords WHERE id = ?";
-
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Establecer el valor del parámetro 'id'
             stmt.setInt(1, id);
-
-            // Ejecutar la actualización y verificar cuántas filas se han afectado
-            int rowsAffected = stmt.executeUpdate();
-
-            // Si se afectaron filas, la eliminación fue exitosa
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            // En caso de error, lanzar una excepción
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Actualizar una contraseña
-    public static boolean updatePassword(int id, String description, String username, String url, String password) {
-        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ? WHERE id = ?";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL); // Obtener conexión a la base de datos
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            // Establecer los parámetros de la sentencia
-            stmt.setString(1, description);
-            stmt.setString(2, username);
-            stmt.setString(3, url);
-            stmt.setString(4, password);
-            stmt.setInt(5, id);  // Usamos el ID para buscar el registro
-
-            // Ejecutar la actualización
-            int rowsUpdated = stmt.executeUpdate();
-
-            // Si se actualizó al menos una fila, la operación fue exitosa
-            return rowsUpdated > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            int rowsDeleted = stmt.executeUpdate();
+            return rowsDeleted > 0;
         }
     }
 }
