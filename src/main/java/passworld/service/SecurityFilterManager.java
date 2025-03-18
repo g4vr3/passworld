@@ -7,7 +7,7 @@ import passworld.utils.PasswordEvaluator;
 import java.util.Set;
 import java.util.HashSet;
 
-public class SecurityFilterService {
+public class SecurityFilterManager {
 
     // Conjunto que mantiene las contraseñas únicas activas
     private final Set<String> uniquePasswords = new HashSet<>();
