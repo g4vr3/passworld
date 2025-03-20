@@ -18,6 +18,7 @@ import javafx.stage.Window;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
+import passworld.service.SecurityFilterManager;
 import passworld.utils.DialogUtil;
 import passworld.utils.Notifier;
 import passworld.service.PasswordManager;
@@ -266,17 +267,15 @@ public class MyPasswordsController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-
                 if (empty || getTableRow() == null || getTableRow().getItem() == null) {
                     setGraphic(null);
                 } else {
                     PasswordDTO password = getTableRow().getItem();
-                    if (password.isWeak() || password.isDuplicate() || password.isCompromised()) {
+                    if (SecurityFilterManager.hasPasswordSecurityIssues(password)) {
                         setGraphic(warningIconView);
                     } else {
                         setGraphic(null);
                     }
-
                     setAlignment(Pos.CENTER);
                     setPadding(new Insets(0, 0, 0, 0));
                 }

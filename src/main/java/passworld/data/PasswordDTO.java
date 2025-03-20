@@ -9,6 +9,7 @@ public class PasswordDTO {
     private boolean isWeak;
     private boolean isDuplicate;
     private boolean isCompromised;
+    private boolean isUrlUnsafe;
 
     // Constructor, getters y setters
     public PasswordDTO(String description, String username, String url, String password) {
@@ -80,5 +81,13 @@ public class PasswordDTO {
 
     public void setCompromised(boolean compromised) {
         isCompromised = compromised;
+    }
+
+    public boolean isUrlUnsafe() {
+        return isUrlUnsafe;
+    }
+
+    public void setUrlUnsafe(boolean urlUnsafe) {
+        isUrlUnsafe = urlUnsafe;
     }
 }

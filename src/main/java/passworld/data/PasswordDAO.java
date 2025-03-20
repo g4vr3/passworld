@@ -8,7 +8,7 @@ public class PasswordDAO {
     private static final String DB_URL = DDL.getDbUrl();
 
     public static boolean createPassword(PasswordDTO password) throws SQLException {
-        String sql = "INSERT INTO passwords(description, username, url, password, isWeak, isDuplicate, isCompromised) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO passwords(description, username, url, password, isWeak, isDuplicate, isCompromised, isUrlUnsafe) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -20,6 +20,7 @@ public class PasswordDAO {
             pstmt.setBoolean(5, password.isWeak());
             pstmt.setBoolean(6, password.isDuplicate());
             pstmt.setBoolean(7, password.isCompromised());
+            pstmt.setBoolean(8, password.isUrlUnsafe());
 
             int rowsAffected = pstmt.executeUpdate();
 
@@ -36,8 +37,8 @@ public class PasswordDAO {
         }
     }
 
-    public static boolean updatePassword(int id, String description, String username, String url, String password, boolean isWeak, boolean isDuplicate, boolean isCompromised) throws SQLException {
-        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ? WHERE id = ?";
+    public static boolean updatePassword(int id, String description, String username, String url, String password, boolean isWeak, boolean isDuplicate, boolean isCompromised, boolean isUrlUnsafe) throws SQLException {
+        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ? WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -49,7 +50,8 @@ public class PasswordDAO {
             stmt.setBoolean(5, isWeak);
             stmt.setBoolean(6, isDuplicate);
             stmt.setBoolean(7, isCompromised);
-            stmt.setInt(8, id);
+            stmt.setBoolean(8, isUrlUnsafe);
+            stmt.setInt(9, id);
 
             int rowsUpdated = stmt.executeUpdate();
             return rowsUpdated > 0;
@@ -74,6 +76,7 @@ public class PasswordDAO {
                     password.setWeak(rs.getBoolean("isWeak"));
                     password.setDuplicate(rs.getBoolean("isDuplicate"));
                     password.setCompromised(rs.getBoolean("isCompromised"));
+                    password.setUrlUnsafe(rs.getBoolean("isUrlUnsafe"));
                     return password;
                 }
             }
@@ -100,6 +103,7 @@ public class PasswordDAO {
                 password.setWeak(rs.getBoolean("isWeak"));
                 password.setDuplicate(rs.getBoolean("isDuplicate"));
                 password.setCompromised(rs.getBoolean("isCompromised"));
+                password.setUrlUnsafe(rs.getBoolean("isUrlUnsafe"));
                 passwords.add(password);
             }
         }

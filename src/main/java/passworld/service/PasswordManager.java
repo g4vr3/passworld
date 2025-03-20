@@ -9,7 +9,7 @@ import java.util.ResourceBundle;
 
 public class PasswordManager {
 
-    private static final SecurityFilterService securityFilterService = new SecurityFilterService();
+    private static final SecurityFilterManager securityFilterService = new SecurityFilterManager();
 
     // Guardar una nueva contraseña
     public static boolean savePassword(PasswordDTO newPasswordDTO) throws SQLException {
@@ -43,7 +43,8 @@ public class PasswordManager {
                 password,
                 updatedPasswordDTO.isWeak(),
                 updatedPasswordDTO.isDuplicate(),
-                updatedPasswordDTO.isCompromised()
+                updatedPasswordDTO.isCompromised(),
+                updatedPasswordDTO.isUrlUnsafe()
         );
 
         if (updated) {
@@ -87,15 +88,11 @@ public class PasswordManager {
     private static void updateAllPasswordsSecurity() throws SQLException {
         List<PasswordDTO> allPasswords = PasswordDAO.readAllPasswords();
 
-        // Limpiar la lista de contraseñas únicas para volver a analizar todas las contraseñas
         securityFilterService.clearUniquePasswords();
 
-        // Volver a analizar todas las contraseñas
         for (PasswordDTO dto : allPasswords) {
-            // Analizar la seguridad de cada contraseña
             securityFilterService.analyzePasswordSecurity(dto);
 
-            // Actualizar la base de datos con la nueva información de seguridad
             PasswordDAO.updatePassword(
                     dto.getId(),
                     dto.getDescription(),
@@ -104,10 +101,9 @@ public class PasswordManager {
                     dto.getPassword(),
                     dto.isWeak(),
                     dto.isDuplicate(),
-                    dto.isCompromised()
+                    dto.isCompromised(),
+                    dto.isUrlUnsafe()
             );
         }
-
-
     }
 }

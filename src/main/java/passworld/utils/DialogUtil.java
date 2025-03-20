@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import passworld.controller.MyPasswordsController;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
+import passworld.service.SecurityFilterManager;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -312,12 +313,6 @@ public class DialogUtil {
             Label recommendationLabel = new Label("Recomendación: Utiliza una contraseña más segura");
             recommendationLabel.getStyleClass().add("recommendationLabel");
             recommendationVBox.getChildren().add(recommendationLabel);
-
-            // Hacer visibles los contenedores de issues y recomendaciones
-            issueDescriptionVBox.setVisible(true);
-            issueDescriptionVBox.setManaged(true);
-            recommendationVBox.setVisible(true);
-            recommendationVBox.setManaged(true);
         }
 
         // Verificar si la contraseña está duplicada y añadir alerta y recomendación
@@ -329,12 +324,6 @@ public class DialogUtil {
             Label recommendationLabel = new Label("Recomendación: Cambia la contraseña para evitar problemas de seguridad");
             recommendationLabel.getStyleClass().add("recommendationLabel");
             recommendationVBox.getChildren().add(recommendationLabel);
-
-            // Hacer visibles los contenedores de issues y recomendaciones
-            issueDescriptionVBox.setVisible(true);
-            issueDescriptionVBox.setManaged(true);
-            recommendationVBox.setVisible(true);
-            recommendationVBox.setManaged(true);
         }
 
         // Verificar si la contraseña ha sido comprometida y añadir alerta y recomendación
@@ -346,20 +335,28 @@ public class DialogUtil {
             Label recommendationLabel = new Label("Recomendación: Cambia la contraseña para evitar problemas de seguridad");
             recommendationLabel.getStyleClass().add("recommendationLabel");
             recommendationVBox.getChildren().add(recommendationLabel);
-
-            // Hacer visibles los contenedores de issues y recomendaciones
-            issueDescriptionVBox.setVisible(true);
-            issueDescriptionVBox.setManaged(true);
-            recommendationVBox.setVisible(true);
-            recommendationVBox.setManaged(true);
         }
 
-        // Si no hay problemas, ocultamos los contenedores y no ocupan espacio
-        if (!password.isWeak() && !password.isDuplicate() && !password.isCompromised()) {
-            issueDescriptionVBox.setVisible(false);
-            issueDescriptionVBox.setManaged(false);
-            recommendationVBox.setVisible(false);
-            recommendationVBox.setManaged(false);
+        // Verificar si la URL es insegura y añadir alerta y recomendación
+        if (SecurityFilterManager.isUrlUnsafe(password.getUrl())) {
+            Label issueLabel = new Label("La URL es insegura");
+            issueLabel.getStyleClass().add("issueDescriptionLabel");
+            issueDescriptionVBox.getChildren().add(issueLabel);
+
+            Label recommendationLabel = new Label("Recomendación: Evita visitar sitios web no seguros");
+            recommendationLabel.getStyleClass().add("recommendationLabel");
+            recommendationVBox.getChildren().add(recommendationLabel);
+        }
+
+        // Hacer visibles los contenedores de issues y recomendaciones si tienen contenido
+        if (!issueDescriptionVBox.getChildren().isEmpty()) {
+            issueDescriptionVBox.setVisible(true);
+            issueDescriptionVBox.setManaged(true);
+        }
+
+        if (!recommendationVBox.getChildren().isEmpty()) {
+            recommendationVBox.setVisible(true);
+            recommendationVBox.setManaged(true);
         }
 
         // Agregar VBox de problemas y recomendaciones al VBox principal

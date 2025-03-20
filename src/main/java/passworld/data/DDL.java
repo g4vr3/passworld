@@ -63,7 +63,8 @@ public class DDL {
                 + "password TEXT NOT NULL, "
                 + "isWeak BOOLEAN NOT NULL DEFAULT 0, "
                 + "isDuplicate BOOLEAN NOT NULL DEFAULT 0, "
-                + "isCompromised BOOLEAN NOT NULL DEFAULT 0);";
+                + "isCompromised BOOLEAN NOT NULL DEFAULT 0, "
+                + "isUrlUnsafe BOOLEAN NOT NULL DEFAULT 0);";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
