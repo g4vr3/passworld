@@ -50,6 +50,18 @@ public class MyPasswordsController {
     private Button showAllPasswordsButton;
     @FXML
     private Button showIssuePasswordsButton;
+    @FXML
+    private Label allPasswordsCountLabel;
+    @FXML
+    private Label issuePasswordsCountLabel;
+    @FXML
+    private ImageView allPasswordsIconView;
+    @FXML
+    private ImageView issuePasswordsIconView;
+
+    private Image allPasswordsIcon;
+    private Image protectIcon;
+    private Image issuePasswordsIcon;
 
     private ObservableList<PasswordDTO> passwordList = FXCollections.observableArrayList(); // Almacena la lista original
     private ObservableList<PasswordDTO> issuePasswordsList = FXCollections.observableArrayList(); // Almacena la lista de contraseñas con problemas
@@ -99,29 +111,23 @@ public class MyPasswordsController {
         // Agregar el listener para el ComboBox
         sortComboBox.setOnAction(event -> sortPasswords(passwordTable.getItems()));
 
+        // Cargar los iconos
+        allPasswordsIcon = new Image(getClass().getResource("/passworld/images/all_passwords_icon.png").toExternalForm());
+        protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon.png").toExternalForm());
+        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/issue_passwords_icon.png").toExternalForm());
+        // Asignar el icono y texto al botón de mostrar todas las contraseñas
+        allPasswordsIconView.setImage(allPasswordsIcon);
+
+        // Asignar el icono y texto al botón de mostrar contraseñas con problemas
+        updateIssuePasswordsButton();
+
         // Asignación de botones
         showAllPasswordsButton.setOnAction(event -> showAllPasswords());
         showIssuePasswordsButton.setOnAction(event -> showIssuePasswords());
-    }
 
-    @FXML
-    private void showAllPasswords() {
-        passwordTable.setItems(passwordList); // Mostrar todas las contraseñas
-        MyPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
-        sortPasswords(passwordList); // Ordenar las contraseñas
-        adjustTableHeight(passwordList.size()); // Ajustar la altura de la tabla
-
-        passwordTable.refresh();
-    }
-
-    @FXML
-    private void showIssuePasswords() {
-        passwordTable.setItems(issuePasswordsList); // Mostrar solo las contraseñas con problemas
-        MyPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_issue"));
-        sortPasswords(issuePasswordsList); // Ordenar las contraseñas con problemas
-        adjustTableHeight(issuePasswordsList.size()); // Ajustar la altura de la tabla
-
-        passwordTable.refresh();
+        // Inicializar los contadores de contraseñas
+        allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+        issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
     }
 
     private void loadPasswords() {
@@ -142,11 +148,43 @@ public class MyPasswordsController {
             adjustTableHeight(passwordList.size());
 
             // Actualizar el texto de los botones
-            showAllPasswordsButton.setText("Todas (" + passwordList.size() + ")");
-            showIssuePasswordsButton.setText("Seguridad (" + issuePasswordsList.size() + ")");
+            allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+            issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+
+            // Asignar el icono y texto al botón de mostrar contraseñas con problemas
+            updateIssuePasswordsButton();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void showAllPasswords() {
+        passwordTable.setItems(passwordList); // Mostrar todas las contraseñas
+        MyPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
+        sortPasswords(passwordList); // Ordenar la lista completa
+        adjustTableHeight(passwordList.size()); // Ajustar la altura de la tabla
+
+        // Actualizar el texto de los botones
+        allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+        issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+
+        passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
+    }
+
+    @FXML
+    private void showIssuePasswords() {
+        passwordTable.setItems(issuePasswordsList); // Mostrar solo las contraseñas con problemas
+        MyPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_issue"));
+        sortPasswords(issuePasswordsList); // Ordenar la lista de contraseñas con problemas
+        adjustTableHeight(issuePasswordsList.size()); // Ajustar la altura de la tabla
+
+        // Actualizar el texto de los botones
+        allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+        issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+
+        passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
     }
 
     private void setupSortComboBox() {
@@ -417,5 +455,10 @@ public class MyPasswordsController {
             e.printStackTrace();
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
+    }
+
+    private void updateIssuePasswordsButton() {
+        issuePasswordsIconView.setImage(issuePasswordsList.isEmpty() ? protectIcon : issuePasswordsIcon);
+        showIssuePasswordsButton.setText("Seguridad");
     }
 }
