@@ -11,10 +11,10 @@ import java.util.HashSet;
 public class SecurityFilterManager {
 
     // Conjunto que mantiene las contraseñas únicas activas
-    private final Set<String> uniquePasswords = new HashSet<>();
+    private static final Set<String> uniquePasswords = new HashSet<>();
 
     // Analizar la seguridad de una contraseña, usuario y URL
-    public void analyzePasswordSecurity(PasswordDTO passwordDTO) {
+    public static void analyzePasswordSecurity(PasswordDTO passwordDTO) {
         boolean isWeak = isWeakPassword(passwordDTO.getPassword());
         boolean isDuplicate = isDuplicatePassword(passwordDTO.getPassword());
         boolean isCompromised = isCompromisedPassword(passwordDTO.getPassword());
@@ -27,19 +27,19 @@ public class SecurityFilterManager {
     }
 
     // Verificar si la contraseña es débil
-    private boolean isWeakPassword(String password) {
+    private static boolean isWeakPassword(String password) {
         return PasswordEvaluator.calculateStrength(password) < 3;
     }
 
     // Verificar si la contraseña está duplicada
-    private boolean isDuplicatePassword(String password) {
+    private static boolean isDuplicatePassword(String password) {
         // Si ya está en el conjunto de contraseñas únicas, se marca como duplicada
         return !uniquePasswords.add(password);  // Si no se puede agregar, es duplicada
     }
 
 
     // Verificar si la contraseña ha sido comprometida
-    private boolean isCompromisedPassword(String password) {
+    private static boolean isCompromisedPassword(String password) {
         try {
             return CompromisedPasswordChecker.isCompromisedPassword(password);
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class SecurityFilterManager {
 
     // Verificar si la URL es insegura
     public static boolean isUrlUnsafe(String url) {
-        return UnsafeUrlChecker.isUnsafe(url); // Implementa esta clase
+        return UnsafeUrlChecker.isUnsafe(url);
     }
 
     public static boolean hasPasswordSecurityIssues(PasswordDTO passwordDTO) {
