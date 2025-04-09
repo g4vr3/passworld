@@ -306,44 +306,44 @@ public class DialogUtil {
 
         // Verificar si la contraseña es débil y añadir alerta y recomendación
         if (password.isWeak()) {
-            Label issueLabel = new Label("La contraseña es débil");
+            Label issueLabel = new Label(getBundle().getString("weak_password_desc"));
             issueLabel.getStyleClass().add("issueDescriptionLabel");
             issueDescriptionVBox.getChildren().add(issueLabel);
 
-            Label recommendationLabel = new Label("Recomendación: Utiliza una contraseña más segura");
+            Label recommendationLabel = new Label(getBundle().getString("weak_password_recommendation"));
             recommendationLabel.getStyleClass().add("recommendationLabel");
             recommendationVBox.getChildren().add(recommendationLabel);
         }
 
         // Verificar si la contraseña está duplicada y añadir alerta y recomendación
         if (password.isDuplicate()) {
-            Label issueLabel = new Label("La contraseña está duplicada");
+            Label issueLabel = new Label(getBundle().getString("duplicate_password_desc"));
             issueLabel.getStyleClass().add("issueDescriptionLabel");
             issueDescriptionVBox.getChildren().add(issueLabel);
 
-            Label recommendationLabel = new Label("Recomendación: Cambia la contraseña para evitar problemas de seguridad");
+            Label recommendationLabel = new Label(getBundle().getString("duplicate_password_recommendation"));
             recommendationLabel.getStyleClass().add("recommendationLabel");
             recommendationVBox.getChildren().add(recommendationLabel);
         }
 
         // Verificar si la contraseña ha sido comprometida y añadir alerta y recomendación
         if (password.isCompromised()) {
-            Label issueLabel = new Label("La contraseña ha sido comprometida");
+            Label issueLabel = new Label(getBundle().getString("compromised_password_desc"));
             issueLabel.getStyleClass().add("issueDescriptionLabel");
             issueDescriptionVBox.getChildren().add(issueLabel);
 
-            Label recommendationLabel = new Label("Recomendación: Cambia la contraseña para evitar problemas de seguridad");
+            Label recommendationLabel = new Label(getBundle().getString("compromised_password_recommendation"));
             recommendationLabel.getStyleClass().add("recommendationLabel");
             recommendationVBox.getChildren().add(recommendationLabel);
         }
 
         // Verificar si la URL es insegura y añadir alerta y recomendación
         if (SecurityFilterManager.isUrlUnsafe(password.getUrl())) {
-            Label issueLabel = new Label("La URL es insegura");
+            Label issueLabel = new Label(getBundle().getString("unsafe_url_desc"));
             issueLabel.getStyleClass().add("issueDescriptionLabel");
             issueDescriptionVBox.getChildren().add(issueLabel);
 
-            Label recommendationLabel = new Label("Recomendación: Evita visitar sitios web no seguros");
+            Label recommendationLabel = new Label(getBundle().getString("unsafe_url_recommendation"));
             recommendationLabel.getStyleClass().add("recommendationLabel");
             recommendationVBox.getChildren().add(recommendationLabel);
         }
