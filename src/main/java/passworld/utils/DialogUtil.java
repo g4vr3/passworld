@@ -13,6 +13,7 @@ import javafx.scene.layout.*;
 import passworld.controller.MyPasswordsController;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
+import passworld.service.SecurityFilterManager;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -271,6 +272,10 @@ public class DialogUtil {
         dialog.setTitle("passworld");
         dialog.setHeight(360);
 
+        // Crear contenedor principal VBox
+        VBox vbox = new VBox(10);
+        VBox.setVgrow(vbox, Priority.ALWAYS);  // Hacer que el VBox principal crezca para acomodar el contenido
+
         // Añadir un ButtonType oculto para permitir que el diálogo se cierre
         ButtonType hiddenButtonType = new ButtonType("");
         dialog.getDialogPane().getButtonTypes().add(hiddenButtonType);
@@ -289,9 +294,73 @@ public class DialogUtil {
         mandatoryDescriptionLabel.setVisible(false);  // Inicialmente no visible
         mandatoryDescriptionLabel.setManaged(false); // No gestionado cuando no se muestra
 
-        // Crear contenedor principal VBox
-        VBox vbox = new VBox(10);
-        VBox.setVgrow(vbox, Priority.ALWAYS);  // Hacer que el VBox principal crezca para acomodar el contenido
+        // Crear VBox para mostrar múltiples descripciones de issues
+        VBox issueDescriptionVBox = new VBox(5);
+        issueDescriptionVBox.setVisible(false);
+        issueDescriptionVBox.setManaged(false);
+
+        // Crear VBox para mostrar múltiples recomendaciones
+        VBox recommendationVBox = new VBox(5);
+        recommendationVBox.setVisible(false);
+        recommendationVBox.setManaged(false);
+
+        // Verificar si la contraseña es débil y añadir alerta y recomendación
+        if (password.isWeak()) {
+            Label issueLabel = new Label(getBundle().getString("weak_password_desc"));
+            issueLabel.getStyleClass().add("issueDescriptionLabel");
+            issueDescriptionVBox.getChildren().add(issueLabel);
+
+            Label recommendationLabel = new Label(getBundle().getString("weak_password_recommendation"));
+            recommendationLabel.getStyleClass().add("recommendationLabel");
+            recommendationVBox.getChildren().add(recommendationLabel);
+        }
+
+        // Verificar si la contraseña está duplicada y añadir alerta y recomendación
+        if (password.isDuplicate()) {
+            Label issueLabel = new Label(getBundle().getString("duplicate_password_desc"));
+            issueLabel.getStyleClass().add("issueDescriptionLabel");
+            issueDescriptionVBox.getChildren().add(issueLabel);
+
+            Label recommendationLabel = new Label(getBundle().getString("duplicate_password_recommendation"));
+            recommendationLabel.getStyleClass().add("recommendationLabel");
+            recommendationVBox.getChildren().add(recommendationLabel);
+        }
+
+        // Verificar si la contraseña ha sido comprometida y añadir alerta y recomendación
+        if (password.isCompromised()) {
+            Label issueLabel = new Label(getBundle().getString("compromised_password_desc"));
+            issueLabel.getStyleClass().add("issueDescriptionLabel");
+            issueDescriptionVBox.getChildren().add(issueLabel);
+
+            Label recommendationLabel = new Label(getBundle().getString("compromised_password_recommendation"));
+            recommendationLabel.getStyleClass().add("recommendationLabel");
+            recommendationVBox.getChildren().add(recommendationLabel);
+        }
+
+        // Verificar si la URL es insegura y añadir alerta y recomendación
+        if (SecurityFilterManager.isUrlUnsafe(password.getUrl())) {
+            Label issueLabel = new Label(getBundle().getString("unsafe_url_desc"));
+            issueLabel.getStyleClass().add("issueDescriptionLabel");
+            issueDescriptionVBox.getChildren().add(issueLabel);
+
+            Label recommendationLabel = new Label(getBundle().getString("unsafe_url_recommendation"));
+            recommendationLabel.getStyleClass().add("recommendationLabel");
+            recommendationVBox.getChildren().add(recommendationLabel);
+        }
+
+        // Hacer visibles los contenedores de issues y recomendaciones si tienen contenido
+        if (!issueDescriptionVBox.getChildren().isEmpty()) {
+            issueDescriptionVBox.setVisible(true);
+            issueDescriptionVBox.setManaged(true);
+        }
+
+        if (!recommendationVBox.getChildren().isEmpty()) {
+            recommendationVBox.setVisible(true);
+            recommendationVBox.setManaged(true);
+        }
+
+        // Agregar VBox de problemas y recomendaciones al VBox principal
+        vbox.getChildren().addAll(issueDescriptionVBox, recommendationVBox);
 
         // Crear campos para Descripción
         VBox descriptionBox = new VBox(5);

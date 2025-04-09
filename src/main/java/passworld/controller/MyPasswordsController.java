@@ -18,6 +18,7 @@ import javafx.stage.Window;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
+import passworld.service.SecurityFilterManager;
 import passworld.utils.DialogUtil;
 import passworld.utils.Notifier;
 import passworld.service.PasswordManager;
@@ -25,8 +26,10 @@ import passworld.service.PasswordManager;
 import java.io.InputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class MyPasswordsController {
     @FXML
@@ -36,13 +39,40 @@ public class MyPasswordsController {
     @FXML
     private TableColumn<PasswordDTO, Void> infoButtonColumn;
     @FXML
+    private TableColumn<PasswordDTO, Void> warningIconColumn;
+    @FXML
     private Button backButton;
     @FXML
     private ComboBox<String> sortComboBox;
     @FXML
-    private Label MyPasswordsHeaderLabel;
+    private Label myPasswordsHeaderLabel;
+    @FXML
+    private Button showAllPasswordsButton;
+    @FXML
+    private Button showIssuePasswordsButton;
+    @FXML
+    private Label allPasswordsCountLabel;
+    @FXML
+    private Label issuePasswordsCountLabel;
+    @FXML
+    private ImageView allPasswordsIconView;
+    @FXML
+    private ImageView issuePasswordsIconView;
+    @FXML
+    private Label allPasswordsButtonLabel;
+    @FXML
+    private Tooltip allPasswordsButtonTooltip;
+    @FXML
+    private Label issuePasswordsButtonLabel;
+    @FXML
+    private Tooltip issuePasswordsButtonTooltip;
+
+    private Image allPasswordsIcon;
+    private Image protectIcon;
+    private Image issuePasswordsIcon;
 
     private ObservableList<PasswordDTO> passwordList = FXCollections.observableArrayList(); // Almacena la lista original
+    private ObservableList<PasswordDTO> issuePasswordsList = FXCollections.observableArrayList(); // Almacena la lista de contraseñas con problemas
 
     // Auxiliar para obtener el ResourceBundle dinámicamente
     private static ResourceBundle getBundle() {
@@ -77,19 +107,103 @@ public class MyPasswordsController {
 
         // Añadir después de cargar las contraseñas
         setupSortComboBox(); // Configurar el ComboBox para mostrar solo un icono
-        sortPasswords(); // Ordenar las contraseñas según la opción predeterminada
+        sortPasswords(passwordList); // Ordenar las contraseñas según la opción predeterminada
 
         addCustomCells(); // Configurar las celdas de la tabla
         addTableRowClickListener(); // Configurar clicado en registros de la tabla
         hideTableHeader(); // Ocultar el encabezado de la tabla
 
         // Etiqueta de descripción de los registros mostrados en la tabla
-        MyPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
+        myPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
 
         // Agregar el listener para el ComboBox
-        sortComboBox.setOnAction(event -> sortPasswords());
+        sortComboBox.setOnAction(event -> sortPasswords(passwordTable.getItems()));
+
+        // Cargar los iconos
+        allPasswordsIcon = new Image(getClass().getResource("/passworld/images/all_passwords_icon.png").toExternalForm());
+        protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon.png").toExternalForm());
+        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/issue_passwords_icon.png").toExternalForm());
+        // Asignar el icono y texto al botón de mostrar todas las contraseñas
+        allPasswordsIconView.setImage(allPasswordsIcon);
+
+        // Establecer textos dinámicamente
+        allPasswordsButtonLabel.setText(getBundle().getString("all_passwords_button_text"));
+        allPasswordsButtonTooltip.setText(getBundle().getString("all_passwords_button_tooltip"));
+
+        // Asignar el icono y texto al botón de mostrar contraseñas con problemas
+        updateIssuePasswordsButton();
+
+        // Asignación de botones
+        showAllPasswordsButton.setOnAction(event -> showAllPasswords());
+        showIssuePasswordsButton.setOnAction(event -> showIssuePasswords());
+
+        // Inicializar los contadores de contraseñas
+        allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+        issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
     }
 
+    private void loadPasswords() {
+        try {
+            // Obtener datos de la base de datos y almacenarlos en la lista original
+            List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
+            passwordList.setAll(passwords); // Actualizar la lista observable
+            issuePasswordsList.setAll(passwords.stream()
+                    .filter(SecurityFilterManager::hasPasswordSecurityIssues)
+                    .collect(Collectors.toList())); // Actualizar la lista de contraseñas con problemas
+
+            passwordTable.setItems(passwordList);
+            sortPasswords(passwordList); // Ordenar las contraseñas
+
+            // Mostrar u ocultar el ComboBox de ordenación
+            sortComboBox.setVisible(!passwordList.isEmpty());
+
+            adjustTableHeight(passwordList.size());
+
+            // Actualizar el texto de los botones
+            allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+            issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+
+            // Asignar el icono y texto al botón de mostrar contraseñas con problemas
+            updateIssuePasswordsButton();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void showAllPasswords() {
+        passwordTable.setItems(passwordList); // Mostrar todas las contraseñas
+        myPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
+        sortPasswords(passwordList); // Ordenar la lista completa
+        adjustTableHeight(passwordList.size()); // Ajustar la altura de la tabla
+
+        // Actualizar el texto de los botones
+        allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+        issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+
+        // Ocultar el ComboBox si no hay contraseñas
+        sortComboBox.setVisible(!passwordList.isEmpty());
+
+        passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
+    }
+
+    @FXML
+    private void showIssuePasswords() {
+        passwordTable.setItems(issuePasswordsList); // Mostrar solo las contraseñas con problemas
+        myPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_issue"));
+        sortPasswords(issuePasswordsList); // Ordenar la lista de contraseñas con problemas
+        adjustTableHeight(issuePasswordsList.size()); // Ajustar la altura de la tabla
+
+        // Actualizar el texto de los botones
+        allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
+        issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+
+        // Ocultar el ComboBox si no hay contraseñas con problemas
+        sortComboBox.setVisible(!issuePasswordsList.isEmpty());
+
+        passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
+    }
 
     private void setupSortComboBox() {
         // Establecer el icono para el ComboBox
@@ -137,10 +251,11 @@ public class MyPasswordsController {
         sortComboBox.getSelectionModel().select(getBundle().getString("sort_newest_to_oldest"));
     }
 
-    private void sortPasswords() {
+    private void sortPasswords(ObservableList<PasswordDTO> passwords) {
         String selectedSortOrder = sortComboBox.getValue();
 
         if (selectedSortOrder == null) {
+            FXCollections.sort(passwords, (p1, p2) -> Integer.compare(p2.getId(), p1.getId())); // Ordenar por ID de forma descendente
             return;
         }
 
@@ -151,20 +266,16 @@ public class MyPasswordsController {
         String sortOldestToNewest = getBundle().getString("sort_oldest_to_newest");
 
         if (selectedSortOrder.equals(sortAZ)) {
-            FXCollections.sort(passwordList, (p1, p2) -> p1.getDescription().compareToIgnoreCase(p2.getDescription()));
+            FXCollections.sort(passwords, (p1, p2) -> p1.getDescription().compareToIgnoreCase(p2.getDescription()));
         } else if (selectedSortOrder.equals(sortZA)) {
-            FXCollections.sort(passwordList, (p1, p2) -> p2.getDescription().compareToIgnoreCase(p1.getDescription()));
+            FXCollections.sort(passwords, (p1, p2) -> p2.getDescription().compareToIgnoreCase(p1.getDescription()));
         } else if (selectedSortOrder.equals(sortNewestToOldest)) {
-            // Volver a ordenar por defecto (más antigua - más reciente)
-            loadPasswords();
-            // Revertir orden por defecto
-            FXCollections.reverse(passwordList);
+            FXCollections.sort(passwords, (p1, p2) -> Integer.compare(p2.getId(), p1.getId())); // Ordenar por ID de forma descendente
         } else if (selectedSortOrder.equals(sortOldestToNewest)) {
-            loadPasswords();
-            return;
+            FXCollections.sort(passwords, Comparator.comparingInt(PasswordDTO::getId)); // Ordenar por ID de forma ascendente
         }
 
-        passwordTable.setItems(passwordList);
+        passwordTable.setItems(passwords);
     }
 
     private void setBackButton() {
@@ -183,22 +294,6 @@ public class MyPasswordsController {
         });
     }
 
-    private void loadPasswords() {
-        try {
-            // Obtener datos de la base de datos y almacenarlos en la lista original
-            List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
-            passwordList = FXCollections.observableArrayList(passwords);
-            passwordTable.setItems(passwordList);
-
-            // Mostrar u ocultar el ComboBox de ordenación
-            sortComboBox.setVisible(!passwordList.isEmpty());
-
-            adjustTableHeight(passwordList.size());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void adjustTableHeight(int rowCount) {
         // Ajustar la altura de la tabla dinámicamente
         double rowHeight = 42;
@@ -214,6 +309,9 @@ public class MyPasswordsController {
         infoButtonColumn.setResizable(false);
         passwordEntryColumn.setSortable(false);
         infoButtonColumn.setSortable(false);
+        warningIconColumn.setReorderable(false);
+        warningIconColumn.setResizable(false);
+        warningIconColumn.setSortable(false);
 
         // Configurar las celdas de la columna de entrada de contraseña
         passwordEntryColumn.setCellFactory(column -> new TableCell<>() {
@@ -247,6 +345,35 @@ public class MyPasswordsController {
             }
         });
 
+        // Configurar las celdas de la columna de icono de advertencia
+        warningIconColumn.setCellFactory(column -> new TableCell<>() {
+            private final ImageView warningIconView = new ImageView();
+
+            {
+                // Configurar el icono de advertencia
+                Image warningIcon = new Image(getClass().getResource("/passworld/images/warning_icon.png").toExternalForm());
+                warningIconView.setImage(warningIcon);
+                warningIconView.getStyleClass().add("icon");
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                } else {
+                    PasswordDTO password = getTableRow().getItem();
+                    if (SecurityFilterManager.hasPasswordSecurityIssues(password)) {
+                        setGraphic(warningIconView);
+                    } else {
+                        setGraphic(null);
+                    }
+                    setAlignment(Pos.CENTER);
+                    setPadding(new Insets(0, 0, 0, 0));
+                }
+            }
+        });
+
         // Configurar las celdas de la columna de botones de información
         infoButtonColumn.setCellFactory(column -> new TableCell<>() {
             private final Button showInfoButton = new Button();
@@ -275,7 +402,7 @@ public class MyPasswordsController {
                 } else {
                     setGraphic(showInfoButton);
                     setAlignment(Pos.CENTER);
-                    setPadding(new Insets(0, 20, 0, 0)); // Padding derecho
+                    setPadding(new Insets(0, 0, 0, 0)); // Padding derecho
                 }
             }
         });
@@ -313,7 +440,7 @@ public class MyPasswordsController {
 
         try {
             // Llamar al PasswordManager para eliminar la contraseña
-            boolean success = PasswordManager.deletePassword(password);
+            boolean success = PasswordManager.deletePassword(password.getId());
             if (success) {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_successfully"));
                 loadPasswords();
@@ -346,5 +473,11 @@ public class MyPasswordsController {
             e.printStackTrace();
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
+    }
+
+    private void updateIssuePasswordsButton() {
+        issuePasswordsIconView.setImage(issuePasswordsList.isEmpty() ? protectIcon : issuePasswordsIcon);
+        issuePasswordsButtonLabel.setText(getBundle().getString("issue_passwords_button_text"));
+        issuePasswordsButtonTooltip.setText(issuePasswordsList.isEmpty() ? getBundle().getString("issue_passwords_button_ok_tooltip") : getBundle().getString("issue_passwords_button_issues_tooltip"));
     }
 }

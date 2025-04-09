@@ -6,7 +6,12 @@ public class PasswordDTO {
     private String username;
     private String url;
     private String password;
+    private boolean isWeak;
+    private boolean isDuplicate;
+    private boolean isCompromised;
+    private boolean isUrlUnsafe;
 
+    // Constructor, getters y setters
     public PasswordDTO(String description, String username, String url, String password) {
         this.description = description;
         this.username = username;
@@ -53,5 +58,36 @@ public class PasswordDTO {
     public void setPassword(String password) {
         this.password = password;
     }
-}
 
+    public boolean isWeak() {
+        return isWeak;
+    }
+
+    public void setWeak(boolean weak) {
+        isWeak = weak;
+    }
+
+    public boolean isDuplicate() {
+        return isDuplicate;
+    }
+
+    public void setDuplicate(boolean duplicate) {
+        isDuplicate = duplicate;
+    }
+
+    public boolean isCompromised() {
+        return isCompromised;
+    }
+
+    public void setCompromised(boolean compromised) {
+        isCompromised = compromised;
+    }
+
+    public boolean isUrlUnsafe() {
+        return isUrlUnsafe;
+    }
+
+    public void setUrlUnsafe(boolean urlUnsafe) {
+        isUrlUnsafe = urlUnsafe;
+    }
+}

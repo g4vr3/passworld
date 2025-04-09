@@ -54,13 +54,17 @@ public class DDL {
     }
 
     private static void createTable(Connection conn) {
-        // SQL para crear la tabla
+        // SQL para crear la tabla con las nuevas columnas
         String createTableSQL = "CREATE TABLE IF NOT EXISTS passwords ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "description TEXT NOT NULL, "
                 + "username TEXT, "
                 + "url TEXT, "
-                + "password TEXT NOT NULL);";
+                + "password TEXT NOT NULL, "
+                + "isWeak BOOLEAN NOT NULL DEFAULT 0, "
+                + "isDuplicate BOOLEAN NOT NULL DEFAULT 0, "
+                + "isCompromised BOOLEAN NOT NULL DEFAULT 0, "
+                + "isUrlUnsafe BOOLEAN NOT NULL DEFAULT 0);";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
