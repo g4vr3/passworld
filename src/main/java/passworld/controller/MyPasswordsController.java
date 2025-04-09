@@ -182,6 +182,9 @@ public class MyPasswordsController {
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
         issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
 
+        // Ocultar el ComboBox si no hay contraseñas
+        sortComboBox.setVisible(!passwordList.isEmpty());
+
         passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
     }
 
@@ -195,6 +198,9 @@ public class MyPasswordsController {
         // Actualizar el texto de los botones
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
         issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+
+        // Ocultar el ComboBox si no hay contraseñas con problemas
+        sortComboBox.setVisible(!issuePasswordsList.isEmpty());
 
         passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
     }
