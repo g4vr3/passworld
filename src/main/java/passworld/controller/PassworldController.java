@@ -96,8 +96,8 @@ public class PassworldController {
         // Uso de Platform.runLater para asegurar que el Scene ya esté disponible
         Platform.runLater(() -> {
             if (passwordField.getScene() != null) {
-                Accessibility.addCopyShortcut(passwordField, this);
-                Accessibility.addSavePasswordShortcut(passwordField.getScene(), this);
+                Accessibility.addCopyShortcut(passwordField, this::copyPasswordToClipboard);
+                Accessibility.addSavePasswordShortcut(passwordField.getScene(), this::savePassword);
             }
         });
     }

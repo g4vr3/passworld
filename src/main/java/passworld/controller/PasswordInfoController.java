@@ -1,5 +1,6 @@
 package passworld.controller;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,6 +19,7 @@ import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
 import passworld.service.PasswordManager;
 import passworld.service.SecurityFilterManager;
+import passworld.utils.Accessibility;
 import passworld.utils.Notifier;
 
 import java.io.IOException;
@@ -106,11 +108,7 @@ public class PasswordInfoController {
 
         // Guardar
         saveButton.setOnAction(event -> {
-            try {
-                savePassword();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            savePassword();
         });
 
         // Eliminar
@@ -121,6 +119,19 @@ public class PasswordInfoController {
 
         // Texto de la interfaz
         setUIText();
+
+        // Atajos de teclado
+        setKeyboardShortcuts();
+    }
+
+    private void setKeyboardShortcuts() {
+        // Uso de Platform.runLater para asegurar que el Scene ya esté disponible
+        Platform.runLater(() -> {
+            if (passwordFieldVisible.getScene() != null) {
+                Accessibility.addCopyShortcut(passwordFieldVisible, this::copyPasswordToClipboard);
+                Accessibility.addSavePasswordShortcut(passwordFieldVisible.getScene(), this::savePassword);
+            }
+        });
     }
 
     private void setBackButton() {
@@ -237,7 +248,7 @@ public class PasswordInfoController {
         Notifier.showNotification(copyButton.getScene().getWindow(), getBundle().getString("toolTip_textCopiedToClipboard"));
     }
 
-    private void savePassword() throws SQLException {
+    private void savePassword() {
         String newDescription = descriptionField.getText();
         String newUsername = usernameField.getText();
         String newUrl = urlField.getText();
@@ -254,7 +265,12 @@ public class PasswordInfoController {
             passwordsController.updatePassword(password, newDescription, newUsername, newUrl, newPassword);
 
             // Recargar el objeto desde la base de datos
-            PasswordDTO updatedPassword = PasswordManager.getPasswordById(password.getId());
+            PasswordDTO updatedPassword = null;
+            try {
+                updatedPassword = PasswordManager.getPasswordById(password.getId());
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
             if (updatedPassword != null) {
                 this.password = updatedPassword;
 
