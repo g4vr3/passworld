@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -65,6 +66,12 @@ public class MyPasswordsController {
     private Label issuePasswordsButtonLabel;
     @FXML
     private Tooltip issuePasswordsButtonTooltip;
+    @FXML
+    private Parent root; // Nodo raíz definido en el archivo FXML
+
+    public Parent getRoot() {
+        return root;
+    }
 
     private Image allPasswordsIcon;
     private Image protectIcon;
@@ -79,18 +86,7 @@ public class MyPasswordsController {
     }
 
     public static void showView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(MyPasswordsController.class.getResource("/passworld/my-passwords-view.fxml"));
-            Stage myPasswordsStage = new Stage();
-            Scene scene = new Scene(loader.load(), 600, 450);
-            scene.getStylesheets().add(MyPasswordsController.class.getResource("/passworld/styles/styles.css").toExternalForm());
-            myPasswordsStage.getIcons().add(new Image(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png")));
-            myPasswordsStage.setTitle("passworld - " + getBundle().getString("my_passwords_title"));
-            myPasswordsStage.setScene(scene);
-            myPasswordsStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        passworld.util.ViewManager.changeView("/passworld/my-passwords-view.fxml", String.format("passworld - " + getBundle().getString("my_passwords_title")));
     }
 
     @FXML
@@ -288,8 +284,8 @@ public class MyPasswordsController {
 
         // Configurar la acción del botón de volver
         backButton.setOnAction(event -> {
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            stage.close();
+            // Volver a la vista anterior
+            passworld.util.ViewManager.changeView("/passworld/main-view.fxml", "passworld");
         });
     }
 

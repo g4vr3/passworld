@@ -51,17 +51,19 @@ public class PassworldController {
     @FXML
     ComboBox<String> languageComboBox;
 
-    public void showView() {
+    public static void showView() {
         // Cargar ventana principal y mostrarla
         Stage mainStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/passworld/main-view.fxml"));
+        FXMLLoader loader = new FXMLLoader(PassworldController.class.getResource("/passworld/main-view.fxml"));
         try {
             Scene scene = new Scene(loader.load(), 600, 450);
-            scene.getStylesheets().add(getClass().getResource("/passworld/styles/styles.css").toExternalForm());
+            scene.getStylesheets().add(PassworldController.class.getResource("/passworld/styles/styles.css").toExternalForm());
             mainStage.getIcons().add(new Image(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png")));
             mainStage.setTitle("passworld");
             mainStage.setScene(scene);
+            mainStage.setResizable(false); // Deshabilitar el redimensionamiento de la ventana
             mainStage.show();
+            passworld.util.ViewManager.setPrimaryStage(mainStage); // Establecer el escenario principal
         } catch (IOException e) {
             e.printStackTrace();
         }

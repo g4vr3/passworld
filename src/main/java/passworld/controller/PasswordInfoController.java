@@ -67,6 +67,7 @@ public class PasswordInfoController {
             stage.setTitle("passworld - " + password.getDescription());
             stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
 
             PasswordInfoController controller = loader.getController();
             controller.setData(password, passwordsController);
