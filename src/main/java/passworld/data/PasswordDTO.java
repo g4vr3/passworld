@@ -1,5 +1,7 @@
 package passworld.data;
 
+import passworld.service.SecurityFilterManager;
+
 public class PasswordDTO {
     private int id;
     private String description;

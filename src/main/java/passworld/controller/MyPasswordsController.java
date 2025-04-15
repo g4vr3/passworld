@@ -19,7 +19,6 @@ import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
 import passworld.service.SecurityFilterManager;
-import passworld.utils.DialogUtil;
 import passworld.utils.Notifier;
 import passworld.service.PasswordManager;
 
@@ -390,7 +389,7 @@ public class MyPasswordsController {
                 // Configurar la acción del botón de información
                 showInfoButton.setOnAction(event -> {
                     PasswordDTO password = getTableView().getItems().get(getIndex());
-                    DialogUtil.showPasswordInfoDialog(password, MyPasswordsController.this);
+                    PasswordInfoController.showView(password, MyPasswordsController.this); // Llamar a la vista de detalles
                 });
             }
 
@@ -409,13 +408,12 @@ public class MyPasswordsController {
     }
 
     private void addTableRowClickListener() {
-        // Manejar clics en filas de la tabla
         passwordTable.setRowFactory(tableView -> {
             TableRow<PasswordDTO> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 1) { // Detectar clic simple
                     PasswordDTO clickedPassword = row.getItem();
-                    DialogUtil.showPasswordInfoDialog(clickedPassword, this); // Pasar el controlador a DialogUtil
+                    PasswordInfoController.showView(clickedPassword, this); // Llamar a la vista de detalles
                 }
             });
             return row;
