@@ -217,6 +217,7 @@ public class PasswordInfoController {
                         !Objects.equals(passwordFieldVisible.getText(), password.getPassword());
 
         saveButton.setVisible(hasChanges);
+        saveButton.setDefaultButton(true); // botón por defecto
         saveButton.setManaged(hasChanges);
         saveButton.setDisable(!isDescriptionValid || !isPasswordValid);
     }
