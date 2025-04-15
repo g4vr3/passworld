@@ -273,6 +273,7 @@
 
 .passwords-filter-button {
     -fx-background-color: #f2f2f2; /* Fondo del botón */
+    -fx-background-radius: 5px;
     -fx-border-color: #d3d3d3; /* Color del borde */
     -fx-border-width: 1px; /* Grosor del borde */
     -fx-border-radius: 5px; /* Bordes redondeados */
@@ -306,6 +307,7 @@
 
 .password-security-status {
     -fx-background-color: #f2f2f2; /* Fondo del botón */
+    -fx-background-radius: 5px;
     -fx-border-color: #d3d3d3; /* Color del borde */
     -fx-border-width: 1px; /* Grosor del borde */
     -fx-border-radius: 5px; /* Bordes redondeados */
