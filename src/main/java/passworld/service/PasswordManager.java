@@ -58,7 +58,7 @@ public class PasswordManager {
 
     // Eliminar una contraseña
     public static boolean deletePassword(int id) throws SQLException {
-        PasswordDTO passwordToDelete = PasswordDAO.readPasswordById(id);
+        PasswordDTO passwordToDelete = getPasswordById(id);
         boolean deleted = PasswordDAO.deletePassword(id);
 
         if (deleted) {
@@ -70,6 +70,10 @@ public class PasswordManager {
         }
 
         return deleted;
+    }
+
+    public static PasswordDTO getPasswordById(int id) throws SQLException {
+        return PasswordDAO.readPasswordById(id);
     }
 
     // Validar los datos de la contraseña

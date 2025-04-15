@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -19,7 +20,6 @@ import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
 import passworld.service.SecurityFilterManager;
-import passworld.utils.DialogUtil;
 import passworld.utils.Notifier;
 import passworld.service.PasswordManager;
 
@@ -66,6 +66,12 @@ public class MyPasswordsController {
     private Label issuePasswordsButtonLabel;
     @FXML
     private Tooltip issuePasswordsButtonTooltip;
+    @FXML
+    private Parent root; // Nodo raíz definido en el archivo FXML
+
+    public Parent getRoot() {
+        return root;
+    }
 
     private Image allPasswordsIcon;
     private Image protectIcon;
@@ -80,18 +86,7 @@ public class MyPasswordsController {
     }
 
     public static void showView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(MyPasswordsController.class.getResource("/passworld/my-passwords-view.fxml"));
-            Stage myPasswordsStage = new Stage();
-            Scene scene = new Scene(loader.load(), 600, 450);
-            scene.getStylesheets().add(MyPasswordsController.class.getResource("/passworld/styles/styles.css").toExternalForm());
-            myPasswordsStage.getIcons().add(new Image(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png")));
-            myPasswordsStage.setTitle("passworld - " + getBundle().getString("my_passwords_title"));
-            myPasswordsStage.setScene(scene);
-            myPasswordsStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        passworld.util.ViewManager.changeView("/passworld/my-passwords-view.fxml", String.format("passworld - " + getBundle().getString("my_passwords_title")));
     }
 
     @FXML
@@ -122,7 +117,7 @@ public class MyPasswordsController {
         // Cargar los iconos
         allPasswordsIcon = new Image(getClass().getResource("/passworld/images/all_passwords_icon.png").toExternalForm());
         protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon.png").toExternalForm());
-        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/issue_passwords_icon.png").toExternalForm());
+        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/warning_icon.png").toExternalForm());
         // Asignar el icono y texto al botón de mostrar todas las contraseñas
         allPasswordsIconView.setImage(allPasswordsIcon);
 
@@ -289,8 +284,8 @@ public class MyPasswordsController {
 
         // Configurar la acción del botón de volver
         backButton.setOnAction(event -> {
-            Stage stage = (Stage) backButton.getScene().getWindow();
-            stage.close();
+            // Volver a la vista anterior
+            passworld.util.ViewManager.changeView("/passworld/main-view.fxml", "passworld");
         });
     }
 
@@ -390,7 +385,7 @@ public class MyPasswordsController {
                 // Configurar la acción del botón de información
                 showInfoButton.setOnAction(event -> {
                     PasswordDTO password = getTableView().getItems().get(getIndex());
-                    DialogUtil.showPasswordInfoDialog(password, MyPasswordsController.this);
+                    PasswordInfoController.showView(password, MyPasswordsController.this); // Llamar a la vista de detalles
                 });
             }
 
@@ -409,13 +404,12 @@ public class MyPasswordsController {
     }
 
     private void addTableRowClickListener() {
-        // Manejar clics en filas de la tabla
         passwordTable.setRowFactory(tableView -> {
             TableRow<PasswordDTO> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 1) { // Detectar clic simple
                     PasswordDTO clickedPassword = row.getItem();
-                    DialogUtil.showPasswordInfoDialog(clickedPassword, this); // Pasar el controlador a DialogUtil
+                    PasswordInfoController.showView(clickedPassword, this); // Llamar a la vista de detalles
                 }
             });
             return row;
@@ -476,7 +470,12 @@ public class MyPasswordsController {
     }
 
     private void updateIssuePasswordsButton() {
-        issuePasswordsIconView.setImage(issuePasswordsList.isEmpty() ? protectIcon : issuePasswordsIcon);
+        if (issuePasswordsList.isEmpty()) {
+            issuePasswordsIconView.setImage(protectIcon);
+        } else {
+            issuePasswordsIconView.setImage(issuePasswordsIcon);
+            issuePasswordsCountLabel.getStyleClass().add("counter-label-issue");
+        }
         issuePasswordsButtonLabel.setText(getBundle().getString("issue_passwords_button_text"));
         issuePasswordsButtonTooltip.setText(issuePasswordsList.isEmpty() ? getBundle().getString("issue_passwords_button_ok_tooltip") : getBundle().getString("issue_passwords_button_issues_tooltip"));
     }
