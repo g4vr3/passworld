@@ -221,6 +221,9 @@ public class PasswordInfoController {
             passwordFieldVisible.getStyleClass().remove("error-border");
         }
 
+        // Ocultar el botón de copiar si la contraseña está vacía
+        copyButton.setVisible(isPasswordValid);
+
         boolean hasChanges =
                 !Objects.equals(descriptionField.getText(), password.getDescription()) ||
                         !Objects.equals(usernameField.getText(), password.getUsername()) ||
