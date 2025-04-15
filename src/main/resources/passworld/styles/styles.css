@@ -311,7 +311,7 @@
     -fx-border-radius: 5px; /* Bordes redondeados */
     -fx-text-fill: #000000; /* Color del texto */
     -fx-font-size: 14px; /* Tamaño de la fuente */
-    -fx-padding: 8px 16px; /* Relleno interno */
+    -fx-padding: 8px 10px; /* Relleno interno */
     -fx-cursor: hand; /* Cambiar el cursor al pasar sobre el botón */
     -fx-background-insets: 0; /* Eliminar los insets del fondo */
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 1); /* Sombra sutil */
