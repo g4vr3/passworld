@@ -298,6 +298,12 @@
     -fx-text-fill: #cccccc; /* Color gris oscuro */
 }
 
+.counter-label-issue {
+    -fx-font-size: 25px; /* Tamaño de fuente más grande */
+    -fx-font-weight: bold; /* Texto en negrita */
+    -fx-text-fill: #000000; /* Color negro */
+}
+
 .password-security-status {
     -fx-background-color: #f2f2f2; /* Fondo del botón */
     -fx-border-color: #d3d3d3; /* Color del borde */

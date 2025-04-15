@@ -121,7 +121,7 @@ public class MyPasswordsController {
         // Cargar los iconos
         allPasswordsIcon = new Image(getClass().getResource("/passworld/images/all_passwords_icon.png").toExternalForm());
         protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon.png").toExternalForm());
-        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/issue_passwords_icon.png").toExternalForm());
+        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/warning_icon.png").toExternalForm());
         // Asignar el icono y texto al botón de mostrar todas las contraseñas
         allPasswordsIconView.setImage(allPasswordsIcon);
 
@@ -474,7 +474,12 @@ public class MyPasswordsController {
     }
 
     private void updateIssuePasswordsButton() {
-        issuePasswordsIconView.setImage(issuePasswordsList.isEmpty() ? protectIcon : issuePasswordsIcon);
+        if (issuePasswordsList.isEmpty()) {
+            issuePasswordsIconView.setImage(protectIcon);
+        } else {
+            issuePasswordsIconView.setImage(issuePasswordsIcon);
+            issuePasswordsCountLabel.getStyleClass().add("counter-label-issue");
+        }
         issuePasswordsButtonLabel.setText(getBundle().getString("issue_passwords_button_text"));
         issuePasswordsButtonTooltip.setText(issuePasswordsList.isEmpty() ? getBundle().getString("issue_passwords_button_ok_tooltip") : getBundle().getString("issue_passwords_button_issues_tooltip"));
     }
