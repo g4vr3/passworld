@@ -3,18 +3,15 @@ package passworld.controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
@@ -22,9 +19,9 @@ import passworld.service.LanguageManager;
 import passworld.service.SecurityFilterManager;
 import passworld.utils.Notifier;
 import passworld.service.PasswordManager;
+import passworld.utils.ThemeManager;
 
 import java.io.InputStream;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
@@ -32,6 +29,8 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class MyPasswordsController {
+    @FXML
+    ImageView logoImageView;
     @FXML
     private TableView<PasswordDTO> passwordTable;
     @FXML
@@ -91,6 +90,11 @@ public class MyPasswordsController {
 
     @FXML
     public void initialize() {
+        // Establecer imagen de logo
+        Image logoImage = new Image(getClass().getResource("/passworld/images/passworld_logo.png").toExternalForm());
+        logoImageView.setImage(logoImage);
+        ThemeManager.applyThemeToImage(logoImageView);
+
         // Establecer el mensaje de marcador de posición cuando no hay datos
         passwordTable.setPlaceholder(new Label(getBundle().getString("no_data_to_display")));
 
@@ -114,10 +118,12 @@ public class MyPasswordsController {
         // Agregar el listener para el ComboBox
         sortComboBox.setOnAction(event -> sortPasswords(passwordTable.getItems()));
 
-        // Cargar los iconos
-        allPasswordsIcon = new Image(getClass().getResource("/passworld/images/all_passwords_icon.png").toExternalForm());
-        protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon.png").toExternalForm());
-        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/warning_icon.png").toExternalForm());
+        // Cargar los iconos según el tema
+        String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
+        allPasswordsIcon = new Image(getClass().getResource("/passworld/images/all_passwords_icon" + themeSuffix + ".png").toExternalForm());
+        protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon" + themeSuffix + ".png").toExternalForm());
+        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/warning_icon" + themeSuffix + ".png").toExternalForm());
+
         // Asignar el icono y texto al botón de mostrar todas las contraseñas
         allPasswordsIconView.setImage(allPasswordsIcon);
 
@@ -210,6 +216,7 @@ public class MyPasswordsController {
         }
         sortImage = new Image(iconStream);
         ImageView sortIcon = new ImageView(sortImage);
+        ThemeManager.applyThemeToImage(sortIcon);
         sortIcon.getStyleClass().add("sort-icon");
 
         // Aplicar el estilo de icono al botón del ComboBox
@@ -277,6 +284,7 @@ public class MyPasswordsController {
         // Configurar el icono y el estilo del botón de volver
         Image ltIcon = new Image(getClass().getResource("/passworld/images/lt_icon.png").toExternalForm());
         ImageView ltImageView = new ImageView(ltIcon);
+        ThemeManager.applyThemeToImage(ltImageView);
         ltImageView.getStyleClass().add("icon");
         backButton.setGraphic(ltImageView);
 
@@ -348,6 +356,7 @@ public class MyPasswordsController {
                 // Configurar el icono de advertencia
                 Image warningIcon = new Image(getClass().getResource("/passworld/images/warning_icon.png").toExternalForm());
                 warningIconView.setImage(warningIcon);
+                ThemeManager.applyThemeToImage(warningIconView);
                 warningIconView.getStyleClass().add("icon");
             }
 
@@ -377,6 +386,7 @@ public class MyPasswordsController {
                 // Configurar el icono y el estilo del botón de información
                 Image gtIcon = new Image(getClass().getResource("/passworld/images/gt_icon.png").toExternalForm());
                 ImageView gtImageView = new ImageView(gtIcon);
+                ThemeManager.applyThemeToImage(gtImageView);
                 gtImageView.getStyleClass().add("icon");
                 showInfoButton.setGraphic(gtImageView);
 
@@ -470,13 +480,31 @@ public class MyPasswordsController {
     }
 
     private void updateIssuePasswordsButton() {
+        String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
+
         if (issuePasswordsList.isEmpty()) {
+            protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon" + themeSuffix + ".png").toExternalForm());
             issuePasswordsIconView.setImage(protectIcon);
+
+            // Eliminar el estilo de advertencia y aplicar el normal
+            issuePasswordsCountLabel.getStyleClass().remove("counter-label-issue");
+            if (!issuePasswordsCountLabel.getStyleClass().contains("counter-label")) {
+                issuePasswordsCountLabel.getStyleClass().add("counter-label");
+            }
         } else {
+            issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/warning_icon" + themeSuffix + ".png").toExternalForm());
             issuePasswordsIconView.setImage(issuePasswordsIcon);
-            issuePasswordsCountLabel.getStyleClass().add("counter-label-issue");
+
+            // Aplicar el estilo de advertencia
+            issuePasswordsCountLabel.getStyleClass().remove("counter-label");
+            if (!issuePasswordsCountLabel.getStyleClass().contains("counter-label-issue")) {
+                issuePasswordsCountLabel.getStyleClass().add("counter-label-issue");
+            }
         }
+
         issuePasswordsButtonLabel.setText(getBundle().getString("issue_passwords_button_text"));
-        issuePasswordsButtonTooltip.setText(issuePasswordsList.isEmpty() ? getBundle().getString("issue_passwords_button_ok_tooltip") : getBundle().getString("issue_passwords_button_issues_tooltip"));
+        issuePasswordsButtonTooltip.setText(issuePasswordsList.isEmpty()
+                ? getBundle().getString("issue_passwords_button_ok_tooltip")
+                : getBundle().getString("issue_passwords_button_issues_tooltip"));
     }
 }

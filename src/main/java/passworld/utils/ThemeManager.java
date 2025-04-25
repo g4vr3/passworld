@@ -1,6 +1,9 @@
 package passworld.utils;
 
 import javafx.scene.Scene;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.ImageView;
+
 import java.util.prefs.Preferences;
 
 public class ThemeManager {
@@ -30,6 +33,16 @@ public class ThemeManager {
         return ThemeManager.class.getResource(
                 isDarkMode ? "/passworld/styles/dark-mode.css" : "/passworld/styles/styles.css"
         ).toExternalForm();
+    }
+
+    public static void applyThemeToImage(ImageView imageView) {
+        ColorAdjust colorAdjust = new ColorAdjust();
+        if (isDarkMode) {
+            colorAdjust.setBrightness(0.7); // Aclara la imagen
+        } else {
+            colorAdjust.setBrightness(0); // Imagen normal
+        }
+        imageView.setEffect(colorAdjust);
     }
 
     public static boolean isDarkMode() {
