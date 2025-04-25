@@ -25,6 +25,13 @@ public class ThemeManager {
     }
 
     public static void applyCurrentTheme(Scene scene) {
+        // Si no hay preferencias guardadas, usar el tema del sistema operativo
+        if (!prefs.getBoolean("themeInitialized", false)) {
+            isDarkMode = isSystemInDarkMode();
+            prefs.putBoolean("darkMode", isDarkMode);
+            prefs.putBoolean("themeInitialized", true); // Marcar como inicializado
+        }
+
         scene.getStylesheets().clear();
         scene.getStylesheets().add(getCurrentStylesheet());
     }
@@ -43,6 +50,43 @@ public class ThemeManager {
             colorAdjust.setBrightness(0); // Imagen normal
         }
         imageView.setEffect(colorAdjust);
+    }
+
+    public static boolean isSystemInDarkMode() {
+        String osName = System.getProperty("os.name").toLowerCase();
+
+        if (osName.contains("mac")) {
+            return isMacInDarkMode();
+        } else if (osName.contains("win")) {
+            return isWindowsInDarkMode();
+        } else if (osName.contains("nix") || osName.contains("nux") || osName.contains("aix")) {
+            return isLinuxInDarkMode();
+        }
+
+        return false; // Default to light mode if OS is not recognized
+    }
+
+    private static boolean isMacInDarkMode() {
+        String appearance = System.getProperty("apple.awt.application.appearance", "light");
+        return appearance.toLowerCase().contains("dark");
+    }
+
+    private static boolean isWindowsInDarkMode() {
+        Preferences userRoot = Preferences.userRoot();
+        Preferences registryKey = userRoot.node("Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize");
+        int appsUseLightTheme = registryKey.getInt("AppsUseLightTheme", 1); // Default to light mode
+        return appsUseLightTheme == 0; // 0 means dark mode
+    }
+
+    private static boolean isLinuxInDarkMode() {
+        String gtkTheme = System.getenv("GTK_THEME");
+        String xdgDesktop = System.getenv("XDG_CURRENT_DESKTOP");
+
+        if (gtkTheme != null && gtkTheme.toLowerCase().contains("dark")) {
+            return true;
+        }
+
+        return xdgDesktop != null && xdgDesktop.toLowerCase().contains("dark");// Default to light mode
     }
 
     public static boolean isDarkMode() {

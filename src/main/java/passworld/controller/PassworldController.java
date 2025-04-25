@@ -21,6 +21,8 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import static passworld.utils.ThemeManager.isSystemInDarkMode;
+
 public class PassworldController {
 
     @FXML
@@ -53,8 +55,6 @@ public class PassworldController {
     ComboBox<String> languageComboBox;
     @FXML
     Button toggleThemeButton; // Botón para alternar el tema
-
-    private boolean isDarkMode = false; // Estado inicial del tema
 
     public static void showView() {
         // Cargar ventana principal y mostrarla
@@ -98,10 +98,18 @@ public class PassworldController {
         // Añade los atajos de teclado
         setKeyboardShortcuts();
 
-        // Use Platform.runLater to ensure the Scene is fully initialized
+        // Detectar y aplicar el tema del sistema operativo
         Platform.runLater(() -> {
+            if (ThemeManager.isDarkMode()) {
+                toggleTheme(); // Aplicar el tema oscuro si el sistema está en modo oscuro
+            }
+        });
+
+        // Detectar el tema del sistema operativo
+        Platform.runLater(() -> {
+            boolean isDarkMode = isSystemInDarkMode(); // Detectar el tema del sistema operativo
             if (isDarkMode) {
-                toggleTheme(); // Aplicar el tema oscuro al inicio
+                toggleTheme(); // Aplicar el tema oscuro si el sistema está en modo oscuro
             }
         });
 
