@@ -402,12 +402,12 @@ public class MyPasswordsController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
+
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null); // Ocultar el botón si la celda está vacía
                 } else {
-                    setGraphic(showInfoButton);
-                    setAlignment(Pos.CENTER);
-                    setPadding(new Insets(0, 0, 0, 0)); // Padding derecho
+                    setGraphic(showInfoButton); // Mostrar el botón si hay un elemento
+                    setAlignment(Pos.CENTER); // Centrar el botón
                 }
             }
         });
