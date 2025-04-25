@@ -21,6 +21,7 @@ import passworld.service.PasswordManager;
 import passworld.service.SecurityFilterManager;
 import passworld.utils.Accessibility;
 import passworld.utils.Notifier;
+import passworld.utils.ThemeManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -62,7 +63,7 @@ public class PasswordInfoController {
             FXMLLoader loader = new FXMLLoader(PasswordInfoController.class.getResource("/passworld/password-info-view.fxml"));
             Stage stage = new Stage();
             Scene scene = new Scene(loader.load(), 600, 450);
-            scene.getStylesheets().add(PasswordInfoController.class.getResource("/passworld/styles/styles.css").toExternalForm());
+            ThemeManager.applyCurrentTheme(scene);
             stage.getIcons().add(new Image(PasswordInfoController.class.getResourceAsStream("/passworld/images/app_icon.png")));
             stage.setTitle("passworld - " + password.getDescription());
             stage.setScene(scene);
@@ -304,6 +305,11 @@ public class PasswordInfoController {
         confirmationDialog.setHeaderText(getBundle().getString("delete_confirmation_header"));
         confirmationDialog.setContentText(getBundle().getString("delete_confirmation_message"));
 
+        // Aplicar el tema actual al DialogPane
+        DialogPane dialogPane = confirmationDialog.getDialogPane();
+        dialogPane.getStylesheets().add(ThemeManager.getCurrentStylesheet());
+        dialogPane.getStyleClass().add("delete-dialog");
+
         Optional<ButtonType> confirmationResult = confirmationDialog.showAndWait();
         if (confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK) {
             passwordsController.deletePassword(password);
@@ -345,6 +351,7 @@ public class PasswordInfoController {
             if (password.isUrlUnsafe()) addIssueLabel("unsafe_url");
         } else {
             Label noIssuesLabel = new Label(getBundle().getString("issue_passwords_button_ok_tooltip"));
+            noIssuesLabel.setWrapText(true);
             noIssuesLabel.getStyleClass().add("noIssuesLabel");
             securityStatusVbox.getChildren().add(noIssuesLabel);
         }
