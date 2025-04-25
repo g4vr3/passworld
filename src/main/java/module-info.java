@@ -6,6 +6,7 @@ module passworld {
     requires jbcrypt;
     requires java.sql;
     requires org.json;
+    requires java.prefs;
 
 
     opens passworld to javafx.fxml;

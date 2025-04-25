@@ -19,6 +19,7 @@ import passworld.utils.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 public class PassworldController {
 
@@ -50,6 +51,10 @@ public class PassworldController {
     Button viewMyPasswordsButton;
     @FXML
     ComboBox<String> languageComboBox;
+    @FXML
+    Button toggleThemeButton; // Botón para alternar el tema
+
+    private boolean isDarkMode = false; // Estado inicial del tema
 
     public static void showView() {
         // Cargar ventana principal y mostrarla
@@ -62,6 +67,7 @@ public class PassworldController {
             mainStage.setTitle("passworld");
             mainStage.setScene(scene);
             mainStage.setResizable(false); // Deshabilitar el redimensionamiento de la ventana
+            ThemeManager.applyCurrentTheme(scene); // Aplica el tema guardado
             mainStage.show();
             passworld.util.ViewManager.setPrimaryStage(mainStage); // Establecer el escenario principal
         } catch (IOException e) {
@@ -71,7 +77,6 @@ public class PassworldController {
 
     @FXML
     public void initialize() {
-
         // Internacionalización: soporte para idiomas.
         setLanguageSupport();
 
@@ -89,9 +94,25 @@ public class PassworldController {
 
         // Selecciona todo el texto al enfocar el TextField
         Accessibility.setSelectAllOnFocus(passwordField);
-        
+
         // Añade los atajos de teclado
         setKeyboardShortcuts();
+
+        // Use Platform.runLater to ensure the Scene is fully initialized
+        Platform.runLater(() -> {
+            if (isDarkMode) {
+                toggleTheme(); // Aplicar el tema oscuro al inicio
+            }
+        });
+
+        toggleThemeButton.setOnAction(event -> {
+            toggleTheme();
+        });
+    }
+
+    // Alterna entre el tema claro y oscuro
+    private void toggleTheme() {
+        ThemeManager.toggleTheme(toggleThemeButton.getScene());
     }
 
     private void setKeyboardShortcuts() {
@@ -282,14 +303,14 @@ public class PassworldController {
         switch (strength) {
             case 0:
                 passwordStrengthLabel.setText(LanguageManager.getBundle().getString("passwordStrengthLabel_0"));
-                passwordStrengthLabel.setTextFill(Color.RED);
+                passwordStrengthLabel.setTextFill(Color.TOMATO);
                 passwordStrengthProgressBar.getStyleClass().add("red");
                 passwordStrengthLabel.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_passwordStrength_0")));
                 passwordStrengthProgressBar.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_passwordStrength_0")));
                 break;
             case 1:
                 passwordStrengthLabel.setText(LanguageManager.getBundle().getString("passwordStrengthLabel_1"));
-                passwordStrengthLabel.setTextFill(Color.RED);
+                passwordStrengthLabel.setTextFill(Color.TOMATO);
                 passwordStrengthProgressBar.getStyleClass().add("red");
                 passwordStrengthLabel.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_passwordStrength_1")));
                 passwordStrengthProgressBar.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_passwordStrength_1")));

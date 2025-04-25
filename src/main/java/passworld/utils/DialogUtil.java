@@ -29,7 +29,7 @@ public class DialogUtil {
     public static Optional<PasswordDTO> showPasswordCreationDialog(String password) {
         Dialog<PasswordDTO> dialog = new Dialog<>();
         dialog.getDialogPane().getStylesheets().add(
-                Objects.requireNonNull(DialogUtil.class.getResource("/passworld/styles/styles.css")).toExternalForm()
+                Objects.requireNonNull(ThemeManager.getCurrentStylesheet())
         );
         dialog.setTitle("passworld - " + getBundle().getString("dialog_title_save_password"));
         dialog.setWidth(400);
@@ -187,7 +187,7 @@ public class DialogUtil {
     public static Optional<String> showUnlockVaultDialog() {
         Dialog<String> dialog = new Dialog<>();
         dialog.getDialogPane().getStylesheets().add(
-                Objects.requireNonNull(DialogUtil.class.getResource("/passworld/styles/styles.css")).toExternalForm()
+                Objects.requireNonNull(ThemeManager.getCurrentStylesheet())
         );
         dialog.setTitle("passworld - " + getBundle().getString("dialog_title_unlock_vault"));
 
