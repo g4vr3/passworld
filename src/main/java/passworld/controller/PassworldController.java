@@ -21,8 +21,6 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
-import static passworld.utils.ThemeManager.isSystemInDarkMode;
-
 public class PassworldController {
 
     @FXML
@@ -55,6 +53,10 @@ public class PassworldController {
     ComboBox<String> languageComboBox;
     @FXML
     Button toggleThemeButton; // Botón para alternar el tema
+    @FXML
+    ImageView logoImageView; // Logo de la aplicación
+    @FXML
+    ImageView languageImageView; // Icono del idioma
 
     public static void showView() {
         // Cargar ventana principal y mostrarla
@@ -98,29 +100,20 @@ public class PassworldController {
         // Añade los atajos de teclado
         setKeyboardShortcuts();
 
-        // Detectar y aplicar el tema del sistema operativo
+        // Detectar el tema del sistema operativo la primera vez
         Platform.runLater(() -> {
-            if (ThemeManager.isDarkMode()) {
-                toggleTheme(); // Aplicar el tema oscuro si el sistema está en modo oscuro
-            }
+            ThemeManager.applyCurrentTheme(passwordField.getScene()); // Aplica el tema actual
         });
 
-        // Detectar el tema del sistema operativo
-        Platform.runLater(() -> {
-            boolean isDarkMode = isSystemInDarkMode(); // Detectar el tema del sistema operativo
-            if (isDarkMode) {
-                toggleTheme(); // Aplicar el tema oscuro si el sistema está en modo oscuro
-            }
+        // Listener para cambios de tema
+        ThemeManager.darkModeProperty().addListener((observable, oldValue, newValue) -> {
+            setIcons(); // Actualiza las imágenes al cambiar el tema
         });
 
+        // Configurar el botón para alternar el tema
         toggleThemeButton.setOnAction(event -> {
-            toggleTheme();
+            ThemeManager.toggleTheme(passwordField.getScene()); // Cambia el tema y actualiza la escena
         });
-    }
-
-    // Alterna entre el tema claro y oscuro
-    private void toggleTheme() {
-        ThemeManager.toggleTheme(toggleThemeButton.getScene());
     }
 
     private void setKeyboardShortcuts() {
@@ -134,38 +127,66 @@ public class PassworldController {
     }
 
     private void setIcons() {
+        // Establecer imagen de logo
+        Image logoImage = new Image(getClass().getResource("/passworld/images/passworld_logo.png").toExternalForm());
+        logoImageView.setImage(logoImage);
+        ThemeManager.applyThemeToImage(logoImageView);
+
+        // Icono de idioma
+        Image languageIcon = new Image(getClass().getResource("/passworld/images/language_icon.png").toExternalForm());
+        languageImageView.setImage(languageIcon);
+        ThemeManager.applyThemeToImage(languageImageView); // Aplica el tema a la imagen
+        languageImageView.getStyleClass().add("icon");
+
+        // Actualizar el icono del botón de alternar tema
+        String themeIconPath = ThemeManager.isDarkMode()
+                ? "/passworld/images/light_mode_icon.png"
+                : "/passworld/images/dark_mode_icon.png";
+        Image themeIcon = new Image(getClass().getResource(themeIconPath).toExternalForm());
+        ImageView themeImageView = new ImageView(themeIcon);
+        themeImageView.getStyleClass().add("icon");
+        toggleThemeButton.setGraphic(themeImageView);
+
         // Label contraseña
         Image passwordIcon = new Image(getClass().getResource("/passworld/images/password_icon.png").toExternalForm());
         ImageView passwordImageView = new ImageView(passwordIcon);
+        ThemeManager.applyThemeToImage(passwordImageView); // Aplica el tema a la imagen
         passwordImageView.getStyleClass().add("icon");
         passwordLabel.setGraphic(passwordImageView);
 
         //Botón de copiar contraseña
         Image copyIcon = new Image(getClass().getResource("/passworld/images/copy_icon.png").toExternalForm());
         ImageView copyImageView = new ImageView(copyIcon);
+        ThemeManager.applyThemeToImage(copyImageView); // Aplica el tema a la imagen
         copyImageView.getStyleClass().add("icon");
         copyPasswordButton.setGraphic(copyImageView);
 
         // Botón de guardar contraseña
         Image saveIcon = new Image(getClass().getResource("/passworld/images/save_icon.png").toExternalForm());
         ImageView saveImageView = new ImageView(saveIcon);
+        ThemeManager.applyThemeToImage(saveImageView); // Aplica el tema a la imagen
         saveImageView.getStyleClass().add("icon");
         savePasswordButton.setGraphic(saveImageView);
 
         // Botón de mis contraseñas
         Image vaultIcon = new Image(getClass().getResource("/passworld/images/vault_icon.png").toExternalForm());
         ImageView vaultImageView = new ImageView(vaultIcon);
+        ThemeManager.applyThemeToImage(vaultImageView); // Aplica el tema a la imagen
         vaultImageView.getStyleClass().add("icon");
         viewMyPasswordsButton.setGraphic(vaultImageView);
 
         // Label longitud contraseña
         Image lengthIcon = new Image(getClass().getResource("/passworld/images/length_icon.png").toExternalForm());
         ImageView lengthImageView = new ImageView(lengthIcon);
+        ThemeManager.applyThemeToImage(lengthImageView); // Aplica el tema a la imagen
         lengthImageView.getStyleClass().add("icon");
         passwordLengthLabel.setGraphic(lengthImageView);
 
         // Botón de generar contraseña
-        Image createIcon = new Image(getClass().getResource("/passworld/images/create_icon.png").toExternalForm());
+        String createIconPath = ThemeManager.isDarkMode()
+                ? "/passworld/images/create_icon_dark_mode.png"
+                : "/passworld/images/create_icon.png";
+        Image createIcon = new Image(getClass().getResource(createIconPath).toExternalForm());
         ImageView createImageView = new ImageView(createIcon);
         createImageView.getStyleClass().add("icon");
         generatePasswordButton.setGraphic(createImageView);
@@ -295,6 +316,7 @@ public class PassworldController {
         passwordLengthSlider.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLength")));
         generatePasswordButton.setTooltip(new Tooltip(bundle.getString("toolTip_generatePassword")));
         viewMyPasswordsButton.setTooltip(new Tooltip(bundle.getString("toolTip_viewMyPasswords")));
+        toggleThemeButton.setTooltip(new Tooltip(bundle.getString("toolTip_toggleThemeButton")));
 
         updateStrengthLabelOnLanguageChange();
     }

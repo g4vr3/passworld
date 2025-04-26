@@ -183,12 +183,6 @@
     -fx-border-radius: 50%;
     -fx-pref-height: 15px;
     -fx-pref-width: 15px;
-    -fx-cursor: hand; /* Cursor de "agarrar" */
-}
-
-/* Estilo cuando se hace clic */
-.length-bar .thumb:pressed {
-    -fx-cursor: hand; /* Cursor de "agarrando" */
 }
 
 /* Estilo de los TextFields */
@@ -468,4 +462,8 @@
     -fx-background-radius: 5px;
     -fx-padding: 8px 16px; /* Padding */
     -fx-font-size: 14px; /* Tamaño de fuente para los botones */
+}
+
+.button-bar-separator {
+    -fx-background-color: #c8c8c8;
 }

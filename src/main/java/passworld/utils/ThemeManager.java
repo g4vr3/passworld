@@ -1,5 +1,7 @@
 package passworld.utils;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
@@ -10,6 +12,7 @@ public class ThemeManager {
 
     private static final Preferences prefs = Preferences.userNodeForPackage(ThemeManager.class);
     private static boolean isDarkMode = prefs.getBoolean("darkMode", false);
+    private static final BooleanProperty darkModeProperty = new SimpleBooleanProperty(isDarkMode);
 
     public static void toggleTheme(Scene scene) {
         if (isDarkMode) {
@@ -21,7 +24,8 @@ public class ThemeManager {
         }
 
         isDarkMode = !isDarkMode;
-        prefs.putBoolean("darkMode", isDarkMode); // ¡GUARDAR aquí es clave!
+        prefs.putBoolean("darkMode", isDarkMode); // Guarda la preferencia del usuario
+        darkModeProperty.set(isDarkMode); // Notifica a los listeners para que se actualicen las imágenes
     }
 
     public static void applyCurrentTheme(Scene scene) {
@@ -91,6 +95,10 @@ public class ThemeManager {
 
     public static boolean isDarkMode() {
         return isDarkMode;
+    }
+
+    public static BooleanProperty darkModeProperty() {
+        return darkModeProperty;
     }
 }
 

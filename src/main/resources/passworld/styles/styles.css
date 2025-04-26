@@ -146,16 +146,9 @@
     -fx-border-radius: 50%;
     -fx-pref-height: 15px;
     -fx-pref-width: 15px;
-    -fx-cursor: hand; /* Cursor */
     -fx-focus-color: transparent; /* Eliminar borde azul al enfocar */
     -fx-faint-focus-color: transparent; /* Eliminar color tenue de foco */
 }
-
-/* Estilo cuando se hace clic */
-.length-bar .thumb:pressed {
-    -fx-cursor: hand; /* Cursor  */
-}
-
 
 /* Estilo de los TextFields */
 .text-field {
@@ -392,4 +385,8 @@
 
 .check-box:hover {
     -fx-cursor: hand;
+}
+
+.button-bar-separator {
+    -fx-background-color: #616161;
 }
