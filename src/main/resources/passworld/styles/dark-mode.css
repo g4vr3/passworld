@@ -1,3 +1,9 @@
+/* Modo oscuro */
+
+.root {
+    -fx-background-color: #222222; /* Fondo oscuro */
+}
+
 /* Estilo básico para el ProgressBar de splash screen */
 .loading-bar {
     -fx-background-color: transparent; /* Fondo transparente por defecto */
@@ -43,10 +49,10 @@
 
 /* Estilo de los botones primarios */
 .button.primary {
-    -fx-background-color: #000000;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #616161;
+    -fx-text-fill: #111111;
     -fx-border-width: 1px;
-    -fx-border-color: #000000;
+    -fx-border-color: #616161;
     -fx-padding: 8px 16px; /* Padding */
     -fx-font-size: 14px; /* Tamaño de fuente para los botones */
 }
@@ -54,21 +60,25 @@
 /* Estilo de los botones secundarios */
 .button.secondary {
     -fx-background-color: transparent;
-    -fx-text-fill: #000000; /* Color de texto negro */
+    -fx-text-fill: #b1b1b1; /* Color de texto */
     -fx-border-width: 1px;
-    -fx-border-color: #000000;
+    -fx-border-color: #616161;
     -fx-padding: 8px 16px;
     -fx-font-size: 14px;
-}
-
-.combo-box:hover {
-    -fx-cursor: hand;
 }
 
 /* Estilo general del ComboBox de idiomas */
 .language-selector {
     -fx-background-color: transparent; /* Fondo transparente */
+    -fx-border-color: transparent;
+    -fx-text-fill: #b1b1b1;
     -fx-font-size: 12px;
+}
+
+/* Estilo para la celda visible (ítem seleccionado) */
+.language-selector .cell:selected {
+    -fx-background-color: transparent; /* Fondo transparente solo para la celda visible */
+    -fx-text-fill: #b1b1b1;
 }
 
 .language-selector .list-view {
@@ -77,32 +87,33 @@
     -fx-padding: 0; /* Elimina el padding */
 }
 
-.language-selector .combo-box-popup{
-    -fx-border-color: transparent; /* Sin borde */
-    -fx-background-color: #e1e1e1; /* Color del fondo del popup */
+.language-selector .list-view .list-cell {
+    -fx-border-color: transparent; /* Elimina bordes entre las celdas */
+    -fx-background-color: transparent; /* Fondo transparente */
 }
 
-/* Estilo para la celda visible (ítem seleccionado) */
-.language-selector .cell:selected {
-    -fx-background-color: transparent; /* Fondo solo para la celda visible */
+.language-selector .combo-box-popup{
+    -fx-border-color: transparent; /* Sin borde */
+    -fx-background-color: #222222; /* Color del fondo del popup */
 }
 
 /* Estilo de las celdas dentro de la lista desplegable */
 .language-selector .list-view .list-cell:filled {
-    -fx-background-color: #f4f4f4; /* Fondo en la lista desplegable */
+    -fx-background-color: #303030; /* Fondo transparente en la lista desplegable */
+    -fx-text-fill: #b1b1b1;
 }
 
 /* Estilo del ítem seleccionado en la lista desplegable */
 .language-selector .list-view .list-cell:filled:selected,
 .language-selector .list-view .list-cell:filled:selected:hover {
-    -fx-background-color: #d9d9d9;  /* Gris claro */
-    -fx-text-fill: #000000;  /* Color de texto negro */
+    -fx-background-color: #222222;  /* Gris oscuro */
+    -fx-text-fill: #b1b1b1;  /* Color de texto gris claro */
 }
 
 /* Estilo del hover en los ítems de la lista desplegable */
 .language-selector .list-view .list-cell:hover {
-    -fx-background-color: #f0f0f0;  /* Gris claro más suave */
-    -fx-text-fill: #000000;  /* Color de texto negro */
+    -fx-background-color: #333333;  /* Gris más oscuro */
+    -fx-text-fill: #b1b1b1;  /* Color de texto negro */
 }
 
 /* Estilo básico para el ProgressBar de fortaleza de contraseña */
@@ -112,18 +123,30 @@
     -fx-pref-width: 100px;  /* Ancho del ProgressBar */
 }
 
-/* Ocultar el borde no deseado del ProgressBar */
-.strength-bar .track {
-    -fx-border-color: transparent;  /* Eliminar bordes del track */
-    -fx-background-radius: 10px;  /* Bordes redondeados */
-    -fx-border-radius: 10px; /* Bordes redondeados */
-}
-
 /* Estilo del ProgressBar según la fortaleza */
 .strength-bar .bar {
+    -fx-background-color: transparent;
     -fx-background-radius: 10px;  /* Bordes redondeados para la barra de progreso */
     -fx-border-radius: 10px;
     -fx-border-color: transparent;  /* Eliminar borde de la barra */
+}
+
+/* Fondo de las barras de fortaleza */
+.strength-bar.red,
+.strength-bar.orange,
+.strength-bar.yellowgreen,
+.strength-bar.green {
+    -fx-background-color: transparent;
+}
+
+/* Fondo del track para las barras de fortaleza */
+.strength-bar.red .track,
+.strength-bar.orange .track,
+.strength-bar.yellowgreen .track,
+.strength-bar.green .track {
+    -fx-background-color: transparent;
+    -fx-border-color: #434343;
+    -fx-border-radius: 10px;  /* Bordes redondeados */
 }
 
 /* Colores específicos según la fortaleza de la contraseña */
@@ -131,7 +154,7 @@
     -fx-background-color: tomato;  /* Barra roja para una contraseña débil */
 }
 .strength-bar.orange .bar {
-    -fx-background-color: orange;  /* Barra naranja para una contraseña media */
+    -fx-background-color: #ffa500;  /* Barra naranja para una contraseña media */
 }
 .strength-bar.yellowgreen .bar {
     -fx-background-color: yellowgreen;  /* Barra amarillo-verde para una contraseña fuerte */
@@ -140,36 +163,86 @@
     -fx-background-color: green;  /* Barra verde para una contraseña muy fuerte */
 }
 
+/* Estilo para la barra de longitud en modo oscuro */
+.length-bar .bar {
+    -fx-background-radius: 10px; /* Bordes redondeados */
+    -fx-border-radius: 10px;
+    -fx-border-color: #333333;
+}
+
+/* Estilo del track */
+.length-bar .track {
+    -fx-background-color: #434343; /* Fondo oscuro para el track */
+    -fx-pref-height: 5px;
+}
+
 /* Estilo del punto */
 .length-bar .thumb {
-    -fx-border-color: #c8c8c8; /* Color del borde */
+    -fx-background-color: #535353; /* color */
+    -fx-border-color: #333333;
     -fx-border-radius: 50%;
     -fx-pref-height: 15px;
     -fx-pref-width: 15px;
-    -fx-focus-color: transparent; /* Eliminar borde azul al enfocar */
-    -fx-faint-focus-color: transparent; /* Eliminar color tenue de foco */
 }
 
 /* Estilo de los TextFields */
 .text-field {
-    -fx-background-color: #ffffff; /* Fondo */
-    -fx-border-color: #c8c8c8;
-    -fx-border-radius: 5; /* Bordes redondeados */
-    -fx-text-fill: #000000; /* Color del texto en negro */
+    -fx-background-color: #292929; /* Color de fondo gris oscuro */
+    -fx-border-color: #434343;
+    -fx-border-radius: 5px;
+    -fx-text-fill: #b1b1b1; /* Color del texto en gris claro */
     -fx-border-width: 1px; /* Grosor del borde */
     -fx-padding: 5px; /* Espaciado interno */
     -fx-font-size: 14px; /* Tamaño de fuente */
     -fx-background-radius: 5px; /* Bordes redondeados */
-    -fx-prompt-text-fill: #c8c8c8;
+    -fx-prompt-text-fill: #434343;
 }
 
 .generatedPasswordBox {
-    -fx-border-color: #D5D5D5;
-    -fx-background-color: #FFFFFF;
-    -fx-border-radius: 5;
-    -fx-text-fill: #616161; /* Color del texto en gris claro */
+    -fx-background-color: #292929; /* Color de fondo */
+    -fx-border-color: #434343;
+    -fx-border-radius: 5px;
+    -fx-text-fill: #b1b1b1; /* Color del texto en gris claro */
     -fx-font-size: 14px; /* Tamaño de fuente */
     -fx-background-radius: 5px; /* Bordes redondeados */
+}
+
+.label {
+    -fx-text-fill: #b1b1b1; /* Color del texto en gris claro */
+}
+
+.strengthLabel {
+    -fx-text-fill: inherit; /* Color del texto */
+}
+
+/* Estilo de los CheckBox */
+.check-box {
+    -fx-text-fill: #b1b1b1; /* Color del texto en gris claro */
+}
+
+.check-box:hover {
+    -fx-cursor: hand;
+}
+
+/* Cambiar el color del cuadrado del CheckBox */
+.check-box .box {
+    -fx-background-color: #434343; /* Color del fondo del cuadrado */
+    -fx-border-color: #616161; /* Color del borde del cuadrado */
+    -fx-border-radius: 3px; /* Bordes redondeados */
+    -fx-background-radius: 3px; /* Bordes redondeados */
+}
+
+/* Cambiar el color del tic del CheckBox */
+.check-box:selected .box .mark {
+    -fx-background-color: #b1b1b1; /* Color del tic */
+}
+
+.check-box .box .mark {
+    -fx-background-color: transparent; /* Hacer el tic invisible por defecto */
+}
+
+.text-icon {
+    -fx-fill: #b1b1b1 ; /* Color del texto en gris claro */
 }
 
 /* Estilo de los botones */
@@ -186,6 +259,10 @@
 /* Estilo del contenedor del Dialog */
 .dialog-pane {
     -fx-padding: 10px; /* Espaciado alrededor del contenido */
+    -fx-background-color: #222222; /* Color de fondo */
+    -fx-border-color: transparent; /* Sin borde */
+    -fx-border-width: 0; /* Grosor del borde a 0 */
+    -fx-background-insets: 0; /* Eliminar insets que puedan causar el borde */
 }
 
 /* Barra de desplazamiento */
@@ -198,7 +275,7 @@
 
 /* Estilo para el deslizante de la barra de desplazamiento (thumb) */
 .scroll-bar .thumb {
-    -fx-background-color: #D5D5D5;  /* Fondo gris oscuro para el thumb */
+    -fx-background-color: #434343;  /* Fondo gris oscuro para el thumb */
     -fx-background-radius: 10px;    /* Bordes redondeados */
 }
 
@@ -220,20 +297,14 @@
 .table-row-cell {
     -fx-pref-height: 40px;
     -fx-background-color: transparent;  /* Fondo transparente */
-    -fx-border-color: #d5d5d5;  /* Línea separadora entre filas */
+    -fx-border-color: #434343;  /* Línea separadora entre filas */
     -fx-border-width: 0 0 1px 0;  /* Solo borde inferior */
-}
-
-/* Texto de las celdas seleccionadas */
-.table-row-cell:selected .text,
-.table-cell:selected .text {
-    -fx-fill: black;
 }
 
 /* Celdas seleccionadas */
 .table-row-cell:selected,
 .table-cell:selected {
-    -fx-background-color: #d5d5d5;
+    -fx-background-color: #222222;
 }
 
 /* Estilo de las celdas (sin borde y fondo transparente) */
@@ -251,6 +322,10 @@
     -fx-font-size: 12px;  /* Tamaño de fuente más pequeño para la URL */
     -fx-text-fill: gray;  /* Color gris para la URL */
     -fx-padding: 0;  /* Sin espacio entre las etiquetas */
+}
+
+.combo-box:hover {
+    -fx-cursor: hand;
 }
 
 /* ComboBox de selección de orden de contraseñas */
@@ -287,7 +362,7 @@
 }
 
 .sort-box .combo-box-popup {
-    -fx-background-color: #ffffff; /* Color del fondo del popup */
+    -fx-background-color: #222222; /* Color del fondo del popup */
 }
 
 /* Estilo para los campos con error (bordes rojos) */
@@ -305,12 +380,12 @@
 }
 
 .passwords-filter-button {
-    -fx-background-color: #f2f2f2; /* Fondo del botón */
+    -fx-background-color: #292929; /* Fondo del botón */
     -fx-background-radius: 5px;
-    -fx-border-color: #d3d3d3; /* Color del borde */
+    -fx-border-color: #202020; /* Color del borde */
     -fx-border-width: 1px; /* Grosor del borde */
     -fx-border-radius: 5px; /* Bordes redondeados */
-    -fx-text-fill: #000000; /* Color del texto */
+    -fx-text-fill: #616161; /* Color del texto */
     -fx-font-size: 14px; /* Tamaño de la fuente */
     -fx-padding: 8px 16px; /* Relleno interno */
     -fx-cursor: hand; /* Cambiar el cursor al pasar sobre el botón */
@@ -323,28 +398,28 @@
 }
 
 .passwords-filter-button:hover {
-    -fx-background-color: #e6e6e6; /* Fondo del botón al pasar el ratón */
+    -fx-background-color: #333333; /* Fondo del botón al pasar el ratón */
 }
 
 .counter-label {
     -fx-font-size: 25px; /* Tamaño de fuente más grande */
     -fx-font-weight: bold; /* Texto en negrita */
-    -fx-text-fill: #cccccc; /* Color gris oscuro */
+    -fx-text-fill: #616161; /* Color gris oscuro */
 }
 
 .counter-label-issue {
     -fx-font-size: 25px; /* Tamaño de fuente más grande */
     -fx-font-weight: bold; /* Texto en negrita */
-    -fx-text-fill: #000000; /* Color negro */
+    -fx-text-fill: #c8c8c8; /* Color más claro */
 }
 
 .password-security-status {
-    -fx-background-color: #f2f2f2; /* Fondo del botón */
+    -fx-background-color: #292929; /* Fondo del cuadro */
     -fx-background-radius: 5px;
-    -fx-border-color: #d3d3d3; /* Color del borde */
+    -fx-border-color: #202020; /* Color del borde */
     -fx-border-width: 1px; /* Grosor del borde */
     -fx-border-radius: 5px; /* Bordes redondeados */
-    -fx-text-fill: #000000; /* Color del texto */
+    -fx-text-fill: #616161; /* Color del texto */
     -fx-font-size: 14px; /* Tamaño de la fuente */
     -fx-padding: 8px 10px; /* Relleno interno */
     -fx-cursor: hand; /* Cambiar el cursor al pasar sobre el botón */
@@ -353,21 +428,27 @@
 }
 
 .delete-dialog {
+    -fx-background-color: #292929;
     -fx-border-color: transparent;
     -fx-padding: 10px;
 }
 
 .delete-dialog .header-panel {
-    -fx-background-color: transparent;
-    -fx-border-color: #c8c8c8; /* Línea separadora */
+    -fx-text-fill: #c8c8c8;
+    -fx-background-color: #292929;
+    -fx-border-color: #434343; /* Línea separadora */
     -fx-border-width: 0 0 1px 0; /* Solo borde inferior */
+}
+
+.delete-dialog .content {
+    -fx-text-fill: #b1b1b1;
 }
 
 /* Botón "OK" con color más claro */
 .delete-dialog .button-bar .button:default {
-    -fx-background-color: #000000;
-    -fx-border-color: #000000;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #616161; /* Color más claro */
+    -fx-border-color: #616161;
+    -fx-text-fill: #202020;
     -fx-background-radius: 5px;
     -fx-padding: 8px 16px; /* Padding */
     -fx-font-size: 14px; /* Tamaño de fuente para los botones */
@@ -376,17 +457,13 @@
 /* Botón "Cancel" con color más oscuro */
 .delete-dialog .button-bar .button {
     -fx-background-color: transparent; /* Color más oscuro */
-    -fx-text-fill: #000000;
-    -fx-border-color: #000000;
+    -fx-text-fill: #b1b1b1;
+    -fx-border-color: #616161;
     -fx-background-radius: 5px;
     -fx-padding: 8px 16px; /* Padding */
     -fx-font-size: 14px; /* Tamaño de fuente para los botones */
 }
 
-.check-box:hover {
-    -fx-cursor: hand;
-}
-
 .button-bar-separator {
-    -fx-background-color: #616161;
+    -fx-background-color: #c8c8c8;
 }

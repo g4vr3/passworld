@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
@@ -8,7 +9,6 @@
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -23,18 +23,16 @@
           <top>
             <HBox alignment="CENTER" maxWidth="600.0" BorderPane.alignment="CENTER">
                <children>
-                    <ImageView fitHeight="100.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                        <image>
-                            <Image url="@images/passworld_logo.png" />
-                        </image>
-                    </ImageView>
+                    <ImageView fx:id="logoImageView" fitHeight="100.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
                   <Region HBox.hgrow="ALWAYS" />
-                  <ImageView fitHeight="15.0" fitWidth="15.0" opacity="0.5" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@images/language_icon.png" />
-                     </image>
-                  </ImageView>
-                  <ComboBox fx:id="languageComboBox" styleClass="language-selector" stylesheets="@styles/styles.css" />
+                  <Button fx:id="toggleThemeButton" contentDisplay="CENTER" graphicTextGap="0.0" mnemonicParsing="false" prefWidth="20.0" styleClass="icon-button" />
+                  <Region maxHeight="15.0" maxWidth="0.5" prefHeight="15.0" prefWidth="0.5" styleClass="button-bar-separator" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets left="5.0" right="10.0" />
+                     </HBox.margin>
+                  </Region>
+                  <ImageView fx:id="languageImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" />
+                  <ComboBox fx:id="languageComboBox" centerShape="false" scaleShape="false" styleClass="language-selector" />
                </children>
                <BorderPane.margin>
                   <Insets left="100.0" right="100.0" />
@@ -54,7 +52,7 @@
                                           </font>
                                       </Label>
                                       <Region HBox.hgrow="ALWAYS" />
-                                      <Label fx:id="passwordStrengthLabel" prefHeight="20.0">
+                                      <Label fx:id="passwordStrengthLabel" prefHeight="20.0" styleClass="strengthLabel">
                                           <HBox.margin>
                                               <Insets />
                                           </HBox.margin>
@@ -62,18 +60,21 @@
                                     <Font name="Helvetica Neue Medium" size="13.0" />
                                  </font>
                                       </Label>
-                                      <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0" styleClass="strength-bar" stylesheets="@styles/styles.css" visible="false" />
+                                      <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0" styleClass="strength-bar" visible="false" />
                                   </children>
                               </HBox>
-                        <HBox alignment="CENTER" style="-fx-border-color: #D5D5D5; -fx-background-color: #FFFFFF; -fx-background-radius: 5; -fx-border-radius: 5;">
+                        <HBox alignment="CENTER" styleClass="generatedPasswordBox">
                            <children>
-                                   <TextField fx:id="passwordField" editable="false" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
+                                   <TextField fx:id="passwordField" editable="false" style="-fx-border-color: transparent;" HBox.hgrow="ALWAYS">
                                  <font>
                                     <Font name="Helvetica Neue" size="13.0" />
                                  </font>
+                                 <cursor>
+                                    <Cursor fx:constant="DEFAULT" />
+                                 </cursor>
                               </TextField>
-                              <Button fx:id="copyPasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#copyPasswordToClipboard" styleClass="icon-button" stylesheets="@styles/styles.css" visible="false" HBox.hgrow="NEVER" />
-                              <Button fx:id="savePasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#savePassword" styleClass="icon-button" stylesheets="@styles/styles.css" visible="false" HBox.hgrow="NEVER" />
+                              <Button fx:id="copyPasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#copyPasswordToClipboard" styleClass="icon-button" visible="false" HBox.hgrow="NEVER" />
+                              <Button fx:id="savePasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#savePassword" styleClass="icon-button" visible="false" HBox.hgrow="NEVER" />
                            </children>
                            <padding>
                               <Insets right="5.0" />
@@ -94,7 +95,7 @@
                                     <Font size="12.0" />
                                 </font>
                             </CheckBox>
-                        <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" text="Aa">
+                        <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon" text="Aa">
                            <font>
                               <Font name="Helvetica Neue Light Italic" size="13.0" />
                            </font>
@@ -108,7 +109,7 @@
                               <Font size="12.0" />
                            </font>
                         </CheckBox>
-                        <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" text="123">
+                        <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon" text="123">
                            <font>
                               <Font name="Helvetica Neue Light Italic" size="13.0" />
                            </font>
@@ -122,7 +123,7 @@
                               <Font size="12.0" />
                            </font>
                         </CheckBox>
-                        <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" text="\@!/#">
+                        <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon" text="\@!/#">
                            <font>
                               <Font name="Helvetica Neue Light Italic" size="13.0" />
                            </font>
@@ -139,15 +140,18 @@
                               <Font name="Helvetica Neue Medium" size="14.0" />
                            </font>
                         </Label>
-                            <Slider fx:id="passwordLengthSlider" blockIncrement="5.0" majorTickUnit="5.0" max="25.0" min="5.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="12.0" />
+                            <Slider fx:id="passwordLengthSlider" blockIncrement="5.0" majorTickUnit="5.0" max="25.0" min="5.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" styleClass="length-bar" value="12.0">
+                           <cursor>
+                              <Cursor fx:constant="CLOSED_HAND" />
+                           </cursor></Slider>
                      </children>
                   </VBox>
-                  <Button fx:id="generatePasswordButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#generatePassword" styleClass="primary" stylesheets="@styles/styles.css">
+                  <Button fx:id="generatePasswordButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#generatePassword" styleClass="primary">
                      <font>
                         <Font name="Helvetica Neue Medium" size="14.0" />
                      </font>
                   </Button>
-                  <Button fx:id="viewMyPasswordsButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewPasswords" styleClass="secondary" stylesheets="@styles/styles.css">
+                  <Button fx:id="viewMyPasswordsButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewPasswords" styleClass="secondary">
                      <font>
                         <Font name="Helvetica Neue Medium" size="14.0" />
                      </font>
