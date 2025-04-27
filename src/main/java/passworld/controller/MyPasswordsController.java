@@ -68,6 +68,8 @@ public class MyPasswordsController {
     @FXML
     private Parent root; // Nodo raíz definido en el archivo FXML
 
+    private Button activeFilterButton; // Variable para rastrear el filtro activo
+
     public Parent getRoot() {
         return root;
     }
@@ -101,6 +103,12 @@ public class MyPasswordsController {
         setBackButton(); // Configurar el botón de salir
         loadPasswords(); // Cargar las contraseñas en la tabla
 
+        // Configurar el filtro activo inicial
+        activeFilterButton = showAllPasswordsButton;
+
+        // Resaltar el botón de todas las contraseñas
+        highlightSelectedFilterButton(showAllPasswordsButton);
+        
         // Mostrar u ocultar el ComboBox de ordenación según los datos
         sortComboBox.setVisible(!passwordList.isEmpty());
 
@@ -186,6 +194,9 @@ public class MyPasswordsController {
         // Ocultar el ComboBox si no hay contraseñas
         sortComboBox.setVisible(!passwordList.isEmpty());
 
+        // Resaltar el botón de todas las contraseñas
+        highlightSelectedFilterButton(showAllPasswordsButton);
+
         passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
     }
 
@@ -202,6 +213,9 @@ public class MyPasswordsController {
 
         // Ocultar el ComboBox si no hay contraseñas con problemas
         sortComboBox.setVisible(!issuePasswordsList.isEmpty());
+
+        // Resaltar el botón de contraseñas con problemas
+        highlightSelectedFilterButton(showIssuePasswordsButton);
 
         passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
     }
@@ -443,14 +457,17 @@ public class MyPasswordsController {
         Window window = passwordTable.getScene().getWindow();
 
         try {
-            // Llamar al PasswordManager para eliminar la contraseña
             boolean success = PasswordManager.deletePassword(password.getId());
             if (success) {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_successfully"));
                 loadPasswords();
 
-                // Actualizar la visibilidad del ComboBox de ordenación
-                sortComboBox.setVisible(!passwordList.isEmpty());
+                // Recargar la tabla según el filtro activo
+                if (activeFilterButton == showIssuePasswordsButton && !issuePasswordsList.isEmpty()) {
+                    showIssuePasswords();
+                } else {
+                    showAllPasswords();
+                }
             } else {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_failed"));
             }
@@ -460,16 +477,21 @@ public class MyPasswordsController {
         }
     }
 
-
     public void updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) {
         Window window = passwordTable.getScene().getWindow();
 
         try {
-            // Llamar al PasswordManager para actualizar la contraseña
             boolean success = PasswordManager.updatePassword(passwordToUpdate, description, username, url, password);
             if (success) {
                 Notifier.showNotification(window, getBundle().getString("password_updated_successfully"));
                 loadPasswords();
+
+                // Recargar la tabla según el filtro activo
+                if (activeFilterButton == showIssuePasswordsButton && !issuePasswordsList.isEmpty()) {
+                    showIssuePasswords();
+                } else {
+                    showAllPasswords();
+                }
             } else {
                 Notifier.showNotification(window, getBundle().getString("password_updated_failed"));
             }
@@ -506,5 +528,17 @@ public class MyPasswordsController {
         issuePasswordsButtonTooltip.setText(issuePasswordsList.isEmpty()
                 ? getBundle().getString("issue_passwords_button_ok_tooltip")
                 : getBundle().getString("issue_passwords_button_issues_tooltip"));
+    }
+
+    private void highlightSelectedFilterButton(Button selectedButton) {
+        // Remover la clase de todos los botones
+        showAllPasswordsButton.getStyleClass().remove("selected-filter-button");
+        showIssuePasswordsButton.getStyleClass().remove("selected-filter-button");
+
+        // Agregar la clase al botón seleccionado
+        selectedButton.getStyleClass().add("selected-filter-button");
+
+        // Actualizar el filtro activo
+        activeFilterButton = selectedButton;
     }
 }
