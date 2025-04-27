@@ -52,7 +52,13 @@ public class DialogUtil {
         cancelButton.getStyleClass().add("secondary");
 
         // Agregar el icono al botón de guardar
-        Image saveIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/save_icon_white.png")).toExternalForm());
+        Image saveIcon;
+        if (ThemeManager.isDarkMode()) {
+            saveIcon = new Image(DialogUtil.class.getResource("/passworld/images/save_icon_dark_mode.png").toExternalForm());
+        }
+        else {
+            saveIcon = new Image(DialogUtil.class.getResource("/passworld/images/save_icon_white.png").toExternalForm());
+        }
         ImageView saveIconView = new ImageView(saveIcon);
         saveIconView.getStyleClass().add("icon"); // Estilo css
         saveButton.setGraphic(saveIconView); // Establecer el icono en el botón de guardar
@@ -60,6 +66,7 @@ public class DialogUtil {
         // Agregar el icono al botón de cancelar
         Image cancelIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/cancel_icon.png")).toExternalForm());
         ImageView cancelIconView = new ImageView(cancelIcon);
+        ThemeManager.applyThemeToImage(cancelIconView); // Aplicar el tema al icono
         cancelIconView.getStyleClass().add("icon");
         cancelButton.setGraphic(cancelIconView); // Establecer el icono en el botón de cancelar
 
@@ -207,7 +214,8 @@ public class DialogUtil {
         cancelButton.getStyleClass().add("secondary");
 
         // Agregar el icono al botón de desbloquear
-        Image unlockIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/unlock_icon_white.png")).toExternalForm());
+        String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
+        Image unlockIcon = new Image(DialogUtil.class.getResource("/passworld/images/unlock_icon" + themeSuffix + ".png").toExternalForm());
         ImageView unlockIconView = new ImageView(unlockIcon);
         unlockIconView.getStyleClass().add("icon"); // Estilo CSS
         unlockButton.setGraphic(unlockIconView);
@@ -215,6 +223,7 @@ public class DialogUtil {
         // Agregar el icono al botón de cancelar
         Image cancelIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/cancel_icon.png")).toExternalForm());
         ImageView cancelIconView = new ImageView(cancelIcon);
+        ThemeManager.applyThemeToImage(cancelIconView); // Aplicar el tema al icono
         cancelIconView.getStyleClass().add("icon");
         cancelButton.setGraphic(cancelIconView);
 

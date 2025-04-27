@@ -55,6 +55,9 @@ public class PasswordInfoController {
     @FXML
     private ImageView securityStatusImageView;
 
+    @FXML
+    private ImageView logoImageView, copyImageView, saveImageView, deleteImageView;
+
     private PasswordDTO password;
     private MyPasswordsController passwordsController;
 
@@ -80,6 +83,8 @@ public class PasswordInfoController {
     }
 
     public void initialize() {
+        setIcons(); // Establecer iconos
+
         saveButton.setVisible(false); // Ocultar por defecto
 
         // Listener común para validar cambios en campos
@@ -126,6 +131,33 @@ public class PasswordInfoController {
         setKeyboardShortcuts();
     }
 
+    private void setIcons() {
+        // Establecer imagen de logo
+        Image logoImage = new Image(getClass().getResource("/passworld/images/passworld_logo.png").toExternalForm());
+        logoImageView.setImage(logoImage);
+        ThemeManager.applyThemeToImage(logoImageView);
+
+        // Establecer imagen de copiar
+        Image copyImage = new Image(getClass().getResource("/passworld/images/copy_icon.png").toExternalForm());
+        copyImageView.setImage(copyImage);
+        ThemeManager.applyThemeToImage(copyImageView);
+        copyImageView.getStyleClass().add("icon");
+
+        // Establecer imagen de guardar
+        if (ThemeManager.isDarkMode()) {
+            saveImageView.setImage(new Image(getClass().getResource("/passworld/images/save_icon_dark_mode.png").toExternalForm()));
+        } else {
+            saveImageView.setImage(new Image(getClass().getResource("/passworld/images/save_icon_white.png").toExternalForm()));
+        }
+        saveImageView.getStyleClass().add("icon");
+
+        // Establecer imagen de eliminar
+        Image deleteImage = new Image(getClass().getResource("/passworld/images/trash_icon.png").toExternalForm());
+        deleteImageView.setImage(deleteImage);
+        ThemeManager.applyThemeToImage(deleteImageView);
+        deleteImageView.getStyleClass().add("icon");
+    }
+
     private void setKeyboardShortcuts() {
         // Uso de Platform.runLater para asegurar que el Scene ya esté disponible
         Platform.runLater(() -> {
@@ -140,6 +172,7 @@ public class PasswordInfoController {
         // Configurar el icono y el estilo del botón de volver
         Image ltIcon = new Image(getClass().getResource("/passworld/images/lt_icon.png").toExternalForm());
         ImageView ltImageView = new ImageView(ltIcon);
+        ThemeManager.applyThemeToImage(ltImageView);
         ltImageView.getStyleClass().add("icon");
         backButton.setGraphic(ltImageView);
 
@@ -338,7 +371,8 @@ public class PasswordInfoController {
             hasIssues = true;
         }
 
-        iconPath = hasIssues ? "/passworld/images/warning_icon.png" : "/passworld/images/protect_icon.png";
+        String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
+        iconPath = hasIssues ? "/passworld/images/warning_icon" + themeSuffix + ".png" : "/passworld/images/protect_icon" + themeSuffix + ".png";
         Image icon = new Image(getClass().getResource(iconPath).toExternalForm());
         securityStatusImageView.setImage(icon);
         securityStatusVbox.getChildren().add(securityStatusImageView); // siempre primero
