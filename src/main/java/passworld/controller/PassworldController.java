@@ -228,6 +228,11 @@ public class PassworldController {
     public void savePassword() {
         String password = passwordField.getText();
 
+        // Verifica si el botón tiene una escena asociada
+        if (savePasswordButton.getScene() == null) {
+            return; // Salir si no hay una escena
+        }
+
         Window window = savePasswordButton.getScene().getWindow();
         ResourceBundle bundle = LanguageManager.getBundle();
 
