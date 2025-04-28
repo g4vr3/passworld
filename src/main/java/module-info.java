@@ -7,6 +7,7 @@ module passworld {
     requires java.sql;
     requires org.json;
     requires java.prefs;
+    requires java.net.http;
 
 
     opens passworld to javafx.fxml;

@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,11 +19,13 @@ import passworld.service.SecurityFilterManager;
 import passworld.utils.Notifier;
 import passworld.service.PasswordManager;
 import passworld.utils.ThemeManager;
+import passworld.utils.ViewManager;
 
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -65,21 +66,14 @@ public class MyPasswordsController {
     private Label issuePasswordsButtonLabel;
     @FXML
     private Tooltip issuePasswordsButtonTooltip;
-    @FXML
-    private Parent root; // Nodo raíz definido en el archivo FXML
 
     private Button activeFilterButton; // Variable para rastrear el filtro activo
 
-    public Parent getRoot() {
-        return root;
-    }
-
-    private Image allPasswordsIcon;
     private Image protectIcon;
     private Image issuePasswordsIcon;
 
-    private ObservableList<PasswordDTO> passwordList = FXCollections.observableArrayList(); // Almacena la lista original
-    private ObservableList<PasswordDTO> issuePasswordsList = FXCollections.observableArrayList(); // Almacena la lista de contraseñas con problemas
+    private final ObservableList<PasswordDTO> passwordList = FXCollections.observableArrayList(); // Almacena la lista original
+    private final ObservableList<PasswordDTO> issuePasswordsList = FXCollections.observableArrayList(); // Almacena la lista de contraseñas con problemas
 
     // Auxiliar para obtener el ResourceBundle dinámicamente
     private static ResourceBundle getBundle() {
@@ -87,13 +81,13 @@ public class MyPasswordsController {
     }
 
     public static void showView() {
-        passworld.util.ViewManager.changeView("/passworld/my-passwords-view.fxml", String.format("passworld - " + getBundle().getString("my_passwords_title")));
+        ViewManager.changeView("/passworld/my-passwords-view.fxml", String.format("passworld - " + getBundle().getString("my_passwords_title")));
     }
 
     @FXML
     public void initialize() {
         // Establecer imagen de logo
-        Image logoImage = new Image(getClass().getResource("/passworld/images/passworld_logo.png").toExternalForm());
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/passworld_logo.png")).toExternalForm());
         logoImageView.setImage(logoImage);
         ThemeManager.applyThemeToImage(logoImageView);
 
@@ -124,13 +118,13 @@ public class MyPasswordsController {
         myPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
 
         // Agregar el listener para el ComboBox
-        sortComboBox.setOnAction(event -> sortPasswords(passwordTable.getItems()));
+        sortComboBox.setOnAction(_ -> sortPasswords(passwordTable.getItems()));
 
         // Cargar los iconos según el tema
         String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
-        allPasswordsIcon = new Image(getClass().getResource("/passworld/images/all_passwords_icon" + themeSuffix + ".png").toExternalForm());
-        protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon" + themeSuffix + ".png").toExternalForm());
-        issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/warning_icon" + themeSuffix + ".png").toExternalForm());
+        Image allPasswordsIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/all_passwords_icon" + themeSuffix + ".png")).toExternalForm());
+        protectIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/protect_icon" + themeSuffix + ".png")).toExternalForm());
+        issuePasswordsIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/warning_icon" + themeSuffix + ".png")).toExternalForm());
 
         // Asignar el icono y texto al botón de mostrar todas las contraseñas
         allPasswordsIconView.setImage(allPasswordsIcon);
@@ -143,8 +137,8 @@ public class MyPasswordsController {
         updateIssuePasswordsButton();
 
         // Asignación de botones
-        showAllPasswordsButton.setOnAction(event -> showAllPasswords());
-        showIssuePasswordsButton.setOnAction(event -> showIssuePasswords());
+        showAllPasswordsButton.setOnAction(_ -> showAllPasswords());
+        showIssuePasswordsButton.setOnAction(_ -> showIssuePasswords());
 
         // Inicializar los contadores de contraseñas
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
@@ -176,7 +170,7 @@ public class MyPasswordsController {
             updateIssuePasswordsButton();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("ERROR: " + e.getMessage());
         }
     }
 
@@ -247,7 +241,7 @@ public class MyPasswordsController {
         sortComboBox.getStyleClass().add("sort-box");
 
         // Configurar las celdas de la lista del ComboBox
-        sortComboBox.setCellFactory(param -> new ListCell<>() {
+        sortComboBox.setCellFactory(_ -> new ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -296,18 +290,12 @@ public class MyPasswordsController {
 
     private void setBackButton() {
         // Configurar el icono y el estilo del botón de volver
-        Image ltIcon = new Image(getClass().getResource("/passworld/images/lt_icon.png").toExternalForm());
-        ImageView ltImageView = new ImageView(ltIcon);
-        ThemeManager.applyThemeToImage(ltImageView);
-        ltImageView.getStyleClass().add("icon");
-        backButton.setGraphic(ltImageView);
-
-        backButton.getStyleClass().add("icon-button");
+        ViewManager.setBackButton(backButton);
 
         // Configurar la acción del botón de volver
-        backButton.setOnAction(event -> {
+        backButton.setOnAction(_ -> {
             // Volver a la vista anterior
-            passworld.util.ViewManager.changeView("/passworld/main-view.fxml", "passworld");
+            ViewManager.changeView("/passworld/main-view.fxml", "passworld");
         });
     }
 
@@ -331,7 +319,7 @@ public class MyPasswordsController {
         warningIconColumn.setSortable(false);
 
         // Configurar las celdas de la columna de entrada de contraseña
-        passwordEntryColumn.setCellFactory(column -> new TableCell<>() {
+        passwordEntryColumn.setCellFactory(_ -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -341,7 +329,7 @@ public class MyPasswordsController {
                     return;
                 }
 
-                PasswordDTO password = (PasswordDTO) getTableRow().getItem();
+                PasswordDTO password = getTableRow().getItem();
 
                 // Mostrar descripción
                 Label descriptionLabel = new Label(password.getDescription());
@@ -363,12 +351,12 @@ public class MyPasswordsController {
         });
 
         // Configurar las celdas de la columna de icono de advertencia
-        warningIconColumn.setCellFactory(column -> new TableCell<>() {
+        warningIconColumn.setCellFactory(_ -> new TableCell<>() {
             private final ImageView warningIconView = new ImageView();
 
             {
                 // Configurar el icono de advertencia
-                Image warningIcon = new Image(getClass().getResource("/passworld/images/warning_icon.png").toExternalForm());
+                Image warningIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/warning_icon.png")).toExternalForm());
                 warningIconView.setImage(warningIcon);
                 ThemeManager.applyThemeToImage(warningIconView);
                 warningIconView.getStyleClass().add("icon");
@@ -393,12 +381,12 @@ public class MyPasswordsController {
         });
 
         // Configurar las celdas de la columna de botones de información
-        infoButtonColumn.setCellFactory(column -> new TableCell<>() {
+        infoButtonColumn.setCellFactory(_ -> new TableCell<>() {
             private final Button showInfoButton = new Button();
 
             {
                 // Configurar el icono y el estilo del botón de información
-                Image gtIcon = new Image(getClass().getResource("/passworld/images/gt_icon.png").toExternalForm());
+                Image gtIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/gt_icon.png")).toExternalForm());
                 ImageView gtImageView = new ImageView(gtIcon);
                 ThemeManager.applyThemeToImage(gtImageView);
                 gtImageView.getStyleClass().add("icon");
@@ -407,7 +395,7 @@ public class MyPasswordsController {
                 showInfoButton.getStyleClass().add("icon-button");
 
                 // Configurar la acción del botón de información
-                showInfoButton.setOnAction(event -> {
+                showInfoButton.setOnAction(_ -> {
                     PasswordDTO password = getTableView().getItems().get(getIndex());
                     PasswordInfoController.showView(password, MyPasswordsController.this); // Llamar a la vista de detalles
                 });
@@ -428,7 +416,7 @@ public class MyPasswordsController {
     }
 
     private void addTableRowClickListener() {
-        passwordTable.setRowFactory(tableView -> {
+        passwordTable.setRowFactory(_ -> {
             TableRow<PasswordDTO> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 1) { // Detectar clic simple
@@ -442,7 +430,7 @@ public class MyPasswordsController {
 
     private void hideTableHeader() {
         // Ocultar el encabezado de la tabla
-        passwordTable.widthProperty().addListener((observable, oldValue, newValue) -> {
+        passwordTable.widthProperty().addListener((_, _, _) -> {
             Pane header = (Pane) passwordTable.lookup("TableHeaderRow");
             if (header != null && header.isVisible()) {
                 header.setMaxHeight(0);
@@ -472,7 +460,7 @@ public class MyPasswordsController {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_failed"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("ERROR: " + e.getMessage());
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
     }
@@ -496,7 +484,7 @@ public class MyPasswordsController {
                 Notifier.showNotification(window, getBundle().getString("password_updated_failed"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("ERROR: " + e.getMessage());
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
         }
     }
@@ -505,7 +493,7 @@ public class MyPasswordsController {
         String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
 
         if (issuePasswordsList.isEmpty()) {
-            protectIcon = new Image(getClass().getResource("/passworld/images/protect_icon" + themeSuffix + ".png").toExternalForm());
+            protectIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/protect_icon" + themeSuffix + ".png")).toExternalForm());
             issuePasswordsIconView.setImage(protectIcon);
 
             // Eliminar el estilo de advertencia y aplicar el normal
@@ -514,7 +502,7 @@ public class MyPasswordsController {
                 issuePasswordsCountLabel.getStyleClass().add("counter-label");
             }
         } else {
-            issuePasswordsIcon = new Image(getClass().getResource("/passworld/images/warning_icon" + themeSuffix + ".png").toExternalForm());
+            issuePasswordsIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/warning_icon" + themeSuffix + ".png")).toExternalForm());
             issuePasswordsIconView.setImage(issuePasswordsIcon);
 
             // Aplicar el estilo de advertencia

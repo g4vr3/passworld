@@ -39,7 +39,7 @@ public class SplashScreenController {
                 new KeyFrame(Duration.seconds(1), new KeyValue(loadingBar.progressProperty(), 1)) // En 3 segundos llega al 100%
         );
 
-        timeline.setOnFinished(event -> closeSplashScreen()); // Cerrar la Splash Screen al terminar timeline
+        timeline.setOnFinished(_ -> closeSplashScreen()); // Cerrar la Splash Screen al terminar timeline
         timeline.play();
     }
 

@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 
+import java.util.Objects;
 import java.util.prefs.Preferences;
 
 public class ThemeManager {
@@ -16,11 +17,11 @@ public class ThemeManager {
 
     public static void toggleTheme(Scene scene) {
         if (isDarkMode) {
-            scene.getStylesheets().remove(ThemeManager.class.getResource("/passworld/styles/dark-mode.css").toExternalForm());
-            scene.getStylesheets().add(ThemeManager.class.getResource("/passworld/styles/styles.css").toExternalForm());
+            scene.getStylesheets().remove(Objects.requireNonNull(ThemeManager.class.getResource("/passworld/styles/dark-mode.css")).toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(ThemeManager.class.getResource("/passworld/styles/styles.css")).toExternalForm());
         } else {
-            scene.getStylesheets().remove(ThemeManager.class.getResource("/passworld/styles/styles.css").toExternalForm());
-            scene.getStylesheets().add(ThemeManager.class.getResource("/passworld/styles/dark-mode.css").toExternalForm());
+            scene.getStylesheets().remove(Objects.requireNonNull(ThemeManager.class.getResource("/passworld/styles/styles.css")).toExternalForm());
+            scene.getStylesheets().add(Objects.requireNonNull(ThemeManager.class.getResource("/passworld/styles/dark-mode.css")).toExternalForm());
         }
 
         isDarkMode = !isDarkMode;
@@ -41,9 +42,9 @@ public class ThemeManager {
     }
 
     public static String getCurrentStylesheet() {
-        return ThemeManager.class.getResource(
+        return Objects.requireNonNull(ThemeManager.class.getResource(
                 isDarkMode ? "/passworld/styles/dark-mode.css" : "/passworld/styles/styles.css"
-        ).toExternalForm();
+        )).toExternalForm();
     }
 
     public static void applyThemeToImage(ImageView imageView) {

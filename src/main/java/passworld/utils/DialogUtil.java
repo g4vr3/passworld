@@ -2,18 +2,12 @@ package passworld.utils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
-import passworld.controller.MyPasswordsController;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
-import passworld.service.SecurityFilterManager;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -54,21 +48,17 @@ public class DialogUtil {
         // Agregar el icono al botón de guardar
         Image saveIcon;
         if (ThemeManager.isDarkMode()) {
-            saveIcon = new Image(DialogUtil.class.getResource("/passworld/images/save_icon_dark_mode.png").toExternalForm());
+            saveIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/save_icon_dark_mode.png")).toExternalForm());
         }
         else {
-            saveIcon = new Image(DialogUtil.class.getResource("/passworld/images/save_icon_white.png").toExternalForm());
+            saveIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/save_icon_white.png")).toExternalForm());
         }
         ImageView saveIconView = new ImageView(saveIcon);
         saveIconView.getStyleClass().add("icon"); // Estilo css
         saveButton.setGraphic(saveIconView); // Establecer el icono en el botón de guardar
 
         // Agregar el icono al botón de cancelar
-        Image cancelIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/cancel_icon.png")).toExternalForm());
-        ImageView cancelIconView = new ImageView(cancelIcon);
-        ThemeManager.applyThemeToImage(cancelIconView); // Aplicar el tema al icono
-        cancelIconView.getStyleClass().add("icon");
-        cancelButton.setGraphic(cancelIconView); // Establecer el icono en el botón de cancelar
+        setCancelButton(cancelButton);
 
         // Establecer Tooltips para los botones
         saveButton.setTooltip(new Tooltip(getBundle().getString("save_button_tooltip")));
@@ -215,17 +205,13 @@ public class DialogUtil {
 
         // Agregar el icono al botón de desbloquear
         String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
-        Image unlockIcon = new Image(DialogUtil.class.getResource("/passworld/images/unlock_icon" + themeSuffix + ".png").toExternalForm());
+        Image unlockIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/unlock_icon" + themeSuffix + ".png")).toExternalForm());
         ImageView unlockIconView = new ImageView(unlockIcon);
         unlockIconView.getStyleClass().add("icon"); // Estilo CSS
         unlockButton.setGraphic(unlockIconView);
 
-        // Agregar el icono al botón de cancelar
-        Image cancelIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/cancel_icon.png")).toExternalForm());
-        ImageView cancelIconView = new ImageView(cancelIcon);
-        ThemeManager.applyThemeToImage(cancelIconView); // Aplicar el tema al icono
-        cancelIconView.getStyleClass().add("icon");
-        cancelButton.setGraphic(cancelIconView);
+        // Configurar botón de cancelar
+        setCancelButton(cancelButton);
 
         // Establecer Tooltips para los botones
         unlockButton.setTooltip(new Tooltip(getBundle().getString("unlock_button_tooltip")));
@@ -270,5 +256,14 @@ public class DialogUtil {
         });
 
         return dialog.showAndWait();
+    }
+
+    private static void setCancelButton(Button cancelButton) {
+        // Agregar el icono al botón de cancelar
+        Image cancelIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/cancel_icon.png")).toExternalForm());
+        ImageView cancelIconView = new ImageView(cancelIcon);
+        ThemeManager.applyThemeToImage(cancelIconView); // Aplicar el tema al icono
+        cancelIconView.getStyleClass().add("icon");
+        cancelButton.setGraphic(cancelIconView);
     }
 }

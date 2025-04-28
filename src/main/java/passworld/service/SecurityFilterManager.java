@@ -43,7 +43,7 @@ public class SecurityFilterManager {
         try {
             return CompromisedPasswordChecker.isCompromisedPassword(password);
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error checking compromised password: " + e.getMessage());
             return false;
         }
     }

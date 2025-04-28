@@ -18,10 +18,10 @@ import javafx.stage.Stage;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
 import passworld.service.PasswordManager;
-import passworld.service.SecurityFilterManager;
 import passworld.utils.Accessibility;
 import passworld.utils.Notifier;
 import passworld.utils.ThemeManager;
+import passworld.utils.ViewManager;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -67,7 +67,7 @@ public class PasswordInfoController {
             Stage stage = new Stage();
             Scene scene = new Scene(loader.load(), 600, 450);
             ThemeManager.applyCurrentTheme(scene);
-            stage.getIcons().add(new Image(PasswordInfoController.class.getResourceAsStream("/passworld/images/app_icon.png")));
+            stage.getIcons().add(new Image(Objects.requireNonNull(PasswordInfoController.class.getResourceAsStream("/passworld/images/app_icon.png"))));
             stage.setTitle("passworld - " + password.getDescription());
             stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -78,7 +78,7 @@ public class PasswordInfoController {
 
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error loading PasswordInfoController: " + e.getMessage());
         }
     }
 
@@ -88,38 +88,36 @@ public class PasswordInfoController {
         saveButton.setVisible(false); // Ocultar por defecto
 
         // Listener común para validar cambios en campos
-        ChangeListener<String> fieldChangeListener = (observable, oldValue, newValue) -> validateFields();
+        ChangeListener<String> fieldChangeListener = (_, _, _) -> validateFields();
 
         descriptionField.textProperty().addListener(fieldChangeListener);
         usernameField.textProperty().addListener(fieldChangeListener);
         urlField.textProperty().addListener(fieldChangeListener);
 
-        passwordFieldVisible.textProperty().addListener((observable, oldVal, newVal) -> {
+        passwordFieldVisible.textProperty().addListener((_, _, newVal) -> {
             passwordFieldHidden.setText(newVal); // Sincroniza campos
             validateFields();
             checkPasswordIssues(); // Analiza problemas al cambiar la contraseña
         });
 
-        passwordFieldHidden.textProperty().addListener((observable, oldVal, newVal) -> {
+        passwordFieldHidden.textProperty().addListener((_, _, newVal) -> {
             passwordFieldVisible.setText(newVal); // Sincroniza campos
             validateFields();
             checkPasswordIssues(); // Analiza problemas al cambiar la contraseña
         });
 
         // Copiar al portapapeles
-        copyButton.setOnAction(event -> copyPasswordToClipboard());
+        copyButton.setOnAction(_ -> copyPasswordToClipboard());
 
         // Mostrar/ocultar contraseña
-        passwordFieldHidden.setOnMouseClicked(event -> togglePasswordVisibility(true));
-        passwordFieldVisible.setOnMouseClicked(event -> togglePasswordVisibility(false));
+        passwordFieldHidden.setOnMouseClicked(_ -> togglePasswordVisibility(true));
+        passwordFieldVisible.setOnMouseClicked(_ -> togglePasswordVisibility(false));
 
         // Guardar
-        saveButton.setOnAction(event -> {
-            savePassword();
-        });
+        saveButton.setOnAction(_ -> savePassword());
 
         // Eliminar
-        deleteButton.setOnAction(event -> deletePassword());
+        deleteButton.setOnAction(_ -> deletePassword());
 
         // Configurar el botón de volver
         setBackButton();
@@ -133,26 +131,26 @@ public class PasswordInfoController {
 
     private void setIcons() {
         // Establecer imagen de logo
-        Image logoImage = new Image(getClass().getResource("/passworld/images/passworld_logo.png").toExternalForm());
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/passworld_logo.png")).toExternalForm());
         logoImageView.setImage(logoImage);
         ThemeManager.applyThemeToImage(logoImageView);
 
         // Establecer imagen de copiar
-        Image copyImage = new Image(getClass().getResource("/passworld/images/copy_icon.png").toExternalForm());
+        Image copyImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/copy_icon.png")).toExternalForm());
         copyImageView.setImage(copyImage);
         ThemeManager.applyThemeToImage(copyImageView);
         copyImageView.getStyleClass().add("icon");
 
         // Establecer imagen de guardar
         if (ThemeManager.isDarkMode()) {
-            saveImageView.setImage(new Image(getClass().getResource("/passworld/images/save_icon_dark_mode.png").toExternalForm()));
+            saveImageView.setImage(new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/save_icon_dark_mode.png")).toExternalForm()));
         } else {
-            saveImageView.setImage(new Image(getClass().getResource("/passworld/images/save_icon_white.png").toExternalForm()));
+            saveImageView.setImage(new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/save_icon_white.png")).toExternalForm()));
         }
         saveImageView.getStyleClass().add("icon");
 
         // Establecer imagen de eliminar
-        Image deleteImage = new Image(getClass().getResource("/passworld/images/trash_icon.png").toExternalForm());
+        Image deleteImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/trash_icon.png")).toExternalForm());
         deleteImageView.setImage(deleteImage);
         ThemeManager.applyThemeToImage(deleteImageView);
         deleteImageView.getStyleClass().add("icon");
@@ -169,17 +167,13 @@ public class PasswordInfoController {
     }
 
     private void setBackButton() {
-        // Configurar el icono y el estilo del botón de volver
-        Image ltIcon = new Image(getClass().getResource("/passworld/images/lt_icon.png").toExternalForm());
-        ImageView ltImageView = new ImageView(ltIcon);
-        ThemeManager.applyThemeToImage(ltImageView);
-        ltImageView.getStyleClass().add("icon");
-        backButton.setGraphic(ltImageView);
+        // Establecer icono y estilo del botón de volver
+        ViewManager.setBackButton(backButton);
 
         backButton.getStyleClass().add("icon-button");
 
         // Configurar la acción del botón de volver
-        backButton.setOnAction(event -> {
+        backButton.setOnAction(_ -> {
             Stage stage = (Stage) backButton.getScene().getWindow();
             stage.close();
         });
@@ -303,7 +297,7 @@ public class PasswordInfoController {
             passwordsController.updatePassword(password, newDescription, newUsername, newUrl, newPassword);
 
             // Recargar el objeto desde la base de datos
-            PasswordDTO updatedPassword = null;
+            PasswordDTO updatedPassword;
             try {
                 updatedPassword = PasswordManager.getPasswordById(password.getId());
             } catch (SQLException e) {
@@ -373,7 +367,7 @@ public class PasswordInfoController {
 
         String themeSuffix = ThemeManager.isDarkMode() ? "_dark_mode" : "";
         iconPath = hasIssues ? "/passworld/images/warning_icon" + themeSuffix + ".png" : "/passworld/images/protect_icon" + themeSuffix + ".png";
-        Image icon = new Image(getClass().getResource(iconPath).toExternalForm());
+        Image icon = new Image(Objects.requireNonNull(getClass().getResource(iconPath)).toExternalForm());
         securityStatusImageView.setImage(icon);
         securityStatusVbox.getChildren().add(securityStatusImageView); // siempre primero
 

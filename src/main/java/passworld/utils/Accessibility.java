@@ -1,33 +1,25 @@
 package passworld.utils;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.stage.Window;
-import passworld.controller.PassworldController;
-import passworld.service.LanguageManager;
-
-import java.util.ResourceBundle;
 
 public class Accessibility {
 
-    // Método para seleccionar todo el texto cuando un campo de texto tenga focus
+    // Seleccionar el texto cuando un campo de texto tenga focus
     public static void setSelectAllOnFocus(TextField textField) {
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        textField.focusedProperty().addListener((_, _, newValue) -> {
             if (newValue) {
-                textField.selectAll();  // Selecciona todo el texto cuando recibe el foco
+                textField.selectAll();  // Selecciona el texto cuando recibe el foco
             }
         });
     }
 
     public static void setShowLanguageListOnFocus(ComboBox<String> comboBox) {
         // Muestra la lista de idiomas cuando se hace focus en el ComboBox
-        comboBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        comboBox.focusedProperty().addListener((_, _, newValue) -> {
             if (newValue) {  // Si el ComboBox obtiene el focus
                 comboBox.show();  // Despliega la lista de opciones
             }
@@ -77,7 +69,7 @@ public class Accessibility {
         });
     }
 
-    // Método para verificar si el sistema operativo es macOS
+    // Verificar si el sistema operativo es macOS
     private static boolean isMac() {
         return System.getProperty("os.name").toLowerCase().contains("mac");
     }
