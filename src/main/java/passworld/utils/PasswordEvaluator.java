@@ -2,7 +2,7 @@ package passworld.utils;
 
 public class PasswordEvaluator {
 
-    // Método para calcular la fortaleza de la contraseña
+    // Calcular la fortaleza de la contraseña
     public static int calculateStrength(String password) {
         int strength = 0;
 

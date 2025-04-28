@@ -13,7 +13,7 @@ public class Notifier {
         copiedTooltip.show(window);
 
         PauseTransition pause = new PauseTransition(Duration.seconds(2));
-        pause.setOnFinished(event -> copiedTooltip.hide());
+        pause.setOnFinished(_ -> copiedTooltip.hide());
         pause.play();
     }
 }

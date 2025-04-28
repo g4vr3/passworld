@@ -401,6 +401,12 @@
     -fx-background-color: #333333; /* Fondo del botón al pasar el ratón */
 }
 
+.selected-filter-button {
+    -fx-border-color: #616161;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
 .counter-label {
     -fx-font-size: 25px; /* Tamaño de fuente más grande */
     -fx-font-weight: bold; /* Texto en negrita */

@@ -18,8 +18,8 @@ import passworld.utils.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.prefs.Preferences;
 
 public class PassworldController {
 
@@ -64,16 +64,16 @@ public class PassworldController {
         FXMLLoader loader = new FXMLLoader(PassworldController.class.getResource("/passworld/main-view.fxml"));
         try {
             Scene scene = new Scene(loader.load(), 600, 450);
-            scene.getStylesheets().add(PassworldController.class.getResource("/passworld/styles/styles.css").toExternalForm());
-            mainStage.getIcons().add(new Image(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png")));
+            scene.getStylesheets().add(Objects.requireNonNull(PassworldController.class.getResource("/passworld/styles/styles.css")).toExternalForm());
+            mainStage.getIcons().add(new Image(Objects.requireNonNull(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png"))));
             mainStage.setTitle("passworld");
             mainStage.setScene(scene);
             mainStage.setResizable(false); // Deshabilitar el redimensionamiento de la ventana
             ThemeManager.applyCurrentTheme(scene); // Aplica el tema guardado
             mainStage.show();
-            passworld.util.ViewManager.setPrimaryStage(mainStage); // Establecer el escenario principal
+            ViewManager.setPrimaryStage(mainStage); // Establecer el escenario principal
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error loading main-view.fxml: " + e.getMessage());
         }
     }
 
@@ -106,12 +106,12 @@ public class PassworldController {
         });
 
         // Listener para cambios de tema
-        ThemeManager.darkModeProperty().addListener((observable, oldValue, newValue) -> {
+        ThemeManager.darkModeProperty().addListener((_, _, _) -> {
             setIcons(); // Actualiza las imágenes al cambiar el tema
         });
 
         // Configurar el botón para alternar el tema
-        toggleThemeButton.setOnAction(event -> {
+        toggleThemeButton.setOnAction(_ -> {
             ThemeManager.toggleTheme(passwordField.getScene()); // Cambia el tema y actualiza la escena
         });
     }
@@ -128,12 +128,12 @@ public class PassworldController {
 
     private void setIcons() {
         // Establecer imagen de logo
-        Image logoImage = new Image(getClass().getResource("/passworld/images/passworld_logo.png").toExternalForm());
+        Image logoImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/passworld_logo.png")).toExternalForm());
         logoImageView.setImage(logoImage);
         ThemeManager.applyThemeToImage(logoImageView);
 
         // Icono de idioma
-        Image languageIcon = new Image(getClass().getResource("/passworld/images/language_icon.png").toExternalForm());
+        Image languageIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/language_icon.png")).toExternalForm());
         languageImageView.setImage(languageIcon);
         ThemeManager.applyThemeToImage(languageImageView); // Aplica el tema a la imagen
         languageImageView.getStyleClass().add("icon");
@@ -142,41 +142,41 @@ public class PassworldController {
         String themeIconPath = ThemeManager.isDarkMode()
                 ? "/passworld/images/light_mode_icon.png"
                 : "/passworld/images/dark_mode_icon.png";
-        Image themeIcon = new Image(getClass().getResource(themeIconPath).toExternalForm());
+        Image themeIcon = new Image(Objects.requireNonNull(getClass().getResource(themeIconPath)).toExternalForm());
         ImageView themeImageView = new ImageView(themeIcon);
         themeImageView.getStyleClass().add("icon");
         toggleThemeButton.setGraphic(themeImageView);
 
         // Label contraseña
-        Image passwordIcon = new Image(getClass().getResource("/passworld/images/password_icon.png").toExternalForm());
+        Image passwordIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/password_icon.png")).toExternalForm());
         ImageView passwordImageView = new ImageView(passwordIcon);
         ThemeManager.applyThemeToImage(passwordImageView); // Aplica el tema a la imagen
         passwordImageView.getStyleClass().add("icon");
         passwordLabel.setGraphic(passwordImageView);
 
         //Botón de copiar contraseña
-        Image copyIcon = new Image(getClass().getResource("/passworld/images/copy_icon.png").toExternalForm());
+        Image copyIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/copy_icon.png")).toExternalForm());
         ImageView copyImageView = new ImageView(copyIcon);
         ThemeManager.applyThemeToImage(copyImageView); // Aplica el tema a la imagen
         copyImageView.getStyleClass().add("icon");
         copyPasswordButton.setGraphic(copyImageView);
 
         // Botón de guardar contraseña
-        Image saveIcon = new Image(getClass().getResource("/passworld/images/save_icon.png").toExternalForm());
+        Image saveIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/save_icon.png")).toExternalForm());
         ImageView saveImageView = new ImageView(saveIcon);
         ThemeManager.applyThemeToImage(saveImageView); // Aplica el tema a la imagen
         saveImageView.getStyleClass().add("icon");
         savePasswordButton.setGraphic(saveImageView);
 
         // Botón de mis contraseñas
-        Image vaultIcon = new Image(getClass().getResource("/passworld/images/vault_icon.png").toExternalForm());
+        Image vaultIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/vault_icon.png")).toExternalForm());
         ImageView vaultImageView = new ImageView(vaultIcon);
         ThemeManager.applyThemeToImage(vaultImageView); // Aplica el tema a la imagen
         vaultImageView.getStyleClass().add("icon");
         viewMyPasswordsButton.setGraphic(vaultImageView);
 
         // Label longitud contraseña
-        Image lengthIcon = new Image(getClass().getResource("/passworld/images/length_icon.png").toExternalForm());
+        Image lengthIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/length_icon.png")).toExternalForm());
         ImageView lengthImageView = new ImageView(lengthIcon);
         ThemeManager.applyThemeToImage(lengthImageView); // Aplica el tema a la imagen
         lengthImageView.getStyleClass().add("icon");
@@ -186,7 +186,7 @@ public class PassworldController {
         String createIconPath = ThemeManager.isDarkMode()
                 ? "/passworld/images/create_icon_dark_mode.png"
                 : "/passworld/images/create_icon.png";
-        Image createIcon = new Image(getClass().getResource(createIconPath).toExternalForm());
+        Image createIcon = new Image(Objects.requireNonNull(getClass().getResource(createIconPath)).toExternalForm());
         ImageView createImageView = new ImageView(createIcon);
         createImageView.getStyleClass().add("icon");
         generatePasswordButton.setGraphic(createImageView);
@@ -228,6 +228,11 @@ public class PassworldController {
     public void savePassword() {
         String password = passwordField.getText();
 
+        // Verifica si el botón tiene una escena asociada
+        if (savePasswordButton.getScene() == null) {
+            return; // Salir si no hay una escena
+        }
+
         Window window = savePasswordButton.getScene().getWindow();
         ResourceBundle bundle = LanguageManager.getBundle();
 
@@ -246,7 +251,7 @@ public class PassworldController {
                     // Mostrar mensaje de error de validación
                     Notifier.showNotification(window, e.getMessage());
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    System.err.println("Error al guardar la contraseña: " + e.getMessage());
                     // Mostrar mensaje de error de base de datos
                     Notifier.showNotification(window, bundle.getString("toolTip_database_error"));
                 }
@@ -259,8 +264,6 @@ public class PassworldController {
         // Muestra el diálogo para introducir la contraseña maestra
         DialogUtil.showUnlockVaultDialog().ifPresent(masterKey -> {
             // Verifica si la contraseña es "admin"
-            // Implementar: Creación de master key personalizada en la primera vez
-            // Implementar: Desbloqueo según master key personalizada
             if ("admin".equals(masterKey)) {
                 // Si la contraseña es correcta, abre la vista de contraseñas en la misma ventana
                 MyPasswordsController.showView();  // Pasa el Stage actual
@@ -285,7 +288,7 @@ public class PassworldController {
         setUITexts();
 
         // Listener para cambios en el ComboBox
-        languageComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+        languageComboBox.valueProperty().addListener((_, _, newValue) -> {
             LanguageManager.loadLanguage(newValue);
             setUITexts();
         });

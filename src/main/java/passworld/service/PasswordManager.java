@@ -95,7 +95,7 @@ public class PasswordManager {
         securityFilterService.clearUniquePasswords();
 
         for (PasswordDTO dto : allPasswords) {
-            securityFilterService.analyzePasswordSecurity(dto);
+            SecurityFilterManager.analyzePasswordSecurity(dto);
 
             PasswordDAO.updatePassword(
                     dto.getId(),
