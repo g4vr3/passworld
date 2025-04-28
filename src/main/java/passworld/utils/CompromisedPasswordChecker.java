@@ -1,9 +1,10 @@
 package passworld.utils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.security.MessageDigest;
 
 public class CompromisedPasswordChecker {
     private static final String API_URL = "https://api.pwnedpasswords.com/range/";
@@ -13,23 +14,25 @@ public class CompromisedPasswordChecker {
         String prefix = hash.substring(0, 5);
         String suffix = hash.substring(5).toUpperCase();
 
-        URL url = new URL(API_URL + prefix);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL + prefix))
+                .GET()
+                .build();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains(suffix)) {
-                    return true;
-                }
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        String[] lines = response.body().split("\n");
+        for (String line : lines) {
+            if (line.startsWith(suffix)) {
+                return true;
             }
         }
         return false;
     }
 
     private static String sha1(String input) throws Exception {
-        java.security.MessageDigest mDigest = java.security.MessageDigest.getInstance("SHA-1");
+        MessageDigest mDigest = MessageDigest.getInstance("SHA-1");
         byte[] result = mDigest.digest(input.getBytes());
         StringBuilder sb = new StringBuilder();
         for (byte b : result) {
