@@ -64,7 +64,11 @@ public class DDL {
                 + "isWeak BOOLEAN NOT NULL DEFAULT 0, "
                 + "isDuplicate BOOLEAN NOT NULL DEFAULT 0, "
                 + "isCompromised BOOLEAN NOT NULL DEFAULT 0, "
-                + "isUrlUnsafe BOOLEAN NOT NULL DEFAULT 0);";
+                + "isUrlUnsafe BOOLEAN NOT NULL DEFAULT 0, "
+                + "lastModified TEXT, "
+                + "isSynced BOOLEAN NOT NULL DEFAULT 0, "
+                + "idFb TEXT"
+                + ");";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
