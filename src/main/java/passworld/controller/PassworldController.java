@@ -2,24 +2,22 @@ package passworld.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import passworld.service.LanguageManager;
 import passworld.service.PasswordManager;
 import passworld.utils.*;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
+import static passworld.service.LanguageManager.setLanguageSupport;
 
 public class PassworldController {
 
@@ -59,28 +57,13 @@ public class PassworldController {
     ImageView languageImageView; // Icono del idioma
 
     public static void showView() {
-        // Cargar ventana principal y mostrarla
-        Stage mainStage = new Stage();
-        FXMLLoader loader = new FXMLLoader(PassworldController.class.getResource("/passworld/main-view.fxml"));
-        try {
-            Scene scene = new Scene(loader.load(), 600, 450);
-            scene.getStylesheets().add(Objects.requireNonNull(PassworldController.class.getResource("/passworld/styles/styles.css")).toExternalForm());
-            mainStage.getIcons().add(new Image(Objects.requireNonNull(MyPasswordsController.class.getResourceAsStream("/passworld/images/app_icon.png"))));
-            mainStage.setTitle("passworld");
-            mainStage.setScene(scene);
-            mainStage.setResizable(false); // Deshabilitar el redimensionamiento de la ventana
-            ThemeManager.applyCurrentTheme(scene); // Aplica el tema guardado
-            mainStage.show();
-            ViewManager.setPrimaryStage(mainStage); // Establecer el escenario principal
-        } catch (IOException e) {
-            System.err.println("Error loading main-view.fxml: " + e.getMessage());
-        }
+        ViewManager.changeView("/passworld/main-view.fxml", "passworld");
     }
 
     @FXML
     public void initialize() {
         // Internacionalización: soporte para idiomas.
-        setLanguageSupport();
+        setLanguageSupport(languageComboBox, this::setUITexts);
 
         // Inicializar iconos
         setIcons();
@@ -127,25 +110,8 @@ public class PassworldController {
     }
 
     private void setIcons() {
-        // Establecer imagen de logo
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/passworld_logo.png")).toExternalForm());
-        logoImageView.setImage(logoImage);
-        ThemeManager.applyThemeToImage(logoImageView);
-
-        // Icono de idioma
-        Image languageIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/language_icon.png")).toExternalForm());
-        languageImageView.setImage(languageIcon);
-        ThemeManager.applyThemeToImage(languageImageView); // Aplica el tema a la imagen
-        languageImageView.getStyleClass().add("icon");
-
-        // Actualizar el icono del botón de alternar tema
-        String themeIconPath = ThemeManager.isDarkMode()
-                ? "/passworld/images/light_mode_icon.png"
-                : "/passworld/images/dark_mode_icon.png";
-        Image themeIcon = new Image(Objects.requireNonNull(getClass().getResource(themeIconPath)).toExternalForm());
-        ImageView themeImageView = new ImageView(themeIcon);
-        themeImageView.getStyleClass().add("icon");
-        toggleThemeButton.setGraphic(themeImageView);
+        // Configurar el encabezado
+        HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton);
 
         // Label contraseña
         Image passwordIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/password_icon.png")).toExternalForm());
@@ -276,24 +242,6 @@ public class PassworldController {
         });
     }
 
-
-    private void setLanguageSupport() {
-        // Configura la lista de idiomas
-        languageComboBox.setItems(LanguageManager.getSupportedLanguages());
-
-        // Configura el idioma predeterminado del sistema
-        String systemLanguage = LanguageManager.getSystemLanguage();
-        languageComboBox.setValue(systemLanguage);
-        LanguageManager.loadLanguage(systemLanguage);
-        setUITexts();
-
-        // Listener para cambios en el ComboBox
-        languageComboBox.valueProperty().addListener((_, _, newValue) -> {
-            LanguageManager.loadLanguage(newValue);
-            setUITexts();
-        });
-    }
-
     // Establece los textos de la interfaz con los valores del ResourceBundle
     private void setUITexts() {
         ResourceBundle bundle = LanguageManager.getBundle();  // Obtener el ResourceBundle desde LanguageSupport
@@ -307,7 +255,6 @@ public class PassworldController {
         viewMyPasswordsButton.setText(bundle.getString("viewMyPasswordsButton"));
 
         //Tooltips y accesibilidad
-        languageComboBox.setTooltip(new Tooltip(bundle.getString("toolTip_languageComboBox")));
         passwordLabel.setTooltip(new Tooltip(bundle.getString("toolTip_generatedPasswordLabel")));
         passwordField.setTooltip(new Tooltip(bundle.getString("toolTip_generatedPasswordField")));
         copyPasswordButton.setTooltip(new Tooltip(bundle.getString("toolTip_copyToClipboard")));
@@ -319,7 +266,6 @@ public class PassworldController {
         passwordLengthSlider.setTooltip(new Tooltip(bundle.getString("toolTip_passwordLength")));
         generatePasswordButton.setTooltip(new Tooltip(bundle.getString("toolTip_generatePassword")));
         viewMyPasswordsButton.setTooltip(new Tooltip(bundle.getString("toolTip_viewMyPasswords")));
-        toggleThemeButton.setTooltip(new Tooltip(bundle.getString("toolTip_toggleThemeButton")));
 
         updateStrengthLabelOnLanguageChange();
     }

@@ -54,6 +54,6 @@ public class SplashScreenController {
 
     // Método para mostrar la ventana principal
     private void showMainApplication() {
-        PassworldController.showView();
+        AuthController.showView();
     }
 }

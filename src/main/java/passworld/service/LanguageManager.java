@@ -2,6 +2,8 @@ package passworld.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Tooltip;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -47,4 +49,28 @@ public class LanguageManager {
         return bundle;
     }
 
+    public static void setLanguageSupport(ComboBox<String> languageComboBox, Runnable setUITexts) {
+        // Configura la lista de idiomas
+        languageComboBox.setItems(getSupportedLanguages());
+
+        // Asegura que el idioma esté cargado antes de acceder al bundle
+        if (bundle == null) {
+            loadLanguage(getSystemLanguage());
+        }
+
+        languageComboBox.setTooltip(new Tooltip(bundle.getString("toolTip_languageComboBox")));
+
+        // Configura el idioma predeterminado del sistema
+        String systemLanguage = getSystemLanguage();
+        languageComboBox.setValue(systemLanguage);
+
+        // Cargar los textos de la UI
+        setUITexts.run();
+
+        // Listener para cambios en el ComboBox
+        languageComboBox.valueProperty().addListener((_, _, newValue) -> {
+            loadLanguage(newValue);
+            setUITexts.run();
+        });
+    }
 }
