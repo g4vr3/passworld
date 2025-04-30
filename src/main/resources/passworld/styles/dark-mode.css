@@ -211,6 +211,13 @@
     -fx-text-fill: #b1b1b1; /* Color del texto en gris claro */
 }
 
+bold-label {
+    -fx-text-fill: #b1b1b1; /* Color del texto en gris claro */
+    -fx-font-weight: bold; /* Texto */
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-font-family: "Helvetica Neue", sans-serif;  /* Fuente Helvetica Neue */
+}
+
 .strengthLabel {
     -fx-text-fill: inherit; /* Color del texto */
 }
@@ -376,7 +383,6 @@
 .mandatoryFieldsLabel {
     -fx-font-size: 12px;
     -fx-text-fill: tomato;
-    -fx-font-family: "Helvetica Neue", sans-serif;  /* Fuente Helvetica Neue */
 }
 
 .passwords-filter-button {
@@ -471,5 +477,26 @@
 }
 
 .button-bar-separator {
-    -fx-background-color: #c8c8c8;
+    -fx-background-color: #616161;
+    -fx-max-width: 1px;
+    -fx-pref-width: 1px;
+}
+
+.button.auth-section {
+    -fx-background-color: transparent;
+    -fx-text-fill: #b1b1b1; /* Color del texto */
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 1px 0; /* Only bottom border */
+    -fx-border-radius: 0;
+    -fx-border-style: solid;
+}
+
+.button.auth-section-selected {
+    -fx-border-color: #b1b1b1;
+    -fx-border-radius: 0;
+}
+
+.error-label {
+    -fx-text-fill: tomato;
+    -fx-font-size: 12px;
 }

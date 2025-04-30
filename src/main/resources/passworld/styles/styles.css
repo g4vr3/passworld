@@ -253,6 +253,12 @@
     -fx-padding: 0;  /* Sin espacio entre las etiquetas */
 }
 
+bold-label {
+    -fx-font-weight: bold; /* Texto */
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-font-family: "Helvetica Neue", sans-serif;  /* Fuente Helvetica Neue */
+}
+
 /* ComboBox de selección de orden de contraseñas */
 .sort-box {
     -fx-background-color: transparent; /* Fondo transparente */
@@ -301,7 +307,6 @@
 .mandatoryFieldsLabel {
     -fx-font-size: 12px;
     -fx-text-fill: tomato;
-    -fx-font-family: "Helvetica Neue", sans-serif;  /* Fuente Helvetica Neue */
 }
 
 .passwords-filter-button {
@@ -394,5 +399,25 @@
 }
 
 .button-bar-separator {
-    -fx-background-color: #616161;
+    -fx-background-color: #c8c8c8;
+    -fx-max-width: 1px;
+    -fx-pref-width: 1px;
+}
+
+.button.auth-section {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 1px 0; /* Only bottom border */
+    -fx-border-radius: 0;
+    -fx-border-style: solid;
+}
+
+.button.auth-section-selected {
+    -fx-border-color: #000000;
+    -fx-border-radius: 0;
+}
+
+error-label {
+    -fx-text-fill: tomato;
+    -fx-font-size: 12px;
 }
