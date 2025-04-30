@@ -5,6 +5,7 @@ import okhttp3.*;
 import org.json.JSONObject;
 import passworld.data.exceptions.CredentialsException;
 import passworld.data.session.UserSession;
+import passworld.utils.EncryptionUtil;
 
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class UsersApiClient {
     private static final OkHttpClient client = new OkHttpClient();
 
     public static void registerUserWithMasterPassword(String email, String password, String masterPassword)
-            throws IOException, CredentialsException {
+            throws Exception {
         // 1. Registrar usuario
         String registerEndpoint = AUTH_BASE_URL + "signUp?key=" + API_KEY;
         String registerRequestBody = String.format("""
@@ -51,10 +52,20 @@ public class UsersApiClient {
     {
         "masterPassword": "%s",
         "passwords": {
-            "-": "-"
+                        "smplpass": {
+                          "description": "Sample description",
+                          "username": "sample",
+                          "password": "Sample1234##$$",
+                          "url": "https://mail.example.com",
+                          "isWeak": false,
+                          "isDuplicate": false,
+                          "isCompromised": false,
+                          "isUrlUnsafe": false,
+                          "lastModified": "2000-04-30T14:00:01"
+                        }
         }
     }
-    """, masterPassword);
+    """, EncryptionUtil.hashMasterPassword(masterPassword));
 
         sendRequest(databaseEndpoint, "PUT", databaseRequestBody);
     }
