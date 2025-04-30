@@ -25,6 +25,7 @@ public class ViewManager {
             primaryStage.getScene().setRoot(root);
             primaryStage.setTitle(title);
         } catch (IOException e) {
+            e.printStackTrace();
             System.err.println("Error loading FXML file: " + e.getMessage());
         }
     }

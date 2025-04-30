@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import passworld.service.LanguageManager;
@@ -63,7 +64,42 @@ public class AuthController {
         configureAccessibility(); // Configurar accesibilidad
         setupValidationListeners(); // Configurar validaciones de los campos
         showLoginSection(); // Mostrar la sección de inicio de sesión por defecto
+        setupKeyNavigationAndActions(); // Configurar navegación con flechas y acción de Enter
     }
+
+    private void setupKeyNavigationAndActions() {
+        Platform.runLater(() -> {
+            Scene scene = toggleThemeButton.getScene();
+            if (scene != null) {
+                scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    switch (event.getCode()) {
+                        case LEFT -> {
+                            if (signupSection.isVisible()) {
+                                showLoginSection();
+                                event.consume(); // evita que se propague
+                            }
+                        }
+                        case RIGHT -> {
+                            if (loginSection.isVisible()) {
+                                showSignupSection();
+                                event.consume(); // evita que se propague
+                            }
+                        }
+                        case ENTER -> {
+                            if (signupSection.isVisible() && !signupButton.isDisabled()) {
+                                handleSignup();
+                                event.consume(); // evita que se propague
+                            } else if (loginSection.isVisible() && !loginButton.isDisabled()) {
+                                handleLogin();
+                                event.consume(); // evita que se propague
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+
 
     // Configura el soporte de idiomas para la interfaz
     private void configureLanguageSupport() {
@@ -89,6 +125,8 @@ public class AuthController {
     private void configureAccessibility() {
         Accessibility.setShowLanguageListOnFocus(languageComboBox);
         vaultProtectionLabel.setOnMouseClicked(_ -> showVaultProtectionMessage());
+        loginSectionButton.setDefaultButton(false);
+        signupSectionButton.setDefaultButton(false);
     }
 
     // Muestra un mensaje informativo sobre la protección de la bóveda
@@ -255,7 +293,9 @@ public class AuthController {
         // Si es válido, proceder con el registro
         String masterPassword = signupMasterPasswordField.getText();
         System.out.println("Master password set: " + masterPassword);
-        PassworldController.showView();
+
+        // Solicitar desbloqueo de base de datos
+        VaultProtectionController.showView();
     }
 
     // Maneja el evento de inicio de sesión
@@ -268,28 +308,38 @@ public class AuthController {
         }
 
         // Si es válido, proceder con el inicio de sesión
-        PassworldController.showView();
+
+        // Solicitar desbloqueo de base de datos
+        VaultProtectionController.showView();
     }
 
     // Muestra la sección de registro
     @FXML
     private void showSignupSection() {
-        toggleSectionVisibility(signupSection, loginSection, signupSectionButton, loginSectionButton);
+        toggleSectionVisibility(signupSection, loginSection, signupMailField, signupSectionButton, loginSectionButton);
     }
 
     // Muestra la sección de inicio de sesión
     @FXML
     private void showLoginSection() {
-        toggleSectionVisibility(loginSection, signupSection, loginSectionButton, signupSectionButton);
+        toggleSectionVisibility(loginSection, signupSection, loginMailField, loginSectionButton, signupSectionButton);
     }
 
     // Alterna la visibilidad entre dos secciones
-    private void toggleSectionVisibility(VBox showSection, VBox hideSection, Button activeButton, Button inactiveButton) {
+    private void toggleSectionVisibility(VBox showSection, VBox hideSection, TextField emailField, Button activeButton, Button inactiveButton) {
         showSection.setVisible(true);
         hideSection.setVisible(false);
+
+        // Limpiar estado anterior
+        loginSectionButton.setDefaultButton(false);
+        signupSectionButton.setDefaultButton(false);
+
         activeButton.getStyleClass().add("auth-section-selected");
         inactiveButton.getStyleClass().remove("auth-section-selected");
+
+        Platform.runLater(emailField::requestFocus);
     }
+
 
     // Verifica si todos los campos del formulario de registro están llenos
     private boolean areAllSignupFieldsFilled() {

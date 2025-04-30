@@ -227,19 +227,7 @@ public class PassworldController {
 
     @FXML
     public void viewPasswords() {
-        // Muestra el diálogo para introducir la contraseña maestra
-        DialogUtil.showUnlockVaultDialog().ifPresent(masterKey -> {
-            // Verifica si la contraseña es "admin"
-            if ("admin".equals(masterKey)) {
-                // Si la contraseña es correcta, abre la vista de contraseñas en la misma ventana
-                MyPasswordsController.showView();  // Pasa el Stage actual
-            } else {
-                // Si la contraseña es incorrecta, muestra un mensaje de error
-                Window window = savePasswordButton.getScene().getWindow();
-                ResourceBundle bundle = LanguageManager.getBundle();
-                Notifier.showNotification(window, bundle.getString("toolTip_invalid_master_key"));
-            }
-        });
+        MyPasswordsController.showView();
     }
 
     // Establece los textos de la interfaz con los valores del ResourceBundle
