@@ -61,6 +61,7 @@ public class SyncHandler {
         String userId = UserSession.getInstance().getUserId();
         List<PasswordDTO> remotePasswords = PasswordsApiClient.readAllPasswords(userId);
 
+        // Mapear IDs locales y remotos
         Set<String> localIds = new HashSet<>();
         for (PasswordDTO local : localPasswords) {
             if (local.getIdFb() != null) {
@@ -68,10 +69,17 @@ public class SyncHandler {
             }
         }
 
+        Set<String> remoteIds = new HashSet<>();
         for (PasswordDTO remote : remotePasswords) {
+            if (remote.getIdFb() != null) {
+                remoteIds.add(remote.getIdFb());
+            }
+
+            // Insertar si no existe localmente
             if (remote.getIdFb() != null && !localIds.contains(remote.getIdFb())) {
                 PasswordManager.savePassword(remote);
             } else {
+                // Comparar fechas y actualizar si el remoto es más reciente
                 PasswordDTO local = localPasswords.stream()
                         .filter(p -> p.getIdFb() != null && p.getIdFb().equals(remote.getIdFb()))
                         .findFirst().orElse(null);
@@ -81,6 +89,14 @@ public class SyncHandler {
             }
         }
 
+        // Eliminar del local si no existe en el remoto
+        for (PasswordDTO local : localPasswords) {
+            if (local.getIdFb() != null && !remoteIds.contains(local.getIdFb())) {
+                PasswordDAO.deletePassword(local.getId());
+            }
+        }
+
+        // Subir contraseñas locales que aún no están sincronizadas
         uploadUnsyncedPasswords(localPasswords);
     }
 
