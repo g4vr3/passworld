@@ -162,6 +162,13 @@ public class PasswordsApiClient {
             return Instant.ofEpochMilli(timestampMillis)
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
+        } else if (lastModifiedObj instanceof String) {
+            try {
+                return LocalDateTime.parse((String) lastModifiedObj);
+            } catch (Exception e) {
+                // Manejo de error si el formato no es válido
+                return null;
+            }
         }
         return null;
     }

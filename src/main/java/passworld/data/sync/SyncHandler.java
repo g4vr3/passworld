@@ -5,31 +5,28 @@ import passworld.data.apiclients.PasswordsApiClient;
 import passworld.data.PasswordDTO;
 import passworld.data.session.UserSession;
 import passworld.service.PasswordManager;
-import passworld.utils.Notifier;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class SyncHandler {
 
-    // Descarga todas las contraseñas del usuario desde Firebase
     public static List<PasswordDTO> downloadPasswords() throws IOException {
         String userId = UserSession.getInstance().getUserId();
         return PasswordsApiClient.readAllPasswords(userId);
     }
 
-    // Sube solo las contraseñas locales que no están sincronizadas
     public static void uploadUnsyncedPasswords(List<PasswordDTO> localPasswords) {
         String userId = UserSession.getInstance().getUserId();
         for (PasswordDTO password : localPasswords) {
-            if (!password.isSynced()) {
-                try {
+            try {
+                if (!password.isSynced()) {
                     if (password.getIdFb() == null || password.getIdFb().isEmpty()) {
-                        // No existe en Firebase, crear y guardar el idFb
                         String idFb = PasswordsApiClient.createPassword(userId, password);
                         if (idFb != null) {
                             password.setIdFb(idFb);
@@ -37,7 +34,6 @@ public class SyncHandler {
                             PasswordDAO.updatePassword(password);
                         }
                     } else {
-                        // Ya existe en Firebase, actualizar
                         PasswordsApiClient.updatePassword(
                                 userId,
                                 password.getIdFb(),
@@ -54,9 +50,9 @@ public class SyncHandler {
                         password.setSynced(true);
                         PasswordDAO.updatePassword(password);
                     }
-                } catch (IOException | SQLException e) {
-                    e.printStackTrace();
                 }
+            } catch (IOException | SQLException e) {
+                System.out.println("Error al subir la contraseña: " + e.getMessage());
             }
         }
     }
@@ -65,7 +61,6 @@ public class SyncHandler {
         String userId = UserSession.getInstance().getUserId();
         List<PasswordDTO> remotePasswords = PasswordsApiClient.readAllPasswords(userId);
 
-        // Índice rápido de contraseñas locales por idFb
         Set<String> localIds = new HashSet<>();
         for (PasswordDTO local : localPasswords) {
             if (local.getIdFb() != null) {
@@ -73,14 +68,30 @@ public class SyncHandler {
             }
         }
 
-        // Añadir al DAO las contraseñas remotas que no estén localmente
         for (PasswordDTO remote : remotePasswords) {
             if (remote.getIdFb() != null && !localIds.contains(remote.getIdFb())) {
-                PasswordDAO.createPassword(remote);
+                PasswordManager.savePassword(remote);
+            } else {
+                PasswordDTO local = localPasswords.stream()
+                        .filter(p -> p.getIdFb() != null && p.getIdFb().equals(remote.getIdFb()))
+                        .findFirst().orElse(null);
+                if (local != null && remote.getLastModified().isAfter(local.getLastModified())) {
+                    PasswordManager.updatePasswordbyRemote(remote);
+                }
             }
         }
 
-        // Sube las locales no sincronizadas
         uploadUnsyncedPasswords(localPasswords);
+    }
+
+    public static boolean hasInternetConnection() {
+        try {
+            final URL url = new URL("https://www.google.com");
+            final URLConnection conn = url.openConnection();
+            conn.connect();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 }

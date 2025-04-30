@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import passworld.data.apiclients.UsersApiClient;
 import passworld.service.LanguageManager;
 import passworld.utils.Accessibility;
 import passworld.utils.HeaderConfigurator;
@@ -308,6 +309,14 @@ public class AuthController {
         }
 
         // Si es válido, proceder con el inicio de sesión
+        try {
+            UsersApiClient.loginUser(loginMailField.getText(), loginPasswordField.getText());
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(LanguageManager.getBundle().getString("loginErrorTitle"));
+            alert.setHeaderText(null);
+            alert.setContentText(e.getMessage());
+        }
 
         // Solicitar desbloqueo de base de datos
         VaultProtectionController.showView();

@@ -52,12 +52,21 @@ public class PasswordManager {
         }
         return updated;
     }
-    public static boolean updatePasswordSynced(PasswordDTO updatedPasswordDTO) throws SQLException {
+
+    public static boolean updatePasswordbyRemote(PasswordDTO updatedPasswordDTO) throws SQLException {
         updatedPasswordDTO.setLastModified(LocalDateTime.now());
+        updatedPasswordDTO.setSynced(true);
+
         validatePasswordData(updatedPasswordDTO);
 
-        // Solo actualiza en la base de datos, no toques la seguridad
-        return PasswordDAO.updatePassword(updatedPasswordDTO);
+        securityFilterService.removeUniquePassword(updatedPasswordDTO.getPassword());
+
+        boolean updated = PasswordDAO.updatePassword(updatedPasswordDTO);
+
+        if (updated) {
+            updateAllPasswordsSecurity();
+        }
+        return updated;
     }
 
     // Eliminar una contraseña localmente

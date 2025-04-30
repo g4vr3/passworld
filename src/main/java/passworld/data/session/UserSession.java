@@ -2,6 +2,7 @@ package passworld.data.session;
 
 public class UserSession {
     private static UserSession instance;
+    private boolean loggedIn;
     private String userId;
     private String idToken;
     private String refreshToken;
@@ -37,5 +38,11 @@ public class UserSession {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
     }
 }

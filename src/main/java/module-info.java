@@ -9,6 +9,7 @@ module passworld {
     requires org.json;
     requires com.fasterxml.jackson.databind;
     requires jdk.jshell;
+    requires java.net.http;
 
 
     opens passworld to javafx.fxml;

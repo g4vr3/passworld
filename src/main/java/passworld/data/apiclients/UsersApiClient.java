@@ -83,6 +83,7 @@ public class UsersApiClient {
 
         JSONObject json = new JSONObject(response);
         UserSession session = UserSession.getInstance();
+        session.setLoggedIn(true);
         session.setUserId(json.getString("localId"));
         session.setIdToken(json.getString("idToken"));
         session.setRefreshToken(json.getString("refreshToken"));

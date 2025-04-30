@@ -1,5 +1,6 @@
 package passworld.controller;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,6 +15,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
+import passworld.data.session.UserSession;
+import passworld.data.sync.SyncHandler;
 import passworld.service.LanguageManager;
 import passworld.service.SecurityFilterManager;
 import passworld.utils.Notifier;
@@ -21,6 +24,7 @@ import passworld.service.PasswordManager;
 import passworld.utils.ThemeManager;
 import passworld.utils.ViewManager;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Comparator;
@@ -28,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
 
 public class MyPasswordsController {
     @FXML
@@ -143,6 +148,7 @@ public class MyPasswordsController {
         // Inicializar los contadores de contraseñas
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
         issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+        syncPasswordsPeriodically();
     }
 
     private void loadPasswords() {
@@ -168,6 +174,11 @@ public class MyPasswordsController {
 
             // Asignar el icono y texto al botón de mostrar contraseñas con problemas
             updateIssuePasswordsButton();
+            if (activeFilterButton == showIssuePasswordsButton && !issuePasswordsList.isEmpty()) {
+                showIssuePasswords();
+            } else {
+                showAllPasswords();
+            }
 
         } catch (SQLException e) {
             System.err.println("ERROR: " + e.getMessage());
@@ -450,12 +461,6 @@ public class MyPasswordsController {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_successfully"));
                 loadPasswords();
 
-                // Recargar la tabla según el filtro activo
-                if (activeFilterButton == showIssuePasswordsButton && !issuePasswordsList.isEmpty()) {
-                    showIssuePasswords();
-                } else {
-                    showAllPasswords();
-                }
             } else {
                 Notifier.showNotification(window, getBundle().getString("password_deleted_failed"));
             }
@@ -473,13 +478,6 @@ public class MyPasswordsController {
             if (success) {
                 Notifier.showNotification(window, getBundle().getString("password_updated_successfully"));
                 loadPasswords();
-
-                // Recargar la tabla según el filtro activo
-                if (activeFilterButton == showIssuePasswordsButton && !issuePasswordsList.isEmpty()) {
-                    showIssuePasswords();
-                } else {
-                    showAllPasswords();
-                }
             } else {
                 Notifier.showNotification(window, getBundle().getString("password_updated_failed"));
             }
@@ -529,4 +527,26 @@ public class MyPasswordsController {
         // Actualizar el filtro activo
         activeFilterButton = selectedButton;
     }
+
+    public void syncPasswordsPeriodically() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    if (UserSession.getInstance().isLoggedIn() && SyncHandler.hasInternetConnection()) {
+                        List<PasswordDTO> localPasswords = PasswordDAO.readAllPasswords();
+                        SyncHandler.uploadUnsyncedPasswords(localPasswords);
+                        SyncHandler.syncPasswords(localPasswords);
+                        Platform.runLater(this::loadPasswords); // <-- Cambia aquí
+                    }
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (IOException | SQLException e) {
+                    System.out.println("Error during synchronization: " + e.getMessage());
+                }
+            }
+        }).start();
+    }
+
 }
