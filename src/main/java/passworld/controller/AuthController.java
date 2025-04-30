@@ -1,6 +1,7 @@
 package passworld.controller;
 
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -38,6 +39,7 @@ public class AuthController {
     @FXML
     private PasswordField signupPasswordField, signupConfirmPasswordField, signupMasterPasswordField, signupConfirmMasterPasswordField, loginPasswordField;
 
+    private EventHandler<KeyEvent> keyEventHandler;
     public static void showView() {
         Stage mainStage = new Stage();
         FXMLLoader loader = new FXMLLoader(AuthController.class.getResource("/passworld/authentication-view.fxml"));
@@ -69,31 +71,32 @@ public class AuthController {
         Platform.runLater(() -> {
             Scene scene = toggleThemeButton.getScene();
             if (scene != null) {
-                scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                keyEventHandler = event -> {
                     switch (event.getCode()) {
                         case LEFT -> {
                             if (signupSection.isVisible()) {
                                 showLoginSection();
-                                event.consume(); // evita que se propague
+                                event.consume();
                             }
                         }
                         case RIGHT -> {
                             if (loginSection.isVisible()) {
                                 showSignupSection();
-                                event.consume(); // evita que se propague
+                                event.consume();
                             }
                         }
                         case ENTER -> {
                             if (signupSection.isVisible() && !signupButton.isDisabled()) {
                                 handleSignup();
-                                event.consume(); // evita que se propague
+                                event.consume();
                             } else if (loginSection.isVisible() && !loginButton.isDisabled()) {
                                 handleLogin();
-                                event.consume(); // evita que se propague
+                                event.consume();
                             }
                         }
                     }
-                });
+                };
+                scene.addEventFilter(KeyEvent.KEY_PRESSED, keyEventHandler);
             }
         });
     }
@@ -303,6 +306,16 @@ public class AuthController {
             clearErrorStyles(field, errorLabel);
         });
     }
+    private void removeKeyEventFilter() {
+        Scene scene = toggleThemeButton.getScene();
+        if (scene != null) {
+            // Debes guardar la referencia al EventHandler cuando lo añades para poder quitarlo aquí.
+            // Por ejemplo, guarda el handler como atributo de clase.
+            if (keyEventHandler != null) {
+                scene.removeEventFilter(KeyEvent.KEY_PRESSED, keyEventHandler);
+            }
+        }
+    }
 
     // Maneja el evento de registro
     @FXML
@@ -318,6 +331,7 @@ public class AuthController {
         System.out.println("Master password set: " + masterPassword);
 
         // Solicitar desbloqueo de base de datos
+        removeKeyEventFilter();
         VaultProtectionController.showView();
     }
 
@@ -341,6 +355,7 @@ public class AuthController {
         }
 
         // Solicitar desbloqueo de base de datos
+        removeKeyEventFilter();
         VaultProtectionController.showView();
     }
 
