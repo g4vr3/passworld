@@ -417,7 +417,7 @@ bold-label {
     -fx-border-radius: 0;
 }
 
-error-label {
+.error-label {
     -fx-text-fill: tomato;
     -fx-font-size: 12px;
 }

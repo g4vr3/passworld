@@ -255,7 +255,9 @@ public class AuthController {
         // Si es válido, proceder con el registro
         String masterPassword = signupMasterPasswordField.getText();
         System.out.println("Master password set: " + masterPassword);
-        PassworldController.showView();
+
+        // Solicitar desbloqueo de base de datos
+        VaultProtectionController.showView();
     }
 
     // Maneja el evento de inicio de sesión
@@ -268,7 +270,9 @@ public class AuthController {
         }
 
         // Si es válido, proceder con el inicio de sesión
-        PassworldController.showView();
+
+        // Solicitar desbloqueo de base de datos
+        VaultProtectionController.showView();
     }
 
     // Muestra la sección de registro
