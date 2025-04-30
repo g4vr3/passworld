@@ -12,10 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import passworld.data.apiclients.UsersApiClient;
 import passworld.service.LanguageManager;
-import passworld.utils.Accessibility;
-import passworld.utils.HeaderConfigurator;
-import passworld.utils.ThemeManager;
-import passworld.utils.ViewManager;
+import passworld.utils.*;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -33,9 +30,9 @@ public class AuthController {
     @FXML
     private ImageView logoImageView, languageImageView, infoImageView;
     @FXML
-    private Label vaultProtectionLabel, errorLabel, accountDetailsLabel, accountMailLabel, accountPasswordLabel;
+    private Label vaultProtectionLabel, accountDetailsLabel, accountMailLabel, accountPasswordLabel;
     @FXML
-    private Label emailErrorLabel, passwordErrorLabel, loginEmailErrorLabel, loginPasswordErrorLabel;
+    private Label signupEmailErrorLabel, signupPasswordErrorLabel, loginEmailErrorLabel, loginPasswordErrorLabel, signupMasterPasswordErrorLabel;
     @FXML
     private TextField signupMailField, loginMailField;
     @FXML
@@ -100,7 +97,6 @@ public class AuthController {
             }
         });
     }
-
 
     // Configura el soporte de idiomas para la interfaz
     private void configureLanguageSupport() {
@@ -172,33 +168,79 @@ public class AuthController {
     private boolean validateSignupFields() {
         boolean valid = true;
 
-        // Validar email y contraseñas
-        valid &= validateField(signupMailField, emailErrorLabel, "empty_email");
-        valid &= validateField(signupPasswordField, passwordErrorLabel, "empty_password");
-        valid &= validateField(signupConfirmPasswordField, passwordErrorLabel, "empty_password");
+        // Validar campos básicos
+        valid &= validateField(signupMailField, signupEmailErrorLabel, "empty_email");
+        valid &= validateField(signupPasswordField, signupPasswordErrorLabel, "empty_password");
+        valid &= validateField(signupConfirmPasswordField, signupPasswordErrorLabel, "empty_password");
 
-        // Validar que las contraseñas coincidan
-        valid &= validatePasswords(signupPasswordField, signupConfirmPasswordField, passwordErrorLabel, "passwords_do_not_match");
+        valid &= validateField(signupMasterPasswordField, signupMasterPasswordErrorLabel, "empty_password");
+        valid &= validateField(signupConfirmMasterPasswordField, signupMasterPasswordErrorLabel, "empty_password");
 
-        // Validar campos de contraseña maestra
-        valid &= validateMasterPasswordFields();
+        if (!valid) {
+            signupButton.setDisable(true);
+            return false;
+        }
 
-        signupButton.setDisable(!valid); // Deshabilitar el botón si hay errores
-        return valid;
+        // 1. Contraseña normal
+        if (arePasswordsEqual(signupPasswordField, signupConfirmPasswordField, signupPasswordErrorLabel)) return false;
+        if (isPasswordWeak(signupPasswordField, signupConfirmPasswordField, signupPasswordErrorLabel)) return false;
+        if (isPasswordCompromised(signupPasswordField, signupConfirmPasswordField, signupPasswordErrorLabel)) return false;
+
+        // 2. Contraseña maestra
+        if (arePasswordsEqual(signupMasterPasswordField, signupConfirmMasterPasswordField, signupMasterPasswordErrorLabel)) return false;
+        if (isPasswordWeak(signupMasterPasswordField, signupConfirmMasterPasswordField, signupMasterPasswordErrorLabel)) return false;
+        if (isPasswordCompromised(signupMasterPasswordField, signupConfirmMasterPasswordField, signupMasterPasswordErrorLabel)) return false;
+
+        signupButton.setDisable(false);
+        return true;
     }
 
-    // Valida los campos relacionados con la contraseña maestra
-    private boolean validateMasterPasswordFields() {
-        boolean valid = true;
+    private boolean arePasswordsEqual(PasswordField passwordField, PasswordField confirmPasswordField, Label errorLabel) {
+        if (!passwordField.getText().equals(confirmPasswordField.getText())) {
+            showFieldError(passwordField, confirmPasswordField, errorLabel, "passwords_do_not_match");
+            passwordField.clear();
+            confirmPasswordField.clear();
+            signupButton.setDisable(true);
+            return true;
+        }
+        return false;
+    }
 
-        // Validar campos de contraseña maestra
-        valid &= validateField(signupMasterPasswordField, errorLabel, "empty_password");
-        valid &= validateField(signupConfirmMasterPasswordField, errorLabel, "empty_password");
+    private boolean isPasswordWeak(PasswordField passwordField, PasswordField confirmPasswordField, Label errorLabel) {
+        int strength = PasswordEvaluator.calculateStrength(passwordField.getText());
+        if (strength < 3) {
+            showFieldError(passwordField, confirmPasswordField, errorLabel, "weak_password");
+            passwordField.clear();
+            confirmPasswordField.clear();
+            signupButton.setDisable(true);
+            return true;
+        }
+        return false;
+    }
 
-        // Validar que las contraseñas maestras coincidan
-        valid &= validatePasswords(signupMasterPasswordField, signupConfirmMasterPasswordField, errorLabel, "passwords_do_not_match");
+    private boolean isPasswordCompromised(PasswordField passwordField, PasswordField confirmPasswordField, Label errorLabel) {
+        try {
+            if (CompromisedPasswordChecker.isCompromisedPassword(passwordField.getText())) {
+                showFieldError(passwordField, confirmPasswordField, errorLabel, "compromised_password");
+                passwordField.clear();
+                confirmPasswordField.clear();
+                signupButton.setDisable(true);
+                return true;
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking compromised password: " + e.getMessage());
+            return true;
+        }
+        return false;
+    }
 
-        return valid;
+    private void showFieldError(PasswordField pw, PasswordField confirmPw, Label errorLabel, String messageKey) {
+        if (!pw.getStyleClass().contains("error-border")) pw.getStyleClass().add("error-border");
+        if (!confirmPw.getStyleClass().contains("error-border")) confirmPw.getStyleClass().add("error-border");
+
+        errorLabel.setText(LanguageManager.getBundle().getString(messageKey));
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
     }
 
     // Valida los campos del formulario de inicio de sesión
@@ -222,38 +264,18 @@ public class AuthController {
             errorLabel.setText(LanguageManager.getBundle().getString(errorMessageKey));
             errorLabel.setVisible(true);
             errorLabel.setManaged(true);
-            field.clear(); // Vaciar el campo con error
             return false;
+        } else {
+            field.getStyleClass().remove("error-border");
+            errorLabel.setVisible(false);
+            errorLabel.setManaged(false);
         }
         return true;
-    }
-
-    // Valida que dos contraseñas coincidan
-    private boolean validatePasswords(PasswordField passwordField, PasswordField confirmPasswordField, Label errorLabel, String mismatchMessageKey) {
-        if (!passwordField.getText().equals(confirmPasswordField.getText())) {
-            handleNotEqualPasswords(passwordField, confirmPasswordField, errorLabel, mismatchMessageKey);
-            passwordField.clear(); // Vaciar ambos campos con error
-            confirmPasswordField.clear();
-            return false;
-        }
-        return true;
-    }
-
-    // Maneja el caso en que las contraseñas no coincidan
-    private void handleNotEqualPasswords(PasswordField passwordField, PasswordField confirmPasswordField, Label errorLabel, String mismatchMessageKey) {
-        if (!passwordField.getStyleClass().contains("error-border"))
-            passwordField.getStyleClass().add("error-border");
-        if (!confirmPasswordField.getStyleClass().contains("error-border"))
-            confirmPasswordField.getStyleClass().add("error-border");
-
-        errorLabel.setText(LanguageManager.getBundle().getString(mismatchMessageKey));
-        errorLabel.setVisible(true);
-        errorLabel.setManaged(true);
     }
 
     // Limpia los estilos de error de un campo si ya no está vacío
     private void clearErrorStyles(TextField field, Label errorLabel) {
-        if (!field.getText().trim().isEmpty()) { // Solo limpiar si el campo no está vacío
+        if (!field.getText().trim().isEmpty()) {  // Solo limpiar si el campo no está vacío
             field.getStyleClass().remove("error-border");
             errorLabel.setVisible(false);
             errorLabel.setManaged(false);
@@ -263,11 +285,11 @@ public class AuthController {
     // Configura los listeners para validar los campos en tiempo real
     private void setupValidationListeners() {
         // Listeners para los campos de registro
-        setupFieldListener(signupMailField, signupButton, emailErrorLabel, this::areAllSignupFieldsFilled);
-        setupFieldListener(signupPasswordField, signupButton, passwordErrorLabel, this::areAllSignupFieldsFilled);
-        setupFieldListener(signupConfirmPasswordField, signupButton, passwordErrorLabel, this::areAllSignupFieldsFilled);
-        setupFieldListener(signupMasterPasswordField, signupButton, errorLabel, this::areAllSignupFieldsFilled);
-        setupFieldListener(signupConfirmMasterPasswordField, signupButton, errorLabel, this::areAllSignupFieldsFilled);
+        setupFieldListener(signupMailField, signupButton, signupEmailErrorLabel, this::areAllSignupFieldsFilled);
+        setupFieldListener(signupPasswordField, signupButton, signupPasswordErrorLabel, this::areAllSignupFieldsFilled);
+        setupFieldListener(signupConfirmPasswordField, signupButton, signupPasswordErrorLabel, this::areAllSignupFieldsFilled);
+        setupFieldListener(signupMasterPasswordField, signupButton, signupMasterPasswordErrorLabel, this::areAllSignupFieldsFilled);
+        setupFieldListener(signupConfirmMasterPasswordField, signupButton, signupMasterPasswordErrorLabel, this::areAllSignupFieldsFilled);
 
         // Listeners para los campos de inicio de sesión
         setupFieldListener(loginMailField, loginButton, loginEmailErrorLabel, this::areAllLoginFieldsFilled);
