@@ -4,10 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import passworld.utils.Accessibility;
-import passworld.utils.HeaderConfigurator;
-import passworld.utils.ThemeManager;
-import passworld.utils.ViewManager;
+import passworld.utils.*;
 
 import static passworld.service.LanguageManager.getBundle;
 import static passworld.service.LanguageManager.setLanguageSupport;
@@ -36,6 +33,7 @@ public class VaultProtectionController {
         configureIcons(); // Configurar los íconos de la interfaz
         configureAccessibility(); // Configurar accesibilidad
         setupValidationListeners(); // Configurar validaciones de los campos
+        setupMasterPasswordField(); // Configura el campo de contraseña para manejar el evento Enter
     }
 
     // Configura el soporte de idiomas para la interfaz
@@ -75,8 +73,20 @@ public class VaultProtectionController {
         masterPasswordField.setPromptText(getBundle().getString("master_key_label"));
     }
 
+    // Configurar validaciones de los campos
     private void setupValidationListeners() {
-        // Configura el campo de contraseña para manejar el evento Enter
+        // Listener para eliminar el mensaje de error y la clase de borde de error al escribir
+        masterPasswordField.textProperty().addListener((_, _, newValue) -> {
+            if (!newValue.trim().isEmpty()) {
+                errorLabel.setVisible(false);
+                errorLabel.setManaged(false);
+                masterPasswordField.getStyleClass().remove("error-border");
+            }
+        });
+    }
+
+    // Configura el campo de contraseña para manejar el evento Enter
+    private void setupMasterPasswordField() {
         masterPasswordField.setOnAction(_ -> {
             String enteredPassword = masterPasswordField.getText();
             if (isValidPassword(enteredPassword)) {
@@ -91,15 +101,9 @@ public class VaultProtectionController {
                 }
                 masterPasswordField.clear(); // Limpiar el campo de contraseña
                 masterPasswordField.requestFocus(); // Mantener el foco en el campo
-            }
-        });
 
-        // Listener para eliminar el mensaje de error y la clase de borde de error al escribir
-        masterPasswordField.textProperty().addListener((_, _, newValue) -> {
-            if (!newValue.trim().isEmpty()) {
-                errorLabel.setVisible(false);
-                errorLabel.setManaged(false);
-                masterPasswordField.getStyleClass().remove("error-border");
+                // Agitar el campo de contraseña
+                AnimationUtil.shakeField(masterPasswordField);
             }
         });
     }
