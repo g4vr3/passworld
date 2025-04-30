@@ -327,8 +327,18 @@ public class AuthController {
         }
 
         // Si es válido, proceder con el registro
-        String masterPassword = signupMasterPasswordField.getText();
-        System.out.println("Master password set: " + masterPassword);
+        try {
+
+            UsersApiClient.registerUserWithMasterPassword(signupMailField.getText(), signupPasswordField.getText(), signupMasterPasswordField.getText());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(LanguageManager.getBundle().getString("signupErrorTitle"));
+            alert.setHeaderText(null);
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+            return;
+        }
 
         // Solicitar desbloqueo de base de datos
         removeKeyEventFilter();

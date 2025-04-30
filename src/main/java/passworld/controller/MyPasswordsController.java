@@ -534,7 +534,6 @@ public class MyPasswordsController {
                 try {
                     if (UserSession.getInstance().isLoggedIn() && SyncHandler.hasInternetConnection()) {
                         List<PasswordDTO> localPasswords = PasswordDAO.readAllPasswords();
-                        SyncHandler.uploadUnsyncedPasswords(localPasswords);
                         SyncHandler.syncPasswords(localPasswords);
                         Platform.runLater(this::loadPasswords); // <-- Cambia aquí
                     }
