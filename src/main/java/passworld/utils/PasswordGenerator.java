@@ -49,4 +49,9 @@ public class PasswordGenerator {
 
         return password.toString();
     }
+
+    // Generar una contraseña con las políticas por defecto
+    public static String generateDefaultPassword() {
+        return generatePassword(true, true, true, 12);
+    }
 }
