@@ -16,6 +16,7 @@ import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
 import passworld.service.SecurityFilterManager;
+import passworld.utils.DialogUtil;
 import passworld.utils.Notifier;
 import passworld.service.PasswordManager;
 import passworld.utils.ThemeManager;
@@ -66,6 +67,10 @@ public class MyPasswordsController {
     private Label issuePasswordsButtonLabel;
     @FXML
     private Tooltip issuePasswordsButtonTooltip;
+    @FXML
+    private Button newPasswordButton;
+    @FXML
+    private ImageView newPasswordImageView;
 
     private Button activeFilterButton; // Variable para rastrear el filtro activo
 
@@ -90,6 +95,15 @@ public class MyPasswordsController {
         Image logoImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/passworld_logo.png")).toExternalForm());
         logoImageView.setImage(logoImage);
         ThemeManager.applyThemeToImage(logoImageView);
+
+        // Establecer imagen de nueva contraseña
+        Image newPasswordIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/plus_icon.png")).toExternalForm());
+        newPasswordImageView.setImage(newPasswordIcon);
+        ThemeManager.applyThemeToImage(newPasswordImageView);
+        newPasswordImageView.getStyleClass().add("icon");
+
+        // Configurar el botón de nueva contraseña
+        newPasswordButton.setOnAction(_ -> createNewPassword());
 
         // Establecer el mensaje de marcador de posición cuando no hay datos
         passwordTable.setPlaceholder(new Label(getBundle().getString("no_data_to_display")));
@@ -143,6 +157,26 @@ public class MyPasswordsController {
         // Inicializar los contadores de contraseñas
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
         issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+    }
+
+    private void createNewPassword() {
+        // Mostrar el cuadro de diálogo para crear una nueva contraseña
+        DialogUtil.showPasswordCreationDialog("").ifPresent(passwordDTO -> {
+            try {
+                // Guardar la nueva contraseña en la base de datos
+                boolean success = PasswordManager.savePassword(passwordDTO);
+                if (success) {
+                    // Recargar la lista de contraseñas
+                    loadPasswords();
+                    Notifier.showNotification(newPasswordButton.getScene().getWindow(), getBundle().getString("toolTip_password_saved"));
+                } else {
+                    Notifier.showNotification(newPasswordButton.getScene().getWindow(), getBundle().getString("toolTip_password_not_saved"));
+                }
+            } catch (SQLException e) {
+                System.err.println("Error saving password: " + e.getMessage());
+                Notifier.showNotification(newPasswordButton.getScene().getWindow(), getBundle().getString("toolTip_database_error"));
+            }
+        });
     }
 
     private void loadPasswords() {
