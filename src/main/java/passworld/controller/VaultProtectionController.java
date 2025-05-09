@@ -4,6 +4,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import passworld.data.LocalAuthUtil;
+import passworld.data.exceptions.EncryptionException;
+import passworld.data.session.UserSession;
 import passworld.utils.*;
 
 import static passworld.service.LanguageManager.getBundle;
@@ -109,7 +112,14 @@ public class VaultProtectionController {
     }
 
     private boolean isValidPassword(String enteredPassword) {
-        // TODO Implementar la lógica para validar la contraseña ingresada
-        return enteredPassword.equals("admin");
+        try {
+            // Obtén el hash de la master password desde la base de datos local
+            String storedHash = LocalAuthUtil.getMasterPasswordHash();
+            // Verifica la contraseña ingresada usando EncryptionUtil
+            return passworld.utils.EncryptionUtil.verifyMasterPassword(enteredPassword, storedHash);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
