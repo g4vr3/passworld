@@ -1,11 +1,15 @@
 package passworld.data.session;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
+
 public class UserSession {
     private static UserSession instance;
     private boolean loggedIn;
     private String userId;
-    private String idToken;
-    private String refreshToken;
+    private transient String idToken;
+    private transient String refreshToken;
+    private transient SecretKeySpec masterKey;
 
     private UserSession() {}
 
@@ -39,10 +43,45 @@ public class UserSession {
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
+
     public boolean isLoggedIn() {
         return loggedIn;
     }
+
     public void setLoggedIn(boolean loggedIn) {
         this.loggedIn = loggedIn;
+    }
+
+    // Master key en memoria
+    public SecretKeySpec getMasterKey() {
+        return masterKey;
+    }
+
+    public void setMasterKey(SecretKeySpec masterKey) {
+        this.masterKey = masterKey;
+    }
+
+    // Limpia todos los datos sensibles de la sesión
+    public void clearSession() {
+        loggedIn = false;
+        userId = null;
+        if (idToken != null) {
+            Arrays.fill(idToken.toCharArray(), '\0');
+            idToken = null;
+        }
+        if (refreshToken != null) {
+            Arrays.fill(refreshToken.toCharArray(), '\0');
+            refreshToken = null;
+        }
+        clearMasterKey();
+    }
+
+    // Limpia la master key de memoria
+    public void clearMasterKey() {
+        if (masterKey != null) {
+            byte[] keyBytes = masterKey.getEncoded();
+            Arrays.fill(keyBytes, (byte) 0);
+            masterKey = null;
+        }
     }
 }
