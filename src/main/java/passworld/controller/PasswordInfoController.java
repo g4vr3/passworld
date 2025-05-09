@@ -16,10 +16,13 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import passworld.data.PasswordDTO;
+import passworld.data.exceptions.EncryptionException;
+import passworld.data.session.UserSession;
 import passworld.service.LanguageManager;
 import passworld.service.PasswordManager;
 import passworld.utils.*;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Objects;
@@ -229,14 +232,34 @@ public class PasswordInfoController {
         this.password = password;
         this.passwordsController = passwordsController;
 
-        // Rellenar campos
-        descriptionField.setText(password.getDescription());
-        usernameField.setText(password.getUsername());
-        urlField.setText(password.getUrl());
-        passwordFieldHidden.setText(password.getPassword());
-        passwordFieldVisible.setText(password.getPassword());
+        String encryptedPassword = password.getPassword();
+        String decryptedPassword = safeDecryptPassword(encryptedPassword).orElse("Contraseña no disponible");
+
+        // Establecer valores en los campos
+        Platform.runLater(() -> {
+            descriptionField.setText(password.getDescription());
+            usernameField.setText(password.getUsername());
+            urlField.setText(password.getUrl());
+            passwordFieldHidden.setText(decryptedPassword);
+            passwordFieldVisible.setText(decryptedPassword);
+        });
 
         checkPasswordIssues();
+    }
+    private Optional<String> safeDecryptPassword(String encryptedPassword) {
+        try {
+            SecretKeySpec masterKey = UserSession.getInstance().getMasterKey();
+            if (masterKey == null) {
+                throw new IllegalStateException("Master key no disponible");
+            }
+            return Optional.of(EncryptionUtil.decryptPassword(encryptedPassword, masterKey));
+        } catch (EncryptionException e) {
+            Notifier.showNotification(
+                    copyButton.getScene().getWindow(),
+                    getBundle().getString("error_decrypting_password")
+            );
+            return Optional.empty();
+        }
     }
 
     private void validateFields() {

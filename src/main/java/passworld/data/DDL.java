@@ -10,20 +10,16 @@ public class DDL {
         String userHome = System.getProperty("user.home");
 
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            // En Windows, se usa AppData
             dbPath = userHome + "\\AppData\\Local\\passworld\\passwords.db";
         } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            // En macOS, se usa Library/Application Support
             dbPath = userHome + "/Library/Application Support/passworld/passwords.db";
         } else {
-            // En Linux, utiliza .local/share
             dbPath = userHome + "/.local/share/passworld/passwords.db";
         }
 
-        // Crear directorio si no existe
         File dbDir = new File(dbPath).getParentFile();
         if (!dbDir.exists()) {
-            boolean created = dbDir.mkdirs(); // Crea el directorio y todos los directorios intermedios
+            boolean created = dbDir.mkdirs();
             if (created) {
                 System.out.println("Directorio creado: " + dbDir.getAbsolutePath());
             } else {
@@ -38,12 +34,12 @@ public class DDL {
 
     public static void createDatabase() {
         try {
-            // Conectar a la base de datos
             try (Connection conn = DriverManager.getConnection(getDbUrl())) {
                 if (conn != null) {
-                    // Confirmación de conexión exitosa
                     System.out.println("Conexión a la base de datos establecida.");
-                    createTable(conn);
+                    createPasswordsTable(conn); // Crear tabla para las contraseñas
+                    createMasterPasswordTable(conn); // Crear tabla para la master password
+                    createDeletedPasswordsTable(conn); // Crear tabla para las contraseñas eliminadas
                 }
             } catch (SQLException e) {
                 System.out.println("Error al conectar con la base de datos: " + e.getMessage());
@@ -53,8 +49,7 @@ public class DDL {
         }
     }
 
-    private static void createTable(Connection conn) {
-        // SQL para crear la tabla con las nuevas columnas
+    private static void createPasswordsTable(Connection conn) {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS passwords ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "description TEXT NOT NULL, "
@@ -64,14 +59,48 @@ public class DDL {
                 + "isWeak BOOLEAN NOT NULL DEFAULT 0, "
                 + "isDuplicate BOOLEAN NOT NULL DEFAULT 0, "
                 + "isCompromised BOOLEAN NOT NULL DEFAULT 0, "
-                + "isUrlUnsafe BOOLEAN NOT NULL DEFAULT 0);";
+                + "isUrlUnsafe BOOLEAN NOT NULL DEFAULT 0, "
+                + "lastModified TEXT, "
+                + "isSynced BOOLEAN NOT NULL DEFAULT 0, "
+                + "idFb TEXT"
+                + ");";
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
             System.out.println("Tabla 'passwords' creada o ya existe.");
-            System.out.println("Ruta de la base de datos: " + getDbUrl());  // Muestra la ruta exacta.
+            System.out.println("Ruta de la base de datos: " + getDbUrl());
         } catch (SQLException e) {
             System.out.println("Error al crear la tabla: " + e.getMessage());
         }
+    }
+
+    // Nuevo método para crear la tabla de master password
+    private static void createMasterPasswordTable(Connection conn) {
+        String createMasterTableSQL = "CREATE TABLE IF NOT EXISTS master_password ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "password_hash TEXT NOT NULL"
+                + ");";
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(createMasterTableSQL);
+            System.out.println("Tabla 'master_password' creada o ya existe.");
+        } catch (SQLException e) {
+            System.out.println("Error al crear la tabla master_password: " + e.getMessage());
+        }
+    }
+    private static void createDeletedPasswordsTable(Connection conn) {
+
+        String createDeletedPassTableSQL = "CREATE TABLE IF NOT EXISTS deleted_passwords ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "idFb TEXT NOT NULL UNIQUE, "
+                + "deletedAt TEXT NOT NULL"
+                + ");";
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(createDeletedPassTableSQL);
+            System.out.println("Tabla 'deleted_passwords' creada o ya existe.");
+        } catch (SQLException e) {
+            System.out.println("Error al crear la tabla deleted_passwords: " + e.getMessage());
+        }
+
+
     }
 }
