@@ -14,7 +14,6 @@ import javafx.stage.Stage;
 import passworld.data.ConfigUtil;
 import passworld.data.LocalAuthUtil;
 import passworld.data.apiclients.UsersApiClient;
-import passworld.data.exceptions.CredentialsException;
 import passworld.data.session.UserSession;
 import passworld.service.LanguageManager;
 import passworld.utils.*;

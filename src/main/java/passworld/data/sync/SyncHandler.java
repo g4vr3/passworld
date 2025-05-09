@@ -17,12 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 public class SyncHandler {
-
-    public static List<PasswordDTO> downloadPasswords() throws IOException {
-        String userId = UserSession.getInstance().getUserId();
-        return PasswordsApiClient.readAllPasswords(userId);
-    }
-
     public static void uploadUnsyncedPasswords(List<PasswordDTO> localPasswords) {
         String userId = UserSession.getInstance().getUserId();
         for (PasswordDTO password : localPasswords) {

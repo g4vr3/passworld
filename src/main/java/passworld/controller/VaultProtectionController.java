@@ -121,14 +121,19 @@ public class VaultProtectionController {
     }
 
     private boolean isValidPassword(String enteredPassword) {
-        try {
             // Obtén el hash de la master password desde la base de datos local
-            String storedHash = LocalAuthUtil.getMasterPasswordHash();
+        String storedHash = null;
+        try {
+            storedHash = LocalAuthUtil.getMasterPasswordHash();
             // Verifica la contraseña ingresada usando EncryptionUtil
-            return passworld.utils.EncryptionUtil.verifyMasterPassword(enteredPassword, storedHash);
+            return EncryptionUtil.verifyMasterPassword(enteredPassword, storedHash);
         } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
         }
+
+        return false;
     }
 }

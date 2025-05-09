@@ -42,7 +42,7 @@ public class PasswordManager {
         return false;
     }
     // Guardar una nueva contraseña desde remoto
-    public static boolean savePasswordFromRemote(PasswordDTO newPasswordDTO) throws SQLException {
+    public static void savePasswordFromRemote(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
 
         // Evitar duplicados por idFb
@@ -51,7 +51,7 @@ public class PasswordManager {
             boolean exists = allPasswords.stream()
                     .anyMatch(p -> newPasswordDTO.getIdFb().equals(p.getIdFb()));
             if (exists) {
-                return false; // Ya existe, no insertar
+                return; // Ya existe, no insertar
             }
         }
 
@@ -62,9 +62,7 @@ public class PasswordManager {
         if (created) {
             securityFilterService.addUniquePassword(newPasswordDTO.getPassword());
             updateAllPasswordsSecurity();
-            return true;
         }
-        return false;
     }
     // Actualizar una contraseña existente localmente
     public static boolean updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) throws SQLException {
