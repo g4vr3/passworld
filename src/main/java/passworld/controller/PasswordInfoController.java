@@ -44,7 +44,7 @@ public class PasswordInfoController {
     private PasswordField passwordFieldHidden;
 
     @FXML
-    private Button copyButton, deleteButton, saveButton;
+    private Button copyButton, deleteButton, saveButton, regenerateButton;
 
     @FXML
     private Button backButton;
@@ -56,7 +56,12 @@ public class PasswordInfoController {
     private ImageView securityStatusImageView;
 
     @FXML
-    private ImageView logoImageView, copyImageView, saveImageView, deleteImageView;
+    private ImageView logoImageView, copyImageView, saveImageView, deleteImageView, regenerateImageView;
+
+    @FXML
+    public Label passwordStrengthLabel;
+    @FXML
+    public ProgressBar passwordStrengthProgressBar;
 
     private PasswordDTO password;
     private MyPasswordsController passwordsController;
@@ -78,6 +83,7 @@ public class PasswordInfoController {
 
             stage.showAndWait();
         } catch (IOException e) {
+            e.printStackTrace();
             System.err.println("Error loading PasswordInfoController: " + e.getMessage());
         }
     }
@@ -86,6 +92,11 @@ public class PasswordInfoController {
         setIcons(); // Establecer iconos
 
         saveButton.setVisible(false); // Ocultar por defecto
+        copyButton.setVisible(false); // Ocultar botón de copiar
+        regenerateButton.setVisible(false); // Ocultar botón de regenerar
+
+        // Configurar el botón de regenerar
+        regenerateButton.setOnAction(_ -> regeneratePassword());
 
         // Listener común para validar cambios en campos
         ChangeListener<String> fieldChangeListener = (_, _, _) -> validateFields();
@@ -129,6 +140,15 @@ public class PasswordInfoController {
         setKeyboardShortcuts();
     }
 
+    private void regeneratePassword() {
+        // Generar una nueva contraseña con las políticas por defecto
+        String newPassword = PasswordGenerator.generateDefaultPassword();
+
+        // Actualizar el campo de contraseña visible y oculto
+        passwordFieldVisible.setText(newPassword);
+        passwordFieldHidden.setText(newPassword);
+    }
+
     private void setIcons() {
         // Establecer imagen de logo
         Image logoImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/passworld_logo.png")).toExternalForm());
@@ -140,6 +160,12 @@ public class PasswordInfoController {
         copyImageView.setImage(copyImage);
         ThemeManager.applyThemeToImage(copyImageView);
         copyImageView.getStyleClass().add("icon");
+
+        // Establecer imagen de regenerar
+        Image regenerateImage = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/reload_icon.png")).toExternalForm());
+        regenerateImageView.setImage(regenerateImage);
+        ThemeManager.applyThemeToImage(regenerateImageView);
+        regenerateImageView.getStyleClass().add("icon");
 
         // Establecer imagen de guardar
         if (ThemeManager.isDarkMode()) {
@@ -270,8 +296,10 @@ public class PasswordInfoController {
             passwordFieldVisible.getStyleClass().remove("error-border");
         }
 
-        // Ocultar el botón de copiar si la contraseña está vacía
-        copyButton.setVisible(isPasswordValid);
+        // Ocultar el botón de copiar si la contraseña está vacía y respetar visibilidad inicial
+        if (copyButton.isVisible()) {
+            copyButton.setVisible(isPasswordValid);
+        }
 
         boolean hasChanges =
                 !Objects.equals(descriptionField.getText(), password.getDescription()) ||
@@ -288,7 +316,9 @@ public class PasswordInfoController {
     private void togglePasswordVisibility(boolean showPassword) {
         passwordFieldVisible.setVisible(showPassword);
         passwordFieldHidden.setVisible(!showPassword);
-        copyButton.setVisible(showPassword);
+        copyButton.setVisible(showPassword); // Muestra el botón de copiar solo si la contraseña es visible
+        regenerateButton.setVisible(showPassword); // Muestra el botón de regenerar solo si la contraseña es visible
+
     }
 
     private void copyPasswordToClipboard() {
@@ -393,6 +423,11 @@ public class PasswordInfoController {
 
         // Agregar contenido textual
         if (hasIssues) {
+            if (password.isWeak()) passwordStrengthLabel.setText("weak_password");
+            if (password.isDuplicate()) passwordStrengthLabel.setText("duplicate_password");
+            if (password.isCompromised()) passwordStrengthLabel.setText("compromised_password");
+            if (password.isUrlUnsafe()) passwordStrengthLabel.setText("unsafe_url");
+
             if (password.isWeak()) addIssueLabel("weak_password");
             if (password.isDuplicate()) addIssueLabel("duplicate_password");
             if (password.isCompromised()) addIssueLabel("compromised_password");
@@ -403,6 +438,11 @@ public class PasswordInfoController {
             noIssuesLabel.getStyleClass().add("noIssuesLabel");
             securityStatusVbox.getChildren().add(noIssuesLabel);
         }
+
+        // **Nueva funcionalidad: Evaluar fortaleza de la contraseña**
+        String currentPassword = passwordFieldVisible.getText();
+        int strength = PasswordEvaluator.calculateStrength(currentPassword); // Calcula la fortaleza
+        PasswordEvaluator.updatePasswordStrengthInfo(strength, passwordStrengthLabel, passwordStrengthProgressBar); // Actualiza la etiqueta y el ProgressBar
 
         securityStatusVbox.setVisible(true);
         securityStatusVbox.setManaged(true);

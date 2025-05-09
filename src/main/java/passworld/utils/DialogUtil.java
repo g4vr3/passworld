@@ -49,8 +49,7 @@ public class DialogUtil {
         Image saveIcon;
         if (ThemeManager.isDarkMode()) {
             saveIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/save_icon_dark_mode.png")).toExternalForm());
-        }
-        else {
+        } else {
             saveIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/save_icon_white.png")).toExternalForm());
         }
         ImageView saveIconView = new ImageView(saveIcon);
@@ -109,50 +108,50 @@ public class DialogUtil {
         urlBox.getChildren().addAll(urlLabel, urlField);
 
         VBox passwordBox = new VBox(5);
-        Label passwordLabel = new Label(getBundle().getString("password_label") + ":");
+        Label passwordLabel = new Label(getBundle().getString("password_label") + ": *");
         TextField passwordField = new TextField();
         passwordField.setText(password);
-        passwordField.setDisable(true); // Deshabilitar el campo de la contraseña
 
-        // Establecer Tooltip para el campo de contraseña
+        // Tooltip y prompt text para el campo de contraseña
         passwordField.setTooltip(new Tooltip(getBundle().getString("password_field_tooltip")));
+        passwordField.setPromptText(getBundle().getString("password_prompt"));
 
-        passwordBox.getChildren().addAll(passwordLabel, passwordField);
+        // Mensaje de error para la contraseña
+        Label mandatoryPasswordLabel = new Label(getBundle().getString("mandatory_password_label"));
+        mandatoryPasswordLabel.getStyleClass().add("mandatoryFieldsLabel");
+        mandatoryPasswordLabel.setVisible(false); // Inicialmente no visible
+        mandatoryPasswordLabel.setManaged(false); // No gestionado cuando no se muestra
+
+        passwordBox.getChildren().addAll(passwordLabel, passwordField, mandatoryPasswordLabel);
 
         // Agregar los VBox con los campos y etiquetas al VBox principal
         vbox.getChildren().addAll(descriptionBox, usernameBox, urlBox, passwordBox);
 
-        // Establecer el contenido del dialog
+        // Establecer el contenido del diálogo
         dialog.getDialogPane().setContent(vbox);
 
         // Listener para la validación en tiempo real
         ChangeListener<String> fieldValidationListener = (_, _, _) -> {
             boolean isDescriptionValid = !(descriptionField.getText() == null || descriptionField.getText().trim().isEmpty());
+            boolean isPasswordValid = !(passwordField.getText() == null || passwordField.getText().trim().isEmpty());
 
-            // Mostrar o quitar el mensaje de error en tiempo real
-            if (!isDescriptionValid) {
-                descriptionField.getStyleClass().add("error-border");
-                mandatoryDescriptionLabel.setVisible(true);
-                mandatoryDescriptionLabel.setManaged(true); // El mensaje se gestiona cuando es visible
+            // Validación de descripción
+            isFieldValid(dialog, descriptionField, mandatoryDescriptionLabel, isDescriptionValid);
 
-                dialog.setHeight(380);
-            } else {
-                descriptionField.getStyleClass().remove("error-border");
-                mandatoryDescriptionLabel.setVisible(false);
-                mandatoryDescriptionLabel.setManaged(false); // El mensaje no se gestiona cuando está oculto
+            // Validación de contraseña
+            isFieldValid(dialog, passwordField, mandatoryPasswordLabel, isPasswordValid);
 
-                dialog.setHeight(360);
-            }
-
-            // Deshabilitar el botón de guardar si el campo de descripción no es válido
-            saveButton.setDisable(!isDescriptionValid);
+            // Deshabilitar el botón de guardar si algún campo obligatorio no es válido
+            saveButton.setDisable(!isDescriptionValid || !isPasswordValid);
         };
 
         // Agregar listeners a los campos de entrada
         descriptionField.textProperty().addListener(fieldValidationListener);
+        passwordField.textProperty().addListener(fieldValidationListener);
 
-        // Realizar la validación inicial (debería mostrar el borde rojo y el mensaje de error si está vacío)
+        // Realizar la validación inicial
         fieldValidationListener.changed(null, null, descriptionField.getText());
+        fieldValidationListener.changed(null, null, passwordField.getText());
 
         // Manejar la respuesta
         dialog.setResultConverter(dialogButton -> {
@@ -161,6 +160,7 @@ public class DialogUtil {
                 String description = descriptionField.getText();
                 String username = usernameField.getText();
                 String url = urlField.getText();
+                String passwordText = passwordField.getText(); // Obtener el texto del field de contraseña por si ha habido cambios
 
                 // Si los campos están vacíos, asignarles null
                 if (username == null || username.trim().isEmpty()) {
@@ -171,12 +171,25 @@ public class DialogUtil {
                 }
 
                 // Devolver el DTO con los valores (con null si estaban vacíos)
-                return new PasswordDTO(description, username, url, password);
+                return new PasswordDTO(description, username, url, passwordText);
             }
             return null;
         });
 
         return dialog.showAndWait();
+    }
+
+    private static void isFieldValid(Dialog<PasswordDTO> dialog, TextField descriptionField, Label mandatoryDescriptionLabel, boolean isDescriptionValid) {
+        if (!isDescriptionValid) {
+            descriptionField.getStyleClass().add("error-border");
+            mandatoryDescriptionLabel.setVisible(true);
+            mandatoryDescriptionLabel.setManaged(true);
+            dialog.setHeight(400);
+        } else {
+            descriptionField.getStyleClass().remove("error-border");
+            mandatoryDescriptionLabel.setVisible(false);
+            mandatoryDescriptionLabel.setManaged(false);
+        }
     }
 
     private static void setCancelButton(Button cancelButton) {
