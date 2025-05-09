@@ -55,6 +55,11 @@ public class PasswordInfoController {
     @FXML
     private ImageView logoImageView, copyImageView, saveImageView, deleteImageView, regenerateImageView;
 
+    @FXML
+    public Label passwordStrengthLabel;
+    @FXML
+    public ProgressBar passwordStrengthProgressBar;
+
     private PasswordDTO password;
     private MyPasswordsController passwordsController;
 
@@ -395,6 +400,11 @@ public class PasswordInfoController {
 
         // Agregar contenido textual
         if (hasIssues) {
+            if (password.isWeak()) passwordStrengthLabel.setText("weak_password");
+            if (password.isDuplicate()) passwordStrengthLabel.setText("duplicate_password");
+            if (password.isCompromised()) passwordStrengthLabel.setText("compromised_password");
+            if (password.isUrlUnsafe()) passwordStrengthLabel.setText("unsafe_url");
+
             if (password.isWeak()) addIssueLabel("weak_password");
             if (password.isDuplicate()) addIssueLabel("duplicate_password");
             if (password.isCompromised()) addIssueLabel("compromised_password");
@@ -405,6 +415,11 @@ public class PasswordInfoController {
             noIssuesLabel.getStyleClass().add("noIssuesLabel");
             securityStatusVbox.getChildren().add(noIssuesLabel);
         }
+
+        // **Nueva funcionalidad: Evaluar fortaleza de la contraseña**
+        String currentPassword = passwordFieldVisible.getText();
+        int strength = PasswordEvaluator.calculateStrength(currentPassword); // Calcula la fortaleza
+        PasswordEvaluator.updatePasswordStrengthInfo(strength, passwordStrengthLabel, passwordStrengthProgressBar); // Actualiza la etiqueta y el ProgressBar
 
         securityStatusVbox.setVisible(true);
         securityStatusVbox.setManaged(true);
