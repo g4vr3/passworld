@@ -93,6 +93,15 @@ public class VaultProtectionController {
         masterPasswordField.setOnAction(_ -> {
             String enteredPassword = masterPasswordField.getText();
             if (isValidPassword(enteredPassword)) {
+                // Si la contraseña es válida, se establece la clave maestra en la sesión
+                try {
+                    UserSession.getInstance().setMasterKey(EncryptionUtil.deriveAESKey(enteredPassword));
+                } catch (EncryptionException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setContentText(getBundle().getString("errorDerivingKey"));
+                    alert.showAndWait();
+                }
                 PassworldController.showView(); // Cambia a la vista de Passworld
             } else {
                 // Mostrar mensaje de error y agregar clase de borde de error

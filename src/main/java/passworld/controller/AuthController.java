@@ -11,7 +11,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import passworld.data.ConfigUtil;
+import passworld.data.LocalAuthUtil;
 import passworld.data.apiclients.UsersApiClient;
+import passworld.data.exceptions.CredentialsException;
+import passworld.data.session.UserSession;
 import passworld.service.LanguageManager;
 import passworld.utils.*;
 
@@ -329,15 +333,12 @@ public class AuthController {
         // Si es válido, proceder con el registro
         try {
 
-            UsersApiClient.registerUserWithMasterPassword(signupMailField.getText(), signupPasswordField.getText(), signupMasterPasswordField.getText());
+            String hashedMasterPassword = UsersApiClient.registerUserWithMasterPassword(signupMailField.getText(), signupPasswordField.getText(), signupMasterPasswordField.getText());
+            LocalAuthUtil.clearMasterPassword();
+            LocalAuthUtil.saveMasterPasswordHash(hashedMasterPassword);
+            ConfigUtil.saveSession(UserSession.getInstance().getUserId(), UserSession.getInstance().getRefreshToken());
         } catch (Exception e) {
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(LanguageManager.getBundle().getString("signupErrorTitle"));
-            alert.setHeaderText(null);
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
-            return;
+            showErrorAlert("signUpErrorTitle",e.getMessage()); // Fallback para errores no controlados
         }
 
         // Solicitar desbloqueo de base de datos
@@ -357,11 +358,14 @@ public class AuthController {
         // Si es válido, proceder con el inicio de sesión
         try {
             UsersApiClient.loginUser(loginMailField.getText(), loginPasswordField.getText());
+            String hashedMasterPassword = UsersApiClient.fetchMasterPassword();
+
+            LocalAuthUtil.clearMasterPassword();
+            LocalAuthUtil.saveMasterPasswordHash(hashedMasterPassword);
+
+            // Continuar al dashboard o pantalla principal
         } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle(LanguageManager.getBundle().getString("loginErrorTitle"));
-            alert.setHeaderText(null);
-            alert.setContentText(e.getMessage());
+            showErrorAlert("loginErrorTitle", e.getMessage());
         }
 
         // Solicitar desbloqueo de base de datos
@@ -410,5 +414,13 @@ public class AuthController {
     private boolean areAllLoginFieldsFilled() {
         return !loginMailField.getText().trim().isEmpty() &&
                 !loginPasswordField.getText().trim().isEmpty();
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);  // Si necesitas un header, puedes agregarlo aquí
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
