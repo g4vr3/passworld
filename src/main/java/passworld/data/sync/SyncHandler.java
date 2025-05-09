@@ -1,5 +1,6 @@
 package passworld.data.sync;
 
+import passworld.data.DeletedPasswordsDAO;
 import passworld.data.PasswordDAO;
 import passworld.data.apiclients.PasswordsApiClient;
 import passworld.data.PasswordDTO;
@@ -11,6 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +33,7 @@ public class SyncHandler {
                         if (idFb != null) {
                             password.setIdFb(idFb);
                             password.setSynced(true);
-                            PasswordDAO.updatePassword(password);
+                            PasswordDAO.updatePasswordFromRemote(password);
                         }
                     } else {
                         PasswordsApiClient.updatePassword(
@@ -48,7 +50,7 @@ public class SyncHandler {
                                 password.getLastModified().toString()
                         );
                         password.setSynced(true);
-                        PasswordDAO.updatePassword(password);
+                        PasswordDAO.updatePasswordFromRemote(password);
                     }
                 }
             } catch (IOException | SQLException e) {
@@ -74,31 +76,55 @@ public class SyncHandler {
             if (remote.getIdFb() != null) {
                 remoteIds.add(remote.getIdFb());
             }
+        }
 
-            // Insertar si no existe localmente
-            if (remote.getIdFb() != null && !localIds.contains(remote.getIdFb())) {
-                PasswordManager.savePassword(remote);
-            } else {
-                // Comparar fechas y actualizar si el remoto es más reciente
-                PasswordDTO local = localPasswords.stream()
-                        .filter(p -> p.getIdFb() != null && p.getIdFb().equals(remote.getIdFb()))
-                        .findFirst().orElse(null);
-                if (local != null && remote.getLastModified().isAfter(local.getLastModified())) {
-                    PasswordManager.updatePasswordbyRemote(remote);
+        // 1. Eliminar en remoto las contraseñas eliminadas localmente
+        for (String deletedIdFb : DeletedPasswordsDAO.getAllDeletedIdFb()) {
+            if (remoteIds.contains(deletedIdFb)) {
+                try {
+                    PasswordsApiClient.deletePassword(userId, deletedIdFb);
+                    Thread.sleep(500);
+                } catch (Exception e) {
+                    // Manejar error si es necesario
                 }
             }
         }
 
-        // Eliminar del local si no existe en el remoto
-        for (PasswordDTO local : localPasswords) {
-            if (local.getIdFb() != null && !remoteIds.contains(local.getIdFb())) {
-                PasswordDAO.deletePassword(local.getId());
+        // 2. Insertar/actualizar localmente desde remoto
+        for (PasswordDTO remote : remotePasswords) {
+            if (remote.getIdFb() != null && !localIds.contains(remote.getIdFb())) {
+                if (!PasswordDAO.existsByIdFb(remote.getIdFb()) && !DeletedPasswordsDAO.existsByIdFb(remote.getIdFb())) {
+                    remote.setSynced(true);
+                    PasswordManager.savePasswordFromRemote(remote);
+                    DeletedPasswordsDAO.deleteByIdFb(remote.getIdFb());
+                }
+            } else {
+                PasswordDTO local = localPasswords.stream()
+                        .filter(p -> p.getIdFb() != null && p.getIdFb().equals(remote.getIdFb()))
+                        .findFirst().orElse(null);
+                if (local != null && remote.getLastModified().isAfter(local.getLastModified())) {
+                    remote.setSynced(true);
+                    PasswordManager.updatePasswordByRemote(remote);
+                }
             }
         }
 
-        // Subir contraseñas locales que aún no están sincronizadas
+        // 3. Eliminar localmente si no existe en remoto y quitar de la lista en memoria
+        Iterator<PasswordDTO> iterator = localPasswords.iterator();
+        while (iterator.hasNext()) {
+            PasswordDTO local = iterator.next();
+            if (local.getIdFb() != null && !remoteIds.contains(local.getIdFb())) {
+                PasswordDAO.deletePasswordLocalOnly(local.getId());
+                iterator.remove(); // Elimina también de la lista en memoria
+            }
+        }
+
+        // 4. Subir contraseñas locales no sincronizadas
         uploadUnsyncedPasswords(localPasswords);
     }
+
+
+
 
     public static boolean hasInternetConnection() {
         try {

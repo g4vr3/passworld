@@ -17,8 +17,21 @@ public class PasswordManager {
     public static boolean savePassword(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
 
-        newPasswordDTO.setLastModified(LocalDateTime.now());
-        newPasswordDTO.setSynced(false);
+        // Evitar duplicados por idFb
+        if (newPasswordDTO.getIdFb() != null) {
+            List<PasswordDTO> allPasswords = getAllPasswords();
+            boolean exists = allPasswords.stream()
+                    .anyMatch(p -> newPasswordDTO.getIdFb().equals(p.getIdFb()));
+            if (exists) {
+                return false; // Ya existe, no insertar
+            }
+        }
+
+        newPasswordDTO.setLastModified(java.time.LocalDateTime.now());
+        // Si viene de remoto (idFb no nulo y no vacío), marcar como sincronizada
+        boolean fromRemote = newPasswordDTO.getIdFb() != null && !newPasswordDTO.getIdFb().isEmpty();
+        newPasswordDTO.setSynced(fromRemote);
+
         boolean created = PasswordDAO.createPassword(newPasswordDTO);
 
         if (created) {
@@ -28,7 +41,31 @@ public class PasswordManager {
         }
         return false;
     }
+    // Guardar una nueva contraseña desde remoto
+    public static boolean savePasswordFromRemote(PasswordDTO newPasswordDTO) throws SQLException {
+        validatePasswordData(newPasswordDTO);
 
+        // Evitar duplicados por idFb
+        if (newPasswordDTO.getIdFb() != null) {
+            List<PasswordDTO> allPasswords = getAllPasswords();
+            boolean exists = allPasswords.stream()
+                    .anyMatch(p -> newPasswordDTO.getIdFb().equals(p.getIdFb()));
+            if (exists) {
+                return false; // Ya existe, no insertar
+            }
+        }
+
+        newPasswordDTO.setSynced(true); // Marcar como sincronizada
+
+        boolean created = PasswordDAO.createFromRemote(newPasswordDTO);
+
+        if (created) {
+            securityFilterService.addUniquePassword(newPasswordDTO.getPassword());
+            updateAllPasswordsSecurity();
+            return true;
+        }
+        return false;
+    }
     // Actualizar una contraseña existente localmente
     public static boolean updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) throws SQLException {
         PasswordDTO updatedPasswordDTO = new PasswordDTO(description, username, url, password);
@@ -53,20 +90,17 @@ public class PasswordManager {
         return updated;
     }
 
-    public static boolean updatePasswordbyRemote(PasswordDTO updatedPasswordDTO) throws SQLException {
-        updatedPasswordDTO.setLastModified(LocalDateTime.now());
-        updatedPasswordDTO.setSynced(true);
-
+    public static void updatePasswordByRemote(PasswordDTO updatedPasswordDTO) throws SQLException {
+        // No modificar lastModified ni isSynced aquí, ya vienen del servidor
         validatePasswordData(updatedPasswordDTO);
 
         securityFilterService.removeUniquePassword(updatedPasswordDTO.getPassword());
 
-        boolean updated = PasswordDAO.updatePassword(updatedPasswordDTO);
+        boolean updated = PasswordDAO.updatePasswordFromRemote(updatedPasswordDTO);
 
         if (updated) {
             updateAllPasswordsSecurity();
         }
-        return updated;
     }
 
     // Eliminar una contraseña localmente
