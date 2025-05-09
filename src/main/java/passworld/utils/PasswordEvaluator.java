@@ -29,6 +29,8 @@ public class PasswordEvaluator {
         if (hasSpecialChar) diversityCount++;
 
         // Evaluar el nivel de diversidad
+        if (diversityCount == 1) strength--; // Solo un tipo de carácter
+        if (diversityCount == 2) strength++; // Dos tipos de caracteres
         if (diversityCount >= 3) strength++; // Al menos tres tipos de caracteres
         if (diversityCount == 4) strength++; // Todos los tipos de caracteres
 
