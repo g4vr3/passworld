@@ -86,7 +86,7 @@ public class PasswordManager {
 
     // Obtener todas las contraseñas locales
     public static List<PasswordDTO> getAllPasswords() throws SQLException {
-        List<PasswordDTO> allPasswords = PasswordDAO.readAllPasswords();
+        List<PasswordDTO> allPasswords = PasswordDAO.readAllPasswordsDecrypted();
         return allPasswords != null ? allPasswords : new ArrayList<>();
     }
 
