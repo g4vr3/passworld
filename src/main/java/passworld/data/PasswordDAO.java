@@ -16,7 +16,7 @@ public class PasswordDAO {
             pstmt.setString(1, password.getDescription());
             pstmt.setString(2, password.getUsername());
             pstmt.setString(3, password.getUrl());
-            pstmt.setString(4, password.getPassword());
+            pstmt.setString(4, encryptPassword(password.getPassword()));
             pstmt.setBoolean(5, password.isWeak());
             pstmt.setBoolean(6, password.isDuplicate());
             pstmt.setBoolean(7, password.isCompromised());
@@ -49,7 +49,7 @@ public class PasswordDAO {
             stmt.setString(1, password.getDescription());
             stmt.setString(2, password.getUsername());
             stmt.setString(3, password.getUrl());
-            stmt.setString(4, password.getPassword());
+            stmt.setString(4, encryptPassword(password.getPassword()));
             stmt.setBoolean(5, password.isWeak());
             stmt.setBoolean(6, password.isDuplicate());
             stmt.setBoolean(7, password.isCompromised());
@@ -91,6 +91,24 @@ public class PasswordDAO {
                 PasswordDTO password = mapResultSetToPasswordDTO(rs);
                 passwords.add(password);
             }
+        }
+        return passwords;
+    }
+    public static List<PasswordDTO> readAllPasswordsDecrypted() throws SQLException {
+        String sql = "SELECT * FROM passwords";
+        List<PasswordDTO> passwords = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                PasswordDTO password = mapResultSetToPasswordDTO(rs);
+                password.setPassword(EncryptionUtil.decryptPassword(password.getPassword(), UserSession.getInstance().getMasterKey()));
+                passwords.add(password);
+            }
+        } catch (Exception e){
+            System.out.println("Error al desencriptar la contraseña: " + e.getMessage());
         }
         return passwords;
     }
