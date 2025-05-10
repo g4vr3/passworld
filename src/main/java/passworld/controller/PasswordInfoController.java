@@ -233,7 +233,7 @@ public class PasswordInfoController {
         this.passwordsController = passwordsController;
 
         String encryptedPassword = password.getPassword();
-        String decryptedPassword = safeDecryptPassword(encryptedPassword).orElse("Contraseña no disponible");
+        String decryptedPassword = safeDecryptPassword(encryptedPassword).orElse("Imposible de desencriptar");
 
         // Establecer valores en los campos
         Platform.runLater(() -> {
