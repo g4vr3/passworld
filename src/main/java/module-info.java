@@ -5,8 +5,10 @@ module passworld {
     requires javafx.media;
     requires jbcrypt;
     requires java.sql;
+    requires okhttp3;
     requires org.json;
-    requires java.prefs;
+    requires com.fasterxml.jackson.databind;
+    requires jdk.jshell;
     requires java.net.http;
 
 
@@ -20,4 +22,6 @@ module passworld {
     opens passworld.data to javafx.fxml;
     exports passworld.service;
     opens passworld.service to javafx.fxml;
+    exports passworld.data.apiclients;
+    opens passworld.data.apiclients to javafx.fxml;
 }

@@ -4,6 +4,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import passworld.data.LocalAuthUtil;
+import passworld.data.exceptions.EncryptionException;
+import passworld.data.session.UserSession;
 import passworld.utils.*;
 
 import static passworld.service.LanguageManager.getBundle;
@@ -90,6 +93,15 @@ public class VaultProtectionController {
         masterPasswordField.setOnAction(_ -> {
             String enteredPassword = masterPasswordField.getText();
             if (isValidPassword(enteredPassword)) {
+                // Si la contraseña es válida, se establece la clave maestra en la sesión
+                try {
+                    UserSession.getInstance().setMasterKey(EncryptionUtil.deriveAESKey(enteredPassword));
+                } catch (EncryptionException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setContentText(getBundle().getString("errorDerivingKey"));
+                    alert.showAndWait();
+                }
                 PassworldController.showView(); // Cambia a la vista de Passworld
             } else {
                 // Mostrar mensaje de error y agregar clase de borde de error
@@ -109,7 +121,19 @@ public class VaultProtectionController {
     }
 
     private boolean isValidPassword(String enteredPassword) {
-        // TODO Implementar la lógica para validar la contraseña ingresada
-        return enteredPassword.equals("admin");
+            // Obtén el hash de la master password desde la base de datos local
+        String storedHash = null;
+        try {
+            storedHash = LocalAuthUtil.getMasterPasswordHash();
+            // Verifica la contraseña ingresada usando EncryptionUtil
+            return EncryptionUtil.verifyMasterPassword(enteredPassword, storedHash);
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+        }
+
+        return false;
     }
 }

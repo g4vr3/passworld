@@ -1,9 +1,10 @@
 package passworld.data;
 
-import passworld.service.SecurityFilterManager;
+import java.time.LocalDateTime;
 
 public class PasswordDTO {
     private int id;
+    private String idFb;
     private String description;
     private String username;
     private String url;
@@ -12,8 +13,21 @@ public class PasswordDTO {
     private boolean isDuplicate;
     private boolean isCompromised;
     private boolean isUrlUnsafe;
+    private LocalDateTime lastModified;
+    private boolean isSynced;
+
+
 
     // Constructor, getters y setters
+    public PasswordDTO(String description, String username, String url, String password, LocalDateTime lastModified) {
+        this.description = description;
+        this.username = username;
+        this.url = url;
+        this.password = password;
+        this.lastModified = lastModified;
+        this.isSynced = false;
+    }
+
     public PasswordDTO(String description, String username, String url, String password) {
         this.description = description;
         this.username = username;
@@ -21,14 +35,28 @@ public class PasswordDTO {
         this.password = password;
     }
 
+    // Agregar getter y setter para createdAt
+    public LocalDateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(LocalDateTime createdAt) {
+        this.lastModified = createdAt;
+    }
+
+    public String getIdFb() {
+        return idFb;
+    }
+
+    public void setIdFb(String id) {
+        this.idFb = id;
+    }
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public String getDescription() {
         return description;
     }
@@ -92,4 +120,24 @@ public class PasswordDTO {
     public void setUrlUnsafe(boolean urlUnsafe) {
         isUrlUnsafe = urlUnsafe;
     }
+
+    public boolean isSynced() {
+        return isSynced;
+    }
+    public void setSynced(boolean synced){
+        isSynced = synced;
+    }
+    @Override
+    //toString solo password e id
+    public String toString() {
+        return "PasswordDTO{" +
+                "id=" + id +
+                ", idFb='" + idFb + '\'' +
+                ", description='" + description + '\'' +
+                ", username='" + username + '\'' +
+                ", url='" + url + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
 }
