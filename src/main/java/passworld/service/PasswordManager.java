@@ -17,20 +17,9 @@ public class PasswordManager {
     public static boolean savePassword(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
 
-        // Evitar duplicados por idFb
-        if (newPasswordDTO.getIdFb() != null) {
-            List<PasswordDTO> allPasswords = getAllPasswords();
-            boolean exists = allPasswords.stream()
-                    .anyMatch(p -> newPasswordDTO.getIdFb().equals(p.getIdFb()));
-            if (exists) {
-                return false; // Ya existe, no insertar
-            }
-        }
 
         newPasswordDTO.setLastModified(java.time.LocalDateTime.now());
-        // Si viene de remoto (idFb no nulo y no vacío), marcar como sincronizada
-        boolean fromRemote = newPasswordDTO.getIdFb() != null && !newPasswordDTO.getIdFb().isEmpty();
-        newPasswordDTO.setSynced(fromRemote);
+        newPasswordDTO.setSynced(false);
 
         boolean created = PasswordDAO.createPassword(newPasswordDTO);
 
@@ -45,14 +34,9 @@ public class PasswordManager {
     public static void savePasswordFromRemote(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
 
-        // Evitar duplicados por idFb
-        if (newPasswordDTO.getIdFb() != null) {
-            List<PasswordDTO> allPasswords = getAllPasswords();
-            boolean exists = allPasswords.stream()
-                    .anyMatch(p -> newPasswordDTO.getIdFb().equals(p.getIdFb()));
-            if (exists) {
-                return; // Ya existe, no insertar
-            }
+        // Evitar duplicados por idFb con consulta directa
+        if (newPasswordDTO.getIdFb() != null && PasswordDAO.existsByIdFb(newPasswordDTO.getIdFb())) {
+            return; // Ya existe, no insertar
         }
 
         newPasswordDTO.setSynced(true); // Marcar como sincronizada
@@ -64,6 +48,7 @@ public class PasswordManager {
             updateAllPasswordsSecurity();
         }
     }
+
     // Actualizar una contraseña existente localmente
     public static boolean updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) throws SQLException {
         PasswordDTO updatedPasswordDTO = new PasswordDTO(description, username, url, password);
@@ -93,8 +78,20 @@ public class PasswordManager {
         validatePasswordData(updatedPasswordDTO);
 
         securityFilterService.removeUniquePassword(updatedPasswordDTO.getPassword());
+        updatedPasswordDTO.setSynced(true);
 
         boolean updated = PasswordDAO.updatePasswordFromRemote(updatedPasswordDTO);
+
+        if (updated) {
+            updateAllPasswordsSecurity();
+        }
+    }
+    public static void updatePasswordById(PasswordDTO updatedPasswordDTO) throws SQLException {
+        validatePasswordData(updatedPasswordDTO);
+
+        securityFilterService.removeUniquePassword(updatedPasswordDTO.getPassword());
+
+        boolean updated = PasswordDAO.updatePasswordById(updatedPasswordDTO);
 
         if (updated) {
             updateAllPasswordsSecurity();
@@ -118,8 +115,7 @@ public class PasswordManager {
 
     // Obtener todas las contraseñas locales
     public static List<PasswordDTO> getAllPasswords() throws SQLException {
-        List<PasswordDTO> allPasswords = PasswordDAO.readAllPasswordsDecrypted();
-        return allPasswords != null ? allPasswords : new ArrayList<>();
+        return PasswordDAO.readAllPasswordsDecrypted();
     }
 
     // Validar los datos de la contraseña
@@ -138,12 +134,15 @@ public class PasswordManager {
     private static void updateAllPasswordsSecurity() {
         try {
             List<PasswordDTO> allPasswords = getAllPasswords();
+            for (PasswordDTO passwordDTO : allPasswords) {
+                System.out.println(passwordDTO.toString());
+            }
             securityFilterService.clearUniquePasswords();
 
             for (PasswordDTO dto : allPasswords) {
                 securityFilterService.analyzePasswordSecurity(dto);
                 // Actualizar la contraseña en la base de datos
-                PasswordDAO.updatePassword(dto);
+                PasswordDAO.updatePasswordSecurity(dto);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -103,8 +103,7 @@ public class PasswordDAO {
     }
     // Método para actualizar una contraseña sin encriptar
     public static boolean updatePasswordFromRemote(PasswordDTO password) throws SQLException {
-        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE id = ?";
-
+        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE idFb = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -117,12 +116,31 @@ public class PasswordDAO {
             stmt.setBoolean(7, password.isCompromised());
             stmt.setBoolean(8, password.isUrlUnsafe());
             stmt.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
-            stmt.setBoolean(10, password.isSynced());
+            stmt.setBoolean(10, true);
             stmt.setString(11, password.getIdFb());
-            stmt.setInt(12, password.getId());
+            stmt.setString(12, password.getIdFb());
 
             int rowsUpdated = stmt.executeUpdate();
             return rowsUpdated > 0;
+        }
+    }
+    public static boolean updatePasswordById(PasswordDTO password) throws SQLException {
+        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, password.getDescription());
+            stmt.setString(2, password.getUsername());
+            stmt.setString(3, password.getUrl());
+            stmt.setString(4, password.getPassword());
+            stmt.setBoolean(5, password.isWeak());
+            stmt.setBoolean(6, password.isDuplicate());
+            stmt.setBoolean(7, password.isCompromised());
+            stmt.setBoolean(8, password.isUrlUnsafe());
+            stmt.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
+            stmt.setBoolean(10, password.isSynced());
+            stmt.setString(11, password.getIdFb());
+            stmt.setInt(12, password.getId());
+            return stmt.executeUpdate() > 0;
         }
     }
 
@@ -165,12 +183,15 @@ public class PasswordDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                PasswordDTO password = mapResultSetToPasswordDTO(rs);
-                password.setPassword(EncryptionUtil.decryptPassword(password.getPassword(), UserSession.getInstance().getMasterKey()));
-                passwords.add(password);
+                try {
+                    PasswordDTO password = mapResultSetToPasswordDTO(rs);
+                    password.setPassword(EncryptionUtil.decryptPassword(password.getPassword(), UserSession.getInstance().getMasterKey()));
+                    passwords.add(password);
+                } catch (EncryptionException e) {
+                    System.out.println("Error al desencriptar la contraseña: " + e.getMessage());
+                    // Continúa con la siguiente contraseña
+                }
             }
-        } catch (Exception e){
-            System.out.println("Error al desencriptar la contraseña: " + e.getMessage());
         }
         return passwords;
     }
@@ -196,6 +217,7 @@ public class PasswordDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             int rowsDeleted = stmt.executeUpdate();
+            System.out.println("Rows deleted local only: " + rowsDeleted);
             return rowsDeleted > 0;
         }
     }
@@ -218,6 +240,7 @@ public class PasswordDAO {
                 rs.getString("password") // sin desencriptar
         );
         password.setId(rs.getInt("id"));
+        System.out.println("ID readall: " + password.getId());
         password.setWeak(rs.getBoolean("isWeak"));
         password.setDuplicate(rs.getBoolean("isDuplicate"));
         password.setCompromised(rs.getBoolean("isCompromised"));
@@ -230,6 +253,21 @@ public class PasswordDAO {
             password.setLastModified(java.time.LocalDateTime.parse(lastModifiedStr));
         }
         return password;
+    }
+    public static boolean updatePasswordSecurity(PasswordDTO password) throws SQLException {
+        String sql = "UPDATE passwords SET isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setBoolean(1, password.isWeak());
+            stmt.setBoolean(2, password.isDuplicate());
+            stmt.setBoolean(3, password.isCompromised());
+            stmt.setBoolean(4, password.isUrlUnsafe());
+            stmt.setInt(5, password.getId());
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        }
     }
 
     // Métodos auxiliares para encriptar y desencriptar usando la master key de la sesión

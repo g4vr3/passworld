@@ -124,8 +124,20 @@ public class PasswordDTO {
     public boolean isSynced() {
         return isSynced;
     }
-    public void setSynced(boolean synced) {
+    public void setSynced(boolean synced){
         isSynced = synced;
+    }
+    @Override
+    //toString solo password e id
+    public String toString() {
+        return "PasswordDTO{" +
+                "id=" + id +
+                ", idFb='" + idFb + '\'' +
+                ", description='" + description + '\'' +
+                ", username='" + username + '\'' +
+                ", url='" + url + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 
 }
