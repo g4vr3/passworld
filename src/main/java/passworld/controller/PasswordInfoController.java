@@ -423,11 +423,6 @@ public class PasswordInfoController {
 
         // Agregar contenido textual
         if (hasIssues) {
-            if (password.isWeak()) passwordStrengthLabel.setText("weak_password");
-            if (password.isDuplicate()) passwordStrengthLabel.setText("duplicate_password");
-            if (password.isCompromised()) passwordStrengthLabel.setText("compromised_password");
-            if (password.isUrlUnsafe()) passwordStrengthLabel.setText("unsafe_url");
-
             if (password.isWeak()) addIssueLabel("weak_password");
             if (password.isDuplicate()) addIssueLabel("duplicate_password");
             if (password.isCompromised()) addIssueLabel("compromised_password");

@@ -1,5 +1,6 @@
 package passworld.utils;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -17,6 +18,12 @@ public class ViewManager {
 
     public static void setPrimaryStage(Stage stage) {
         primaryStage = stage;
+
+        // Asegurar que la aplicación se cierre completamente al cerrar la ventana
+        primaryStage.setOnCloseRequest(_ -> {
+            Platform.exit(); // Detiene todos los hilos de JavaFX
+            System.exit(0); // Finaliza
+        });
     }
     public static Stage getPrimaryStage() {
         return primaryStage;
