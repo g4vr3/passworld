@@ -2,6 +2,8 @@ package passworld.utils;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -109,20 +111,59 @@ public class DialogUtil {
 
         VBox passwordBox = new VBox(5);
         Label passwordLabel = new Label(getBundle().getString("password_label") + ": *");
+
+// Crear un StackPane para el TextField y el botón
+        StackPane passwordFieldStack = new StackPane();
+        passwordFieldStack.setAlignment(Pos.CENTER_RIGHT);
+        passwordFieldStack.setPrefWidth(300); // Puedes ajustar este valor
+        passwordFieldStack.setMaxWidth(Double.MAX_VALUE);
+
+// Crear el campo de contraseña
         TextField passwordField = new TextField();
         passwordField.setText(password);
-
-        // Tooltip y prompt text para el campo de contraseña
-        passwordField.setTooltip(new Tooltip(getBundle().getString("password_field_tooltip")));
         passwordField.setPromptText(getBundle().getString("password_prompt"));
+        passwordField.setTooltip(new Tooltip(getBundle().getString("password_field_tooltip")));
+        passwordField.getStyleClass().add("password-field-with-button");
+        passwordField.setPadding(new Insets(0, 30, 0, 0)); // Deja espacio para el botón
+        passwordField.setMaxWidth(Double.MAX_VALUE);
+        StackPane.setAlignment(passwordField, Pos.CENTER_LEFT);
 
-        // Mensaje de error para la contraseña
+// Crear el botón de regenerar
+        Button regeneratePasswordButton = new Button();
+        regeneratePasswordButton.setFocusTraversable(false);
+        regeneratePasswordButton.getStyleClass().add("icon-button");
+        regeneratePasswordButton.setPrefSize(20, 20);
+        regeneratePasswordButton.setMinSize(20, 20);
+
+// Icono del botón
+        Image reloadIcon = new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/reload_icon.png")).toExternalForm());
+        ImageView reloadIconView = new ImageView(reloadIcon);
+        reloadIconView.getStyleClass().add("icon");
+        reloadIconView.setFitHeight(16);
+        reloadIconView.setFitWidth(16);
+        regeneratePasswordButton.setGraphic(reloadIconView);
+
+// Acción del botón
+        regeneratePasswordButton.setOnAction(event -> {
+            String newPassword = PasswordGenerator.generateDefaultPassword();
+            passwordField.setText(newPassword);
+        });
+
+// Posición del botón
+        StackPane.setAlignment(regeneratePasswordButton, Pos.CENTER_RIGHT);
+        StackPane.setMargin(regeneratePasswordButton, new Insets(0, 5, 0, 0));
+
+// Añadir al StackPane
+        passwordFieldStack.getChildren().setAll(passwordField, regeneratePasswordButton);
+
+// Mensaje de error para la contraseña
         Label mandatoryPasswordLabel = new Label(getBundle().getString("mandatory_password_label"));
         mandatoryPasswordLabel.getStyleClass().add("mandatoryFieldsLabel");
-        mandatoryPasswordLabel.setVisible(false); // Inicialmente no visible
-        mandatoryPasswordLabel.setManaged(false); // No gestionado cuando no se muestra
+        mandatoryPasswordLabel.setVisible(false);
+        mandatoryPasswordLabel.setManaged(false);
 
-        passwordBox.getChildren().addAll(passwordLabel, passwordField, mandatoryPasswordLabel);
+// Añadir al contenedor
+        passwordBox.getChildren().addAll(passwordLabel, passwordFieldStack, mandatoryPasswordLabel);
 
         // Agregar los VBox con los campos y etiquetas al VBox principal
         vbox.getChildren().addAll(descriptionBox, usernameBox, urlBox, passwordBox);
