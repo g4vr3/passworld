@@ -39,23 +39,26 @@ public class SplashScreenController {
         Task<Void> loadTrieTask = new Task<>() {
             @Override
             protected Void call() {
-                updateProgress(0.1, 1); // Inicializar progreso con un valor mínimo visible
-
-                // Cargar palabras comunes en el Trie
-                PasswordEvaluator.loadCommonWords();
-
-                updateProgress(1, 1); // Completar progreso
+                PasswordEvaluator.loadCommonWords(); // Cargar palabras comunes en el Trie
                 return null;
             }
         };
 
-        // Vincular el progreso del Task al ProgressBar
-        loadingBar.progressProperty().bind(loadTrieTask.progressProperty());
+        // Incrementar el progreso poco a poco mientras se carga el Trie
+        Timeline progressTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(loadingBar.progressProperty(), 0.1)),
+                new KeyFrame(Duration.seconds(5), new KeyValue(loadingBar.progressProperty(), 0.9))
+        );
+        progressTimeline.setCycleCount(1);
+        progressTimeline.play();
 
         // Cerrar la pantalla de carga cuando el Task termine
         loadTrieTask.setOnSucceeded(event -> {
-            // Asegurarse de que la barra de progreso se vea llena antes de cerrar
-            Timeline delay = new Timeline(new KeyFrame(Duration.seconds(0.2), e -> closeSplashScreen()));
+            progressTimeline.stop(); // Detener el incremento gradual
+            loadingBar.setProgress(1.0); // Asegurar que la barra esté llena
+
+            // Esperar 0.3 segundos antes de cerrar la pantalla
+            Timeline delay = new Timeline(new KeyFrame(Duration.seconds(0.3), e -> closeSplashScreen()));
             delay.play();
         });
 
