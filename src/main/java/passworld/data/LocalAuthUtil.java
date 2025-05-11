@@ -30,20 +30,6 @@ public class LocalAuthUtil {
         }
     }
 
-    public static boolean isMasterPasswordSet() throws Exception {
-        String sql = "SELECT COUNT(*) FROM master_password";
-        try (Connection conn = DriverManager.getConnection(DDL.getDbUrl());
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            var rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-        } catch (SQLException e) {
-            throw new Exception(LanguageManager.getBundle().getString("errorCheckingMasterPassword"), e);
-        }
-        return false;
-    }
-
     public static String getMasterPasswordHash() throws Exception {
         String sql = "SELECT password_hash FROM master_password";
         try (Connection conn = DriverManager.getConnection(DDL.getDbUrl());
