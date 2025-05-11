@@ -4,6 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.media.Media;
@@ -12,7 +13,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import passworld.data.session.PersistentSessionManager;
-import passworld.utils.ViewManager;
+import passworld.utils.PasswordEvaluator;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -20,8 +21,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class SplashScreenController {
-    private volatile boolean splashClosed = false;      // Indica si la Splash ya se cerró
-    private boolean lastOnlineStatus = false;           // Para detectar cambios de conexión
+    private volatile boolean splashClosed = false;
+    private boolean lastOnlineStatus = false;
 
     @FXML
     private MediaView mediaView;
@@ -29,11 +30,8 @@ public class SplashScreenController {
     private ProgressBar loadingBar;
 
     private MediaPlayer mediaPlayer;
-    private Stage splashStage;  // Inyectado desde tu Application principal
+    private Stage splashStage;
 
-    /** Llamar desde tu Application tras cargar el FXMLLoader:
-     *   controller.setSplashStage(primaryStageSplash);
-     */
     public void setSplashStage(Stage stage) {
         this.splashStage = stage;
     }
@@ -47,15 +45,43 @@ public class SplashScreenController {
         mediaPlayer = new MediaPlayer(new Media(videoPath));
         mediaView.setMediaPlayer(mediaPlayer);
         mediaPlayer.setAutoPlay(true);
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.ZERO,     new KeyValue(loadingBar.progressProperty(), 0)),
-                new KeyFrame(Duration.seconds(1), new KeyValue(loadingBar.progressProperty(), 1))
+        // Crear un Task para cargar el Trie en segundo plano
+        Task<Void> loadTrieTask = new Task<>() {
+            @Override
+            protected Void call() {
+                PasswordEvaluator.loadCommonWords(); // Cargar Trie
+                return null;
+            }
+        };
+
+        Timeline progressTimeline = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(loadingBar.progressProperty(), 0.1)),
+                new KeyFrame(Duration.seconds(3), new KeyValue(loadingBar.progressProperty(), 0.9))
         );
-        timeline.setOnFinished(e -> onSplashFinished());
-        timeline.play();
+        progressTimeline.setCycleCount(1);
+        progressTimeline.play();
 
-        // 2) Programar el monitor de sesión / conexión
+        // Cuando la carga del Trie termine
+        loadTrieTask.setOnSucceeded(event -> {
+            progressTimeline.stop();
+            loadingBar.setProgress(1.0);
+
+            Timeline delay = new Timeline(new KeyFrame(Duration.seconds(0.1), e -> onSplashFinished()));
+            delay.play();
+        });
+
+        loadTrieTask.setOnFailed(event -> {
+            mediaPlayer.stop();
+            throw new RuntimeException("Error al cargar el Trie", loadTrieTask.getException());
+        });
+
+        Thread thread = new Thread(loadTrieTask);
+        thread.setDaemon(true);
+        thread.start();
+
+        // Iniciar monitor de conexión
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(createConnectionMonitorTask(), 0, 10, TimeUnit.SECONDS);
     }
