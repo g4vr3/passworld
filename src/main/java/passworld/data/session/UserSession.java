@@ -45,7 +45,7 @@ public class UserSession {
     }
 
     public boolean isLoggedIn() {
-        return loggedIn;
+        return userId != null && !userId.isEmpty();
     }
 
     public void setLoggedIn(boolean loggedIn) {

@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import passworld.data.ConfigUtil;
 import passworld.data.LocalAuthUtil;
 import passworld.data.apiclients.UsersApiClient;
+import passworld.data.session.PersistentSessionManager;
 import passworld.data.session.UserSession;
 import passworld.service.LanguageManager;
 import passworld.utils.*;
@@ -44,7 +45,7 @@ public class AuthController {
 
     private EventHandler<KeyEvent> keyEventHandler;
     public static void showView() {
-        Stage mainStage = new Stage();
+        Stage mainStage = ViewManager.getPrimaryStage();
         FXMLLoader loader = new FXMLLoader(AuthController.class.getResource("/passworld/authentication-view.fxml"));
         try {
             Scene scene = new Scene(loader.load(), 600, 450);
@@ -335,7 +336,8 @@ public class AuthController {
             String hashedMasterPassword = UsersApiClient.registerUserWithMasterPassword(signupMailField.getText(), signupPasswordField.getText(), signupMasterPasswordField.getText());
             LocalAuthUtil.clearMasterPassword();
             LocalAuthUtil.saveMasterPasswordHash(hashedMasterPassword);
-            ConfigUtil.saveSession(UserSession.getInstance().getUserId(), UserSession.getInstance().getRefreshToken());
+            UserSession userSession = UserSession.getInstance();
+            PersistentSessionManager.saveTokens(userSession.getIdToken(), userSession.getRefreshToken(), userSession.getUserId());
         } catch (Exception e) {
             showErrorAlert("signUpErrorTitle",e.getMessage()); // Fallback para errores no controlados
         }
@@ -361,7 +363,8 @@ public class AuthController {
 
             LocalAuthUtil.clearMasterPassword();
             LocalAuthUtil.saveMasterPasswordHash(hashedMasterPassword);
-
+            UserSession userSession = UserSession.getInstance();
+            PersistentSessionManager.saveTokens(userSession.getIdToken(), userSession.getRefreshToken(), userSession.getUserId());
             // Continuar al dashboard o pantalla principal
         } catch (Exception e) {
             showErrorAlert("loginErrorTitle", e.getMessage());
