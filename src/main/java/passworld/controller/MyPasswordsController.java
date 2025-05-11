@@ -15,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
+import passworld.data.session.PersistentSessionManager;
 import passworld.data.session.UserSession;
 import passworld.data.sync.SyncHandler;
 import passworld.service.LanguageManager;
@@ -564,14 +565,29 @@ public class MyPasswordsController {
 
     public void syncPasswordsPeriodically() {
         new Thread(() -> {
+            boolean lastOnlineStatus = false;
+            boolean lastLoginStatus = false;
+
             while (true) {
                 try {
-                    if (UserSession.getInstance().isLoggedIn() && SyncHandler.hasInternetConnection()) {
+                    boolean isOnline = SyncHandler.hasInternetConnection();
+                    boolean isLoggedIn = UserSession.getInstance().isLoggedIn();
+
+                    // Solo sincronizar si está online y logueado
+                    if (isOnline && isLoggedIn) {
                         List<PasswordDTO> localPasswords = PasswordDAO.readAllPasswords();
                         SyncHandler.syncPasswords(localPasswords);
-                        Platform.runLater(this::loadPasswords); // <-- Cambia aquí
+                        Platform.runLater(this::loadPasswords);
                     }
-                    Thread.sleep(10000);
+
+                    // Detecta cambio de estado para debug/log (opcional)
+                    if (lastOnlineStatus != isOnline || lastLoginStatus != isLoggedIn) {
+                        System.out.println("Estado actualizado: online=" + isOnline + ", login=" + isLoggedIn);
+                        lastOnlineStatus = isOnline;
+                        lastLoginStatus = isLoggedIn;
+                    }
+
+                    Thread.sleep(10000); // Esperar 10s antes del siguiente intento
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -579,7 +595,7 @@ public class MyPasswordsController {
                     System.out.println("Error during synchronization: " + e.getMessage());
                 }
             }
-        }).start();
+        }, "PasswordSyncThread").start();
     }
 
 }
