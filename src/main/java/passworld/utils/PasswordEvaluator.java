@@ -34,8 +34,8 @@ public class PasswordEvaluator {
         if (diversityCount >= 3) strength++; // Al menos tres tipos de caracteres
         if (diversityCount == 4) strength++; // Todos los tipos de caracteres
 
-        // Prevenir valores fuera del rango permitido
-        return Math.min(strength, 4);
+        // Limitar el rango entre 0 y 4
+        return Math.max(0, Math.min(strength, 4));
     }
 
     public static void updatePasswordStrengthInfo(int strength, Label passwordStrengthLabel, ProgressBar passwordStrengthProgressBar) {
