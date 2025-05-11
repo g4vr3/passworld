@@ -52,8 +52,8 @@ public class AuthController {
             mainStage.setTitle("passworld");
             mainStage.setScene(scene);
             mainStage.setResizable(false);
-            mainStage.show();
             ViewManager.setPrimaryStage(mainStage);
+            mainStage.show();
         } catch (IOException e) {
             System.err.println("Error loading authentication view: " + e.getMessage());
         }
