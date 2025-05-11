@@ -62,7 +62,7 @@ public class PasswordEvaluator {
         // 3. Penalizaciones
 
         // 3.1 Contiene palabras comunes
-        if (containsCommonWords(password)) score -= 4;
+        if (containsCommonWords(password)) score -= 5;
 
         // 3.2 Secuencias comunes
         if (hasSequentialChars(password)) score -= 2;
