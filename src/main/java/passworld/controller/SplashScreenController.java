@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import passworld.data.session.PersistentSessionManager;
 import passworld.utils.PasswordEvaluator;
+import passworld.utils.TimeSyncManager;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -101,6 +102,7 @@ public class SplashScreenController {
         boolean session = PersistentSessionManager.tokenSavedLocally();
 
         if (online) {
+            TimeSyncManager.syncTimeWithUtcServer();
             if (session) {
                 // Si hay sesión y conexión, refrescamos el token
                 PersistentSessionManager.refreshToken();
@@ -109,7 +111,7 @@ public class SplashScreenController {
                 AuthController.showView();
             }
         } else {
-            // offline: abrimos Vault en modo solo local
+            PersistentSessionManager.setUserId();
             VaultProtectionController.showView();
         }
 
@@ -129,6 +131,8 @@ public class SplashScreenController {
                     boolean session = PersistentSessionManager.tokenSavedLocally();
                     if (session) {
                         System.out.println("Sesión encontrada tras reconexión");
+                        // Si hay sesión y conexión, refrescamos el token
+                        PersistentSessionManager.refreshToken();
 
                     } else {
                         System.out.println("Sin sesión tras reconexión, redirigiendo a login");

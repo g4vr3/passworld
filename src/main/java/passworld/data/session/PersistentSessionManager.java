@@ -16,13 +16,13 @@ public class PersistentSessionManager {
     private static final String API_KEY = "AIzaSyB02VJOwdZp-QTf43icfVew7x0uNcdGEHE";
     private static final String AUTH_FILE = "auth.properties";
 
-    // Este método asegura que la sesión esté activa usando la clase UserSession
+    // Comprueba si hay un token guardado localmente
     public static boolean tokenSavedLocally() {
         Properties props = loadProperties();
         String refreshToken = props.getProperty("refreshToken");
         if (refreshToken != null) {
             try {
-                UserSession.getInstance().setRefreshToken(refreshToken);
+                UserSession.getInstance().setRefreshToken(decrypt(refreshToken));
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -31,6 +31,7 @@ public class PersistentSessionManager {
         return false;
     }
 
+    // Verifica si hay conexión a Internet
     public static boolean hasInternet() {
         try {
             URL url = new URL("https://www.google.com");
@@ -43,14 +44,16 @@ public class PersistentSessionManager {
         }
     }
 
+    // Refresca el token con Firebase
     public static boolean refreshToken() {
         try {
             Properties props = loadProperties();
             String refreshToken = props.getProperty("refreshToken");
             if (refreshToken == null) return false;
 
+            String decryptedRefreshToken = decrypt(refreshToken);
             String url = "https://securetoken.googleapis.com/v1/token?key=" + API_KEY;
-            String payload = "grant_type=refresh_token&refresh_token=" + refreshToken;
+            String payload = "grant_type=refresh_token&refresh_token=" + decryptedRefreshToken;
 
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("POST");
@@ -64,14 +67,14 @@ public class PersistentSessionManager {
                 String newRefreshToken = extractJsonValue(response, "refresh_token");
                 String uid = extractJsonValue(response, "user_id");
 
-                // Guardamos los tokens en UserSession y en archivo de propiedades
+                // Guardamos en sesión y archivo (encriptado)
                 UserSession.getInstance().setIdToken(newIdToken);
                 UserSession.getInstance().setRefreshToken(newRefreshToken);
                 UserSession.getInstance().setUserId(uid);
 
-                props.setProperty("idToken", newIdToken);
-                props.setProperty("refreshToken", newRefreshToken);
-                props.setProperty("uid", uid);
+                props.setProperty("idToken", encrypt(newIdToken));
+                props.setProperty("refreshToken", encrypt(newRefreshToken));
+                props.setProperty("uid", encrypt(uid));
 
                 saveProperties(props);
                 return true;
@@ -82,13 +85,26 @@ public class PersistentSessionManager {
         return false;
     }
 
+    // Establece el UID en UserSession a partir del archivo
+    public static void setUserId() {
+        Properties props = loadProperties();
+        String uid = props.getProperty("uid");
+        if (uid != null) {
+            try {
+                UserSession.getInstance().setUserId(decrypt(uid));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // Guarda los tokens en sesión y archivo (encriptado)
     public static void saveTokens(String idToken, String refreshToken, String uid) throws Exception {
         Properties props = new Properties();
-        props.setProperty("idToken", idToken);
-        props.setProperty("refreshToken" ,refreshToken);
-        props.setProperty("uid", uid);
+        props.setProperty("idToken", encrypt(idToken));
+        props.setProperty("refreshToken", encrypt(refreshToken));
+        props.setProperty("uid", encrypt(uid));
 
-        // Establecemos la sesión en memoria
         UserSession.getInstance().setIdToken(idToken);
         UserSession.getInstance().setRefreshToken(refreshToken);
         UserSession.getInstance().setUserId(uid);
@@ -96,11 +112,13 @@ public class PersistentSessionManager {
         saveProperties(props);
     }
 
+    // Borra los tokens
     public static void clearTokens() {
         new File(AUTH_FILE).delete();
-        UserSession.getInstance().clearSession(); // Limpiar la sesión en memoria
+        UserSession.getInstance().clearSession();
     }
 
+    // Extrae un valor de un JSON plano
     private static String extractJsonValue(String json, String key) {
         try {
             JSONObject jsonObject = new JSONObject(json);
@@ -111,10 +129,11 @@ public class PersistentSessionManager {
         }
     }
 
-    // === Clave derivada del UUID del sistema ===
+    // === CIFRADO/DECIFRADO AES CON CLAVE DERIVADA DEL UUID DEL SISTEMA ===
+
     private static SecretKeySpec getSystemKey() throws Exception {
         String uuid = getSystemUUID();
-        byte[] keyBytes = uuid.substring(0, 16).getBytes(StandardCharsets.UTF_8); // 128-bit
+        byte[] keyBytes = uuid.substring(0, 16).getBytes(StandardCharsets.UTF_8);
         return new SecretKeySpec(keyBytes, "AES");
     }
 
@@ -130,33 +149,69 @@ public class PersistentSessionManager {
         cipher.init(Cipher.DECRYPT_MODE, getSystemKey());
         byte[] decoded = Base64.getDecoder().decode(encrypted);
         return new String(cipher.doFinal(decoded), StandardCharsets.UTF_8);
-
     }
+    // Añade una variable estática para cachear el UUID
+    private static String cachedUUID = null;
 
+    // === OBTENER UUID DEL SISTEMA COMPATIBLE CROSS-PLATFORM ===
     public static String getSystemUUID() {
+        if (cachedUUID != null) return cachedUUID; // Ya está cacheado
+
+        String os = System.getProperty("os.name").toLowerCase();
         String uuid = null;
+
         try {
-            // Comando de PowerShell para obtener el UUID
-            String command = "powershell -Command \"(Get-WmiObject -Class Win32_ComputerSystemProduct).UUID\"";
+            Process process = null;
 
-            // Ejecuta el comando
-            Process process = Runtime.getRuntime().exec(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
+            if (os.contains("win")) {
+                // PowerShell moderno para Windows 10/11
+                String command = "powershell -Command \"(Get-CimInstance -Class Win32_ComputerSystemProduct).UUID\"";
+                process = Runtime.getRuntime().exec(command);
+            } else if (os.contains("mac")) {
+                process = Runtime.getRuntime().exec(new String[]{"ioreg", "-rd1", "-c", "IOPlatformExpertDevice"});
+            } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
+                File machineId = new File("/etc/machine-id");
+                if (machineId.exists()) {
+                    cachedUUID = new String(java.nio.file.Files.readAllBytes(machineId.toPath())).trim();
+                    return cachedUUID;
+                }
 
-            // Lee la salida del comando
-            while ((line = reader.readLine()) != null) {
-                uuid = line.trim(); // Obtener el UUID
+                File dbusId = new File("/var/lib/dbus/machine-id");
+                if (dbusId.exists()) {
+                    cachedUUID = new String(java.nio.file.Files.readAllBytes(dbusId.toPath())).trim();
+                    return cachedUUID;
+                }
+
+                process = Runtime.getRuntime().exec("cat /etc/machine-id");
             }
 
-            // Espera a que el proceso termine
-            process.waitFor();
+            if (process != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (!line.isEmpty() && !line.toLowerCase().contains("uuid") && !line.contains("=")) {
+                        uuid = line;
+                        break;
+                    }
+                }
+                process.waitFor();
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("UUID: " + uuid);
-        return uuid;
+
+        if (uuid == null || uuid.isEmpty()) {
+            uuid = "fallback-uuid-123456"; // fallback
+        }
+
+        cachedUUID = uuid;
+        System.out.println("UUID: " + cachedUUID);
+        return cachedUUID;
     }
+
+    // === UTILIDADES DE PROPIEDADES ===
 
     private static Properties loadProperties() {
         Properties props = new Properties();
