@@ -228,23 +228,29 @@ public class PasswordInfoController {
     }
 
 
-    public void setData(PasswordDTO password, MyPasswordsController passwordsController) {
-        this.password = password;
+    public void setData(PasswordDTO updatedPassword, MyPasswordsController passwordsController) {
         this.passwordsController = passwordsController;
+        // Después de actualizar la contraseña y recargar el objeto
+        if (updatedPassword != null) {
+            this.password = updatedPassword;
 
-        String encryptedPassword = password.getPassword();
-        String decryptedPassword = safeDecryptPassword(encryptedPassword).orElse("Imposible de desencriptar");
+            // Desencripta la contraseña antes de mostrarla
+            String decryptedPassword = safeDecryptPassword(password.getPassword()).orElse("Imposible de desencriptar");
 
-        // Establecer valores en los campos
-        Platform.runLater(() -> {
             descriptionField.setText(password.getDescription());
             usernameField.setText(password.getUsername());
             urlField.setText(password.getUrl());
             passwordFieldHidden.setText(decryptedPassword);
             passwordFieldVisible.setText(decryptedPassword);
-        });
 
-        checkPasswordIssues();
+            // Refrescar validaciones y problemas de seguridad
+            validateFields();
+            checkPasswordIssues();
+
+            Notifier.showNotification(saveButton.getScene().getWindow(), getBundle().getString("password_updated_successfully"));
+        } else {
+            Notifier.showNotification(saveButton.getScene().getWindow(), getBundle().getString("error_loading_password"));
+        }
     }
     private Optional<String> safeDecryptPassword(String encryptedPassword) {
         try {
@@ -360,8 +366,10 @@ public class PasswordInfoController {
                 descriptionField.setText(password.getDescription());
                 usernameField.setText(password.getUsername());
                 urlField.setText(password.getUrl());
-                passwordFieldHidden.setText(password.getPassword());
-                passwordFieldVisible.setText(password.getPassword());
+                // Desencriptar la contraseña antes de mostrarla
+                String decryptedPassword = safeDecryptPassword(password.getPassword()).orElse("Imposible de desencriptar");
+                passwordFieldHidden.setText(decryptedPassword);
+                passwordFieldVisible.setText(decryptedPassword);
 
                 // Refrescar validaciones y problemas de seguridad
                 validateFields();
