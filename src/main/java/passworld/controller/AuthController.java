@@ -11,7 +11,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import passworld.data.ConfigUtil;
 import passworld.data.LocalAuthUtil;
 import passworld.data.apiclients.UsersApiClient;
 import passworld.data.session.PersistentSessionManager;
@@ -45,7 +44,7 @@ public class AuthController {
 
     private EventHandler<KeyEvent> keyEventHandler;
     public static void showView() {
-        Stage mainStage = ViewManager.getPrimaryStage();
+        Stage mainStage = new Stage();
         FXMLLoader loader = new FXMLLoader(AuthController.class.getResource("/passworld/authentication-view.fxml"));
         try {
             Scene scene = new Scene(loader.load(), 600, 450);
@@ -53,8 +52,8 @@ public class AuthController {
             mainStage.setTitle("passworld");
             mainStage.setScene(scene);
             mainStage.setResizable(false);
-            ViewManager.setPrimaryStage(mainStage);
             mainStage.show();
+            ViewManager.setPrimaryStage(mainStage);
         } catch (IOException e) {
             System.err.println("Error loading authentication view: " + e.getMessage());
         }

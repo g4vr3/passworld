@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import passworld.controller.AuthController;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -18,6 +19,7 @@ public class ViewManager {
 
     public static void setPrimaryStage(Stage stage) {
         primaryStage = stage;
+        primaryStage.setResizable(false); // Deshabilitar el redimensionamiento de la ventana
 
         // Asegurar que la aplicación se cierre completamente al cerrar la ventana
         primaryStage.setOnCloseRequest(_ -> {
@@ -41,7 +43,7 @@ public class ViewManager {
                 // Si ya existe, solo cambiamos el root
                 primaryStage.getScene().setRoot(root);
             }
-
+            primaryStage.getIcons().add(new Image(Objects.requireNonNull(ViewManager.class.getResourceAsStream("/passworld/images/app_icon.png"))));
             primaryStage.setTitle(title);
             primaryStage.show(); // Aseguramos que esté visible
 
