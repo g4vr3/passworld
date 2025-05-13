@@ -12,20 +12,31 @@ import java.util.List;
 public class PasswordDAO {
     private static final String DB_URL = DDL.getDbUrl();
 
-    // Método genérico para realizar operaciones de inserción
-    private static boolean executeUpdate(String sql, Object... params) throws SQLException {
+    public static boolean createPassword(PasswordDTO password) throws SQLException {
+        String sql = "INSERT INTO passwords(description, username, url, password, isWeak, isDuplicate, isCompromised, isUrlUnsafe, lastModified, isSynced, idFb) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
-            for (int i = 0; i < params.length; i++) {
-                pstmt.setObject(i + 1, params[i]);
-            }
+            pstmt.setString(1, password.getDescription());
+            pstmt.setString(2, password.getUsername());
+            pstmt.setString(3, password.getUrl());
+            pstmt.setString(4, encryptPassword(password.getPassword()));
+            pstmt.setBoolean(5, password.isWeak());
+            pstmt.setBoolean(6, password.isDuplicate());
+            pstmt.setBoolean(7, password.isCompromised());
+            pstmt.setBoolean(8, password.isUrlUnsafe());
+            pstmt.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
+            pstmt.setBoolean(10, password.isSynced());
+            pstmt.setString(11, password.getIdFb());
 
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
+                        int generatedId = generatedKeys.getInt(1);
+                        password.setId(generatedId);
                         return true;
                     }
                 }
@@ -34,39 +45,105 @@ public class PasswordDAO {
         }
     }
 
-    // Inserción de una nueva contraseña (encriptada)
-    public static boolean createPassword(PasswordDTO password) throws SQLException {
-        String sql = "INSERT INTO passwords(description, username, url, password, isWeak, isDuplicate, isCompromised, isUrlUnsafe, lastModified, isSynced, idFb) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        return executeUpdate(sql, password.getDescription(), password.getUsername(), password.getUrl(), encryptPassword(password.getPassword()),
-                password.isWeak(), password.isDuplicate(), password.isCompromised(), password.isUrlUnsafe(),
-                password.getLastModified() != null ? password.getLastModified().toString() : null, password.isSynced(), password.getIdFb());
-    }
-
-    // Inserción de una nueva contraseña sin encriptar
     public static boolean createFromRemote(PasswordDTO password) throws SQLException {
         String sql = "INSERT INTO passwords(description, username, url, password, isWeak, isDuplicate, isCompromised, isUrlUnsafe, lastModified, isSynced, idFb) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        return executeUpdate(sql, password.getDescription(), password.getUsername(), password.getUrl(), password.getPassword(),
-                password.isWeak(), password.isDuplicate(), password.isCompromised(), password.isUrlUnsafe(),
-                password.getLastModified() != null ? password.getLastModified().toString() : null, password.isSynced(), password.getIdFb());
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, password.getDescription());
+            pstmt.setString(2, password.getUsername());
+            pstmt.setString(3, password.getUrl());
+            pstmt.setString(4, password.getPassword()); // Sin encriptar
+            pstmt.setBoolean(5, password.isWeak());
+            pstmt.setBoolean(6, password.isDuplicate());
+            pstmt.setBoolean(7, password.isCompromised());
+            pstmt.setBoolean(8, password.isUrlUnsafe());
+            pstmt.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
+            pstmt.setBoolean(10, password.isSynced());
+            pstmt.setString(11, password.getIdFb());
+
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int generatedId = generatedKeys.getInt(1);
+                        password.setId(generatedId);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 
-    // Actualización de una contraseña (encriptada)
-    public static boolean updatePasswordById(PasswordDTO password) throws SQLException {
+    public static boolean updatePassword(PasswordDTO password) throws SQLException {
         String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE id = ?";
-        return executeUpdate(sql, password.getDescription(), password.getUsername(), password.getUrl(), encryptPassword(password.getPassword()),
-                password.isWeak(), password.isDuplicate(), password.isCompromised(), password.isUrlUnsafe(),
-                password.getLastModified() != null ? password.getLastModified().toString() : null, password.isSynced(), password.getIdFb(), password.getId());
-    }
 
-    // Actualización de una contraseña sin encriptar
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, password.getDescription());
+            stmt.setString(2, password.getUsername());
+            stmt.setString(3, password.getUrl());
+            stmt.setString(4, encryptPassword(password.getPassword()));
+            stmt.setBoolean(5, password.isWeak());
+            stmt.setBoolean(6, password.isDuplicate());
+            stmt.setBoolean(7, password.isCompromised());
+            stmt.setBoolean(8, password.isUrlUnsafe());
+            stmt.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
+            stmt.setBoolean(10, password.isSynced());
+            stmt.setString(11, password.getIdFb());
+            stmt.setInt(12, password.getId());
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        }
+    }
+    // Método para actualizar una contraseña sin encriptar
     public static boolean updatePasswordFromRemote(PasswordDTO password) throws SQLException {
         String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE idFb = ?";
-        return executeUpdate(sql, password.getDescription(), password.getUsername(), password.getUrl(), password.getPassword(),
-                password.isWeak(), password.isDuplicate(), password.isCompromised(), password.isUrlUnsafe(),
-                password.getLastModified() != null ? password.getLastModified().toString() : null, true, password.getIdFb(), password.getIdFb());
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, password.getDescription());
+            stmt.setString(2, password.getUsername());
+            stmt.setString(3, password.getUrl());
+            stmt.setString(4, password.getPassword()); // Sin encriptar
+            stmt.setBoolean(5, password.isWeak());
+            stmt.setBoolean(6, password.isDuplicate());
+            stmt.setBoolean(7, password.isCompromised());
+            stmt.setBoolean(8, password.isUrlUnsafe());
+            stmt.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
+            stmt.setBoolean(10, true);
+            stmt.setString(11, password.getIdFb());
+            stmt.setString(12, password.getIdFb());
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+        }
+    }
+    public static boolean updatePasswordById(PasswordDTO password) throws SQLException {
+        String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, password.getDescription());
+            stmt.setString(2, password.getUsername());
+            stmt.setString(3, password.getUrl());
+            stmt.setString(4, password.getPassword());
+            stmt.setBoolean(5, password.isWeak());
+            stmt.setBoolean(6, password.isDuplicate());
+            stmt.setBoolean(7, password.isCompromised());
+            stmt.setBoolean(8, password.isUrlUnsafe());
+            stmt.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
+            stmt.setBoolean(10, password.isSynced());
+            stmt.setString(11, password.getIdFb());
+            stmt.setInt(12, password.getId());
+            return stmt.executeUpdate() > 0;
+        }
     }
 
-    // Lectura de una contraseña por su ID
     public static PasswordDTO readPasswordById(int idSl) throws SQLException {
         String sql = "SELECT * FROM passwords WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -82,21 +159,25 @@ public class PasswordDAO {
         return null;
     }
 
-    // Lectura de todas las contraseñas sin desencriptar
     public static List<PasswordDTO> readAllPasswords() throws SQLException {
         String sql = "SELECT * FROM passwords";
-        return readPasswords(sql, false);
-    }
+        List<PasswordDTO> passwords = new ArrayList<>();
 
-    // Lectura de todas las contraseñas desencriptadas
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                PasswordDTO password = mapResultSetToPasswordDTO(rs);
+                passwords.add(password);
+            }
+        }
+        return passwords;
+    }
     public static List<PasswordDTO> readAllPasswordsDecrypted() throws SQLException {
         String sql = "SELECT * FROM passwords";
-        return readPasswords(sql, true);
-    }
-
-    // Método auxiliar para leer contraseñas (con o sin desencriptar)
-    private static List<PasswordDTO> readPasswords(String sql, boolean decrypt) throws SQLException {
         List<PasswordDTO> passwords = new ArrayList<>();
+
         try (Connection conn = DriverManager.getConnection(DB_URL);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -104,19 +185,17 @@ public class PasswordDAO {
             while (rs.next()) {
                 try {
                     PasswordDTO password = mapResultSetToPasswordDTO(rs);
-                    if (decrypt) {
-                        password.setPassword(EncryptionUtil.decryptPassword(password.getPassword(), UserSession.getInstance().getMasterKey()));
-                    }
+                    password.setPassword(EncryptionUtil.decryptPassword(password.getPassword(), UserSession.getInstance().getMasterKey()));
                     passwords.add(password);
                 } catch (EncryptionException e) {
                     System.out.println("Error al desencriptar la contraseña: " + e.getMessage());
+                    // Continúa con la siguiente contraseña
                 }
             }
         }
         return passwords;
     }
 
-    // Eliminación de una contraseña por su ID
     public static boolean deletePassword(int id) throws SQLException {
         PasswordDTO password = readPasswordById(id);
         if (password == null) return false;
@@ -132,8 +211,6 @@ public class PasswordDAO {
             return rowsDeleted > 0;
         }
     }
-
-    // Eliminación de una contraseña localmente
     public static boolean deletePasswordLocalOnly(int id) throws SQLException {
         String sql = "DELETE FROM passwords WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -145,23 +222,16 @@ public class PasswordDAO {
         }
     }
 
-    // Eliminación de todas las contraseñas
     public static boolean deleteAllPasswords() throws SQLException {
         String sql = "DELETE FROM passwords";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             int rowsDeleted = stmt.executeUpdate();
             return rowsDeleted > 0;
         }
     }
 
-    // Actualización de la seguridad de una contraseña (solo atributos de seguridad)
-    public static boolean updatePasswordSecurity(PasswordDTO password) throws SQLException {
-        String sql = "UPDATE passwords SET isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ? WHERE id = ?";
-        return executeUpdate(sql, password.isWeak(), password.isDuplicate(), password.isCompromised(), password.isUrlUnsafe(), password.getId());
-    }
-
-    // Método auxiliar para mapear un ResultSet a un PasswordDTO
     private static PasswordDTO mapResultSetToPasswordDTO(ResultSet rs) throws SQLException {
         PasswordDTO password = new PasswordDTO(
                 rs.getString("description"),
@@ -170,6 +240,7 @@ public class PasswordDAO {
                 rs.getString("password") // sin desencriptar
         );
         password.setId(rs.getInt("id"));
+        System.out.println("ID readall: " + password.getId());
         password.setWeak(rs.getBoolean("isWeak"));
         password.setDuplicate(rs.getBoolean("isDuplicate"));
         password.setCompromised(rs.getBoolean("isCompromised"));
@@ -183,8 +254,22 @@ public class PasswordDAO {
         }
         return password;
     }
+    public static void updatePasswordSecurity(PasswordDTO password) throws SQLException {
+        String sql = "UPDATE passwords SET isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-    // Métodos auxiliares para encriptar
+            stmt.setBoolean(1, password.isWeak());
+            stmt.setBoolean(2, password.isDuplicate());
+            stmt.setBoolean(3, password.isCompromised());
+            stmt.setBoolean(4, password.isUrlUnsafe());
+            stmt.setInt(5, password.getId());
+
+            int rowsUpdated = stmt.executeUpdate();
+        }
+    }
+
+    // Métodos auxiliares para encriptar y desencriptar usando la master key de la sesión
     private static String encryptPassword(String plainPassword) {
         SecretKeySpec masterKey = UserSession.getInstance().getMasterKey();
         if (masterKey == null) throw new IllegalStateException("Master key no disponible");
@@ -195,13 +280,12 @@ public class PasswordDAO {
         }
     }
 
-    // Verificar existencia de una contraseña por ID de Facebook
     public static boolean existsByIdFb(String idFb) throws SQLException {
         String sql = "SELECT COUNT(*) FROM passwords WHERE idFb = ?";
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (var conn = java.sql.DriverManager.getConnection(PasswordDAO.DB_URL);
+             var stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, idFb);
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (var rs = stmt.executeQuery()) {
                 return rs.next() && rs.getInt(1) > 0;
             }
         }
