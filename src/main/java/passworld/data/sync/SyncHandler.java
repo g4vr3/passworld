@@ -6,6 +6,7 @@ import passworld.data.apiclients.PasswordsApiClient;
 import passworld.data.PasswordDTO;
 import passworld.data.session.UserSession;
 import passworld.service.PasswordManager;
+import passworld.utils.TimeSyncManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -18,15 +19,27 @@ public class SyncHandler {
     public static void syncPasswords(List<PasswordDTO> localPasswords) throws IOException, SQLException {
         String userId = UserSession.getInstance().getUserId();
 
-        // 1. Subir contraseñas locales no sincronizadas
+        // 1. ELIMINAR en remoto primero para evitar reimportaciones
+        List<String> deletedIdFbs = DeletedPasswordsDAO.getAllDeletedIdFb();
+        if (!deletedIdFbs.isEmpty()) {
+            for (String deletedIdFb : deletedIdFbs) {
+                try {
+                    PasswordsApiClient.deletePassword(userId, deletedIdFb);
+                } catch (Exception ignored) {}
+                DeletedPasswordsDAO.deleteByIdFb(deletedIdFb); // Limpia tras intento de borrado
+            }
+        }
+
+        // 2. Subir contraseñas locales no sincronizadas
         for (PasswordDTO local : localPasswords) {
             if (!local.isSynced()) {
+                local.setLastModified(TimeSyncManager.correctLocalTime(local));
                 if (local.getIdFb() == null || local.getIdFb().isEmpty()) {
                     String idFb = PasswordsApiClient.createPassword(userId, local);
                     if (idFb != null) {
                         local.setIdFb(idFb);
                         local.setSynced(true);
-                        PasswordManager.updatePasswordById(local); // Actualiza por id local
+                        PasswordManager.updatePasswordById(local);
                     }
                 } else {
                     PasswordsApiClient.updatePassword(
@@ -43,15 +56,15 @@ public class SyncHandler {
                             local.getLastModified().toString()
                     );
                     local.setSynced(true);
-                    PasswordManager.updatePasswordByRemote(local); // Actualiza por idFb
+                    PasswordManager.updatePasswordByRemote(local);
                 }
             }
         }
 
-        // 2. Descargar contraseñas remotas
+        // 3. Descargar contraseñas remotas
         List<PasswordDTO> remotePasswords = PasswordsApiClient.readAllPasswords(userId);
 
-        // 3. Mapas para acceso rápido
+        // 4. Mapas para acceso rápido
         Map<String, PasswordDTO> localByIdFb = new HashMap<>();
         for (PasswordDTO p : localPasswords) {
             if (p.getIdFb() != null) localByIdFb.put(p.getIdFb(), p);
@@ -61,19 +74,9 @@ public class SyncHandler {
             if (p.getIdFb() != null) remoteByIdFb.put(p.getIdFb(), p);
         }
 
-        // 4. Eliminar en remoto las contraseñas eliminadas localmente
-        for (String deletedIdFb : DeletedPasswordsDAO.getAllDeletedIdFb()) {
-            if (remoteByIdFb.containsKey(deletedIdFb)) {
-                try {
-                    PasswordsApiClient.deletePassword(userId, deletedIdFb);
-                } catch (Exception ignored) {}
-            }
-            DeletedPasswordsDAO.deleteByIdFb(deletedIdFb); // Limpia de la lista de eliminados
-        }
-
         // 5. Sincronizar diferencias
         for (PasswordDTO remote : remotePasswords) {
-            if (DeletedPasswordsDAO.existsByIdFb(remote.getIdFb())) continue; // Evita reinsertar eliminadas
+            if (DeletedPasswordsDAO.existsByIdFb(remote.getIdFb())) continue;
             PasswordDTO local = localByIdFb.get(remote.getIdFb());
             if (local == null) {
                 PasswordManager.savePasswordFromRemote(remote);

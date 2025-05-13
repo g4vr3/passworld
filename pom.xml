@@ -30,6 +30,11 @@
             <artifactId>javafx-media</artifactId>
             <version>23.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.9.0</version> <!-- Asegúrate de usar la versión más reciente -->
+        </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>

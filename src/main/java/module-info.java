@@ -10,6 +10,7 @@ module passworld {
     requires com.fasterxml.jackson.databind;
     requires jdk.jshell;
     requires java.net.http;
+    requires org.apache.commons.net;
 
 
     opens passworld to javafx.fxml;
