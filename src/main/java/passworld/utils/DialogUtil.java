@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import passworld.data.PasswordDTO;
 import passworld.service.LanguageManager;
 
@@ -170,6 +171,12 @@ public class DialogUtil {
 
         // Establecer el contenido del diálogo
         dialog.getDialogPane().setContent(vbox);
+
+        // Establecer icono de la ventana del diálogo
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(new Image(Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/app_icon.png")).toExternalForm()));
+
+        Platform.runLater(stage::sizeToScene);
 
         // Listener para la validación en tiempo real
         ChangeListener<String> fieldValidationListener = (_, _, _) -> {
