@@ -48,10 +48,9 @@ public class LanguageManager {
     public static ResourceBundle getBundle() {
         if (bundle == null) {
             // Idioma por defecto si no se ha inicializado
-            loadLanguage(Locale.getDefault().getLanguage());
+            loadLanguage(getSystemLanguage());
         }
         return bundle;
-
     }
 
     public static void setLanguageSupport(ComboBox<String> languageComboBox, Runnable setUITexts) {
