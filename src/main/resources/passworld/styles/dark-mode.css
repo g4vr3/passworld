@@ -510,3 +510,20 @@ bold-label {
     -fx-focus-color: #616161; /* Color de la línea al enfocar */
     -fx-faint-focus-color: transparent; /* Sin color de enfoque tenue */
 }
+
+.context-menu {
+    -fx-background-color: #292929; /* Fondo oscuro */
+    -fx-text-fill: #b1b1b1; /* Color del texto */
+    -fx-border-color: #434343; /* Borde oscuro */
+    -fx-border-radius: 5px; /* Bordes redondeados */
+    -fx-background-radius: 5px; /* Bordes redondeados */
+}
+
+.context-menu .menu-item {
+    -fx-text-fill: #b1b1b1; /* Color del texto */
+}
+
+.context-menu .menu-item:hover {
+    -fx-background-color: #434343; /* Fondo al pasar el ratón */
+    -fx-text-fill: #ffffff; /* Texto al pasar el ratón */
+}

@@ -431,3 +431,13 @@ bold-label {
     -fx-focus-color: #c8c8c8; /* Color de la línea al enfocar */
     -fx-faint-focus-color: transparent; /* Sin color de enfoque tenue */
 }
+
+.context-menu {
+    -fx-border-radius: 5px; /* Bordes redondeados */
+    -fx-background-radius: 5px; /* Bordes redondeados */
+}
+
+.context-menu .menu-item:hover {
+    -fx-background-color: #c8c8c8; /* Fondo al pasar el ratón */
+    -fx-text-fill: #000000; /* Color del texto al pasar el ratón */
+}
