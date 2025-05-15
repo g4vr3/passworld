@@ -18,10 +18,10 @@ public class PasswordDAO {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setString(1, password.getDescription());
-            pstmt.setString(2, password.getUsername());
-            pstmt.setString(3, password.getUrl());
-            pstmt.setString(4, encryptPassword(password.getPassword()));
+            pstmt.setString(1, encryptData(password.getDescription()));
+            pstmt.setString(2, encryptData(password.getUsername()));
+            pstmt.setString(3, encryptData(password.getUrl()));
+            pstmt.setString(4, encryptData(password.getPassword()));
             pstmt.setBoolean(5, password.isWeak());
             pstmt.setBoolean(6, password.isDuplicate());
             pstmt.setBoolean(7, password.isCompromised());
@@ -84,10 +84,10 @@ public class PasswordDAO {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, password.getDescription());
-            stmt.setString(2, password.getUsername());
-            stmt.setString(3, password.getUrl());
-            stmt.setString(4, encryptPassword(password.getPassword()));
+            stmt.setString(1, encryptData(password.getDescription()));
+            stmt.setString(2, encryptData(password.getUsername()));
+            stmt.setString(3, encryptData(password.getUrl()));
+            stmt.setString(4, encryptData(password.getPassword()));
             stmt.setBoolean(5, password.isWeak());
             stmt.setBoolean(6, password.isDuplicate());
             stmt.setBoolean(7, password.isCompromised());
@@ -181,14 +181,24 @@ public class PasswordDAO {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-
+            SecretKeySpec key = UserSession.getInstance().getMasterKey();
             while (rs.next()) {
                 try {
                     PasswordDTO password = mapResultSetToPasswordDTO(rs);
-                    password.setPassword(EncryptionUtil.decryptPassword(password.getPassword(), UserSession.getInstance().getMasterKey()));
+
+                    if (password.getPassword() != null)
+                        password.setPassword(EncryptionUtil.decryptData(password.getPassword(), key));
+                    if (password.getDescription() != null)
+                        password.setDescription(EncryptionUtil.decryptData(password.getDescription(), key));
+                    if (password.getUsername() != null)
+                        password.setUsername(EncryptionUtil.decryptData(password.getUsername(), key));
+                    if (password.getUrl() != null)
+                        password.setUrl(EncryptionUtil.decryptData(password.getUrl(), key));
+
                     passwords.add(password);
                 } catch (EncryptionException e) {
                     System.out.println("Error al desencriptar la contraseña: " + e.getMessage());
+                    e.printStackTrace();
                     // Continúa con la siguiente contraseña
                 }
             }
@@ -211,14 +221,13 @@ public class PasswordDAO {
             return rowsDeleted > 0;
         }
     }
-    public static boolean deletePasswordLocalOnly(int id) throws SQLException {
+    public static void deletePasswordLocalOnly(int id) throws SQLException {
         String sql = "DELETE FROM passwords WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             int rowsDeleted = stmt.executeUpdate();
             System.out.println("Rows deleted local only: " + rowsDeleted);
-            return rowsDeleted > 0;
         }
     }
 
@@ -270,15 +279,26 @@ public class PasswordDAO {
     }
 
     // Métodos auxiliares para encriptar y desencriptar usando la master key de la sesión
-    private static String encryptPassword(String plainPassword) {
-        SecretKeySpec masterKey = UserSession.getInstance().getMasterKey();
-        if (masterKey == null) throw new IllegalStateException("Master key no disponible");
+    private static String encryptData(String plainText) {
+        if (plainText == null) return null;
         try {
-            return EncryptionUtil.encryptPassword(plainPassword, masterKey);
+            SecretKeySpec key = UserSession.getInstance().getMasterKey();
+            return EncryptionUtil.encryptData(plainText, key);
         } catch (EncryptionException e) {
-            return "UnableToEncryptNotShownForSecurity";
+            throw new RuntimeException("Error al cifrar el dato: " + e.getMessage(), e);
         }
     }
+    private static String decryptData(String encryptedText) {
+        if (encryptedText == null) return null;
+        try {
+            SecretKeySpec key = UserSession.getInstance().getMasterKey();
+            return EncryptionUtil.decryptData(encryptedText, key);
+        } catch (EncryptionException e) {
+            throw new RuntimeException("Error al descifrar el dato: " + e.getMessage(), e);
+        }
+    }
+
+
 
     public static boolean existsByIdFb(String idFb) throws SQLException {
         String sql = "SELECT COUNT(*) FROM passwords WHERE idFb = ?";

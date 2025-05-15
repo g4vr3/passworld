@@ -8,13 +8,14 @@ public class DDL {
 
     static {
         String userHome = System.getProperty("user.home");
+        String os = System.getProperty("os.name").toLowerCase();
 
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            dbPath = userHome + "\\AppData\\Local\\passworld\\passwords.db";
-        } else if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            dbPath = userHome + "/Library/Application Support/passworld/passwords.db";
+        if (os.contains("win")) {
+            dbPath = userHome + "\\AppData\\Local\\passworld\\localdb\\passwords.db";
+        } else if (os.contains("mac")) {
+            dbPath = userHome + "/Library/Application Support/passworld/localdb/passwords.db";
         } else {
-            dbPath = userHome + "/.local/share/passworld/passwords.db";
+            dbPath = userHome + "/.local/share/passworld/localdb/passwords.db";
         }
 
         File dbDir = new File(dbPath).getParentFile();
