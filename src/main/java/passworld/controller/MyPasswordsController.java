@@ -204,7 +204,7 @@ public class MyPasswordsController {
             String currentFilter = searchField.getText().toLowerCase();
 
             // Obtener datos de la base de datos y almacenarlos en la lista original
-            List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
+            List<PasswordDTO> passwords = PasswordDAO.readAllPasswordsDecrypted();
             passwordList.setAll(passwords); // Actualizar la lista observable
             issuePasswordsList.setAll(passwords.stream()
                     .filter(SecurityFilterManager::hasPasswordSecurityIssues)
@@ -604,6 +604,10 @@ public class MyPasswordsController {
 
                     // Solo sincronizar si está online y logueado
                     if (isOnline && isLoggedIn) {
+                        Thread.sleep(3000); // Esperar 3s antes de sincronizar
+                        if(TimeSyncManager.getOffset().isZero()){
+                            TimeSyncManager.syncTimeWithUtcServer();
+                        }
                         List<PasswordDTO> localPasswords = PasswordDAO.readAllPasswords();
                         SyncHandler.syncPasswords(localPasswords);
                         Platform.runLater(this::loadPasswords);
@@ -616,7 +620,7 @@ public class MyPasswordsController {
                         lastLoginStatus = isLoggedIn;
                     }
 
-                    Thread.sleep(10000); // Esperar 10s antes del siguiente intento
+                    Thread.sleep(7000); // Esperar 10s antes del siguiente intento
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
