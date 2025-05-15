@@ -234,14 +234,13 @@ public class PasswordInfoController {
         if (updatedPassword != null) {
             this.password = updatedPassword;
 
-            // Desencripta la contraseña antes de mostrarla
-            String decryptedPassword = safeDecryptPassword(password.getPassword()).orElse("Imposible de desencriptar");
+
 
             descriptionField.setText(password.getDescription());
             usernameField.setText(password.getUsername());
             urlField.setText(password.getUrl());
-            passwordFieldHidden.setText(decryptedPassword);
-            passwordFieldVisible.setText(decryptedPassword);
+            passwordFieldHidden.setText(password.getPassword());
+            passwordFieldVisible.setText(password.getPassword());
 
             // Refrescar validaciones y problemas de seguridad
             validateFields();
@@ -252,21 +251,25 @@ public class PasswordInfoController {
             Notifier.showNotification(saveButton.getScene().getWindow(), getBundle().getString("error_loading_password"));
         }
     }
-    private Optional<String> safeDecryptPassword(String encryptedPassword) {
+    private String safeDecryptData(String encryptedData) {
+        if (encryptedData == null || encryptedData.isEmpty()) {
+            return null;
+        }
         try {
             SecretKeySpec masterKey = UserSession.getInstance().getMasterKey();
             if (masterKey == null) {
                 throw new IllegalStateException("Master key no disponible");
             }
-            return Optional.of(EncryptionUtil.decryptPassword(encryptedPassword, masterKey));
+            return EncryptionUtil.decryptData(encryptedData, masterKey);
         } catch (EncryptionException e) {
             Notifier.showNotification(
                     copyButton.getScene().getWindow(),
                     getBundle().getString("error_decrypting_password")
             );
-            return Optional.empty();
+            return null;
         }
     }
+
 
     private void validateFields() {
         boolean isDescriptionValid = !(descriptionField.getText() == null || descriptionField.getText().trim().isEmpty());
@@ -360,16 +363,20 @@ public class PasswordInfoController {
                 throw new RuntimeException(e);
             }
             if (updatedPassword != null) {
+                updatedPassword.setUsername(safeDecryptData(updatedPassword.getUsername()));
+                updatedPassword.setUrl(safeDecryptData(updatedPassword.getUrl()));
+                updatedPassword.setDescription(safeDecryptData(updatedPassword.getDescription()));
+                updatedPassword.setPassword(safeDecryptData(updatedPassword.getPassword()));
                 this.password = updatedPassword;
 
                 // Actualizar los campos con los datos sincronizados
-                descriptionField.setText(password.getDescription());
-                usernameField.setText(password.getUsername());
-                urlField.setText(password.getUrl());
+                descriptionField.setText(newDescription);
+                usernameField.setText(newUsername);
+                urlField.setText(newUrl);
                 // Desencriptar la contraseña antes de mostrarla
-                String decryptedPassword = safeDecryptPassword(password.getPassword()).orElse("Imposible de desencriptar");
-                passwordFieldHidden.setText(decryptedPassword);
-                passwordFieldVisible.setText(decryptedPassword);
+
+                passwordFieldHidden.setText(newPassword);
+                passwordFieldVisible.setText(newPassword);
 
                 // Refrescar validaciones y problemas de seguridad
                 validateFields();

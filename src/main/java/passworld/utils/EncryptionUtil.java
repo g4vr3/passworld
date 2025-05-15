@@ -54,7 +54,7 @@ public class EncryptionUtil {
     }
 
     // === CIFRADO Y DESCIFRADO ===
-    public static String encryptPassword(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
+    public static String encryptData(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, masterKey);
@@ -65,7 +65,7 @@ public class EncryptionUtil {
         }
     }
 
-    public static String decryptPassword(String encryptedPassword, SecretKeySpec masterKey) throws EncryptionException {
+    public static String decryptData(String encryptedPassword, SecretKeySpec masterKey) throws EncryptionException {
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, masterKey);
