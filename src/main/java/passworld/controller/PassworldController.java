@@ -54,6 +54,10 @@ public class PassworldController {
     ImageView logoImageView; // Logo de la aplicación
     @FXML
     ImageView languageImageView; // Icono del idioma
+    @FXML
+    Button helpButton; // Botón de ayuda
+    @FXML
+    ImageView helpImageView; // Icono de ayuda
 
     public static void showView() {
         ViewManager.changeView("/passworld/main-view.fxml", "passworld");
@@ -110,7 +114,7 @@ public class PassworldController {
 
     private void setIcons() {
         // Configurar el encabezado
-        HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton);
+        HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton, helpButton);
 
         // Label contraseña
         Image passwordIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/password_icon.png")).toExternalForm());

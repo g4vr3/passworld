@@ -105,18 +105,18 @@
         <Region prefHeight="60.0" BorderPane.alignment="CENTER" />
     </bottom>
     <top>
-        <HBox alignment="CENTER" maxWidth="600.0" prefWidth="400.0" BorderPane.alignment="CENTER">
+        <HBox alignment="CENTER" maxWidth="600.0" prefWidth="400.0" spacing="5.0" BorderPane.alignment="CENTER">
             <BorderPane.margin>
                 <Insets left="100.0" right="100.0" />
             </BorderPane.margin>
             <ImageView fx:id="logoImageView" fitHeight="100.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
             <Region HBox.hgrow="ALWAYS" />
+         <Button fx:id="helpButton" maxHeight="20.0" maxWidth="20.0" mnemonicParsing="false" styleClass="icon-button">
+            <graphic>
+               <ImageView fx:id="helpImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" styleClass="icon" />
+            </graphic>
+         </Button>
             <Button fx:id="toggleThemeButton" contentDisplay="CENTER" graphicTextGap="0.0" mnemonicParsing="false" prefWidth="20.0" styleClass="icon-button" />
-            <Region maxHeight="15.0" maxWidth="0.5" prefHeight="15.0" prefWidth="0.5" styleClass="button-bar-separator" HBox.hgrow="NEVER">
-                <HBox.margin>
-                    <Insets left="5.0" right="10.0" />
-                </HBox.margin>
-            </Region>
             <ImageView fx:id="languageImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" />
             <ComboBox fx:id="languageComboBox" centerShape="false" scaleShape="false" styleClass="language-selector" />
         </HBox>

@@ -17,7 +17,7 @@ public class VaultProtectionController {
     @FXML
     private ComboBox<String> languageComboBox;
     @FXML
-    private Button toggleThemeButton;
+    private Button toggleThemeButton, helpButton;
     @FXML
     private ImageView logoImageView, languageImageView;
     @FXML
@@ -53,7 +53,7 @@ public class VaultProtectionController {
 
     // Configura los íconos de la interfaz según el tema actual
     private void configureIcons() {
-        HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton);
+        HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton, helpButton);
     }
 
     // Configura opciones de accesibilidad para la interfaz

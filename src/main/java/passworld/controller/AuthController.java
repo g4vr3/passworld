@@ -30,7 +30,7 @@ public class AuthController {
     @FXML
     private ComboBox<String> languageComboBox;
     @FXML
-    private Button toggleThemeButton, loginSectionButton, signupSectionButton, signupButton, loginButton;
+    private Button toggleThemeButton, loginSectionButton, signupSectionButton, signupButton, loginButton, helpButton;
     @FXML
     private ImageView logoImageView, languageImageView, infoImageView;
     @FXML
@@ -120,7 +120,7 @@ public class AuthController {
 
     // Configura los íconos de la interfaz según el tema actual
     private void configureIcons() {
-        HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton);
+        HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton, helpButton);
         Image infoIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/passworld/images/info_icon.png")));
         infoImageView.setImage(infoIcon);
         ThemeManager.applyThemeToImage(infoImageView);

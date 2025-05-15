@@ -10,11 +10,30 @@ import java.util.Objects;
 
 public class HeaderConfigurator {
 
-    public static void configureHeader(ImageView logoImageView, ImageView languageImageView, Button toggleThemeButton) {
+    public static void configureHeader(ImageView logoImageView, ImageView languageImageView, Button toggleThemeButton, Button helpButton) {
         // Establecer imagen de logo
         Image logoImage = new Image(Objects.requireNonNull(HeaderConfigurator.class.getResource("/passworld/images/passworld_logo.png")).toExternalForm());
         logoImageView.setImage(logoImage);
         ThemeManager.applyThemeToImage(logoImageView);
+
+        // Icono de ayuda
+        Image helpIcon = new Image(Objects.requireNonNull(HeaderConfigurator.class.getResource("/passworld/images/help_icon.png")).toExternalForm());
+        ImageView helpIconImageView = new ImageView(helpIcon);
+        ThemeManager.applyThemeToImage(helpIconImageView);
+        helpIconImageView.getStyleClass().add("icon");
+        helpButton.setGraphic(helpIconImageView);
+        helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
+
+        // Acción del botón de ayuda para abrir la web
+        helpButton.setOnAction(_ -> {
+            String url = "https://g4vr3.github.io/passworld-web/help.html";
+            try {
+                java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+            } catch (Exception e) {
+                System.err.println("Error al abrir la URL de ayuda: " + url);
+                e.printStackTrace();
+            }
+        });
 
         // Icono de idioma
         Image languageIcon = new Image(Objects.requireNonNull(HeaderConfigurator.class.getResource("/passworld/images/language_icon.png")).toExternalForm());

@@ -17,156 +17,138 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="passworld.controller.PassworldController">
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="passworld.controller.PassworldController">
     <BorderPane minHeight="-Infinity" minWidth="-Infinity">
         <top>
-            <HBox alignment="CENTER" maxWidth="600.0" BorderPane.alignment="CENTER">
+            <HBox alignment="CENTER" maxWidth="600.0" spacing="5.0" BorderPane.alignment="CENTER">
                 <BorderPane.margin>
-                    <Insets left="100.0" right="100.0"/>
+                    <Insets left="100.0" right="100.0" />
                 </BorderPane.margin>
-                <ImageView fx:id="logoImageView" fitHeight="100.0" fitWidth="200.0" pickOnBounds="true"
-                           preserveRatio="true"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="toggleThemeButton" contentDisplay="CENTER" graphicTextGap="0.0"
-                        mnemonicParsing="false" prefWidth="20.0" styleClass="icon-button"/>
-                <Region maxHeight="15.0" maxWidth="0.5" prefHeight="15.0" prefWidth="0.5"
-                        styleClass="button-bar-separator" HBox.hgrow="NEVER">
-                    <HBox.margin>
-                        <Insets left="5.0" right="10.0"/>
-                    </HBox.margin>
-                </Region>
-                <ImageView fx:id="languageImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true"
-                           preserveRatio="true"/>
-                <ComboBox fx:id="languageComboBox" centerShape="false" scaleShape="false"
-                          styleClass="language-selector"/>
+                <ImageView fx:id="logoImageView" fitHeight="100.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="helpButton" maxHeight="20.0" maxWidth="20.0" mnemonicParsing="false" styleClass="icon-button">
+               <graphic>
+                  <ImageView fx:id="helpImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" styleClass="icon" />
+               </graphic>
+            </Button>
+                <Button fx:id="toggleThemeButton" contentDisplay="CENTER" graphicTextGap="0.0" mnemonicParsing="false" prefWidth="20.0" styleClass="icon-button" />
+                <ImageView fx:id="languageImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" />
+                <ComboBox fx:id="languageComboBox" centerShape="false" scaleShape="false" styleClass="language-selector" />
             </HBox>
         </top>
         <center>
             <VBox maxWidth="600.0" spacing="10.0">
                 <VBox spacing="5.0">
                     <VBox.margin>
-                        <Insets/>
+                        <Insets />
                     </VBox.margin>
                     <HBox alignment="CENTER" spacing="5.0">
                         <Label fx:id="passwordLabel" prefHeight="20.0">
                             <font>
-                                <Font name="Helvetica Neue Medium" size="14.0"/>
+                                <Font name="Helvetica Neue Medium" size="14.0" />
                             </font>
                         </Label>
-                        <Region HBox.hgrow="ALWAYS"/>
+                        <Region HBox.hgrow="ALWAYS" />
                         <Label fx:id="passwordStrengthLabel" prefHeight="20.0" styleClass="strengthLabel">
                             <HBox.margin>
-                                <Insets/>
+                                <Insets />
                             </HBox.margin>
                             <font>
-                                <Font name="Helvetica Neue Medium" size="13.0"/>
+                                <Font name="Helvetica Neue Medium" size="13.0" />
                             </font>
                         </Label>
-                        <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0"
-                                     styleClass="strength-bar" visible="false"/>
+                        <ProgressBar fx:id="passwordStrengthProgressBar" minWidth="0" prefWidth="100.0" styleClass="strength-bar" visible="false" />
                     </HBox>
                     <HBox alignment="CENTER" styleClass="generatedPasswordBox">
                         <padding>
-                            <Insets right="5.0"/>
+                            <Insets right="5.0" />
                         </padding>
-                        <TextField fx:id="passwordField" editable="false"
-                                   style="-fx-border-color: transparent;" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="passwordField" editable="false" style="-fx-border-color: transparent;" HBox.hgrow="ALWAYS">
                             <font>
-                                <Font name="Helvetica Neue" size="13.0"/>
+                                <Font name="Helvetica Neue" size="13.0" />
                             </font>
                             <cursor>
-                                <Cursor fx:constant="DEFAULT"/>
+                                <Cursor fx:constant="DEFAULT" />
                             </cursor>
                         </TextField>
-                        <Button fx:id="copyPasswordButton" graphicTextGap="0.0" mnemonicParsing="false"
-                                onAction="#copyPasswordToClipboard" styleClass="icon-button" visible="false"
-                                HBox.hgrow="NEVER"/>
-                        <Button fx:id="savePasswordButton" graphicTextGap="0.0" mnemonicParsing="false"
-                                onAction="#savePassword" styleClass="icon-button" visible="false"
-                                HBox.hgrow="NEVER"/>
+                        <Button fx:id="copyPasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#copyPasswordToClipboard" styleClass="icon-button" visible="false" HBox.hgrow="NEVER" />
+                        <Button fx:id="savePasswordButton" graphicTextGap="0.0" mnemonicParsing="false" onAction="#savePassword" styleClass="icon-button" visible="false" HBox.hgrow="NEVER" />
                     </HBox>
                 </VBox>
                 <HBox alignment="CENTER_LEFT" spacing="5.0">
                     <VBox.margin>
-                        <Insets/>
+                        <Insets />
                     </VBox.margin>
                     <CheckBox fx:id="upperAndLowerCaseCheckbox" mnemonicParsing="false" selected="true">
                         <font>
-                            <Font size="12.0"/>
+                            <Font size="12.0" />
                         </font>
                     </CheckBox>
                     <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon" text="Aa">
                         <font>
-                            <Font name="Helvetica Neue Light Italic" size="13.0"/>
+                            <Font name="Helvetica Neue Light Italic" size="13.0" />
                         </font>
                     </Text>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" spacing="5.0">
                     <CheckBox fx:id="numberCheckbox" mnemonicParsing="false" selected="true">
                         <font>
-                            <Font size="12.0"/>
+                            <Font size="12.0" />
                         </font>
                     </CheckBox>
-                    <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon"
-                          text="123">
+                    <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon" text="123">
                         <font>
-                            <Font name="Helvetica Neue Light Italic" size="13.0"/>
+                            <Font name="Helvetica Neue Light Italic" size="13.0" />
                         </font>
                     </Text>
                 </HBox>
                 <HBox alignment="CENTER_LEFT" spacing="5.0">
                     <CheckBox fx:id="specialCharCheckbox" mnemonicParsing="false" selected="true">
                         <font>
-                            <Font size="12.0"/>
+                            <Font size="12.0" />
                         </font>
                     </CheckBox>
-                    <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon"
-                          text="\@!/#">
+                    <Text opacity="0.5" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text-icon" text="\@!/#">
                         <font>
-                            <Font name="Helvetica Neue Light Italic" size="13.0"/>
+                            <Font name="Helvetica Neue Light Italic" size="13.0" />
                         </font>
                     </Text>
                 </HBox>
                 <VBox spacing="5.0">
                     <VBox.margin>
-                        <Insets/>
+                        <Insets />
                     </VBox.margin>
                     <Label fx:id="passwordLengthLabel" prefHeight="20.0">
                         <font>
-                            <Font name="Helvetica Neue Medium" size="14.0"/>
+                            <Font name="Helvetica Neue Medium" size="14.0" />
                         </font>
                     </Label>
-                    <Slider fx:id="passwordLengthSlider" blockIncrement="5.0" majorTickUnit="5.0" max="25.0"
-                            min="5.0" minorTickCount="1" showTickLabels="true" showTickMarks="true"
-                            styleClass="length-bar" value="12.0">
+                    <Slider fx:id="passwordLengthSlider" blockIncrement="5.0" majorTickUnit="5.0" max="25.0" min="5.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" styleClass="length-bar" value="12.0">
                         <cursor>
-                            <Cursor fx:constant="CLOSED_HAND"/>
+                            <Cursor fx:constant="CLOSED_HAND" />
                         </cursor>
                     </Slider>
                 </VBox>
-                <Button fx:id="generatePasswordButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                        onAction="#generatePassword" styleClass="primary">
+                <Button fx:id="generatePasswordButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#generatePassword" styleClass="primary">
                     <font>
-                        <Font name="Helvetica Neue Medium" size="14.0"/>
+                        <Font name="Helvetica Neue Medium" size="14.0" />
                     </font>
                 </Button>
-                <Button fx:id="viewMyPasswordsButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false"
-                        onAction="#viewPasswords" styleClass="secondary">
+                <Button fx:id="viewMyPasswordsButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewPasswords" styleClass="secondary">
                     <font>
-                        <Font name="Helvetica Neue Medium" size="14.0"/>
+                        <Font name="Helvetica Neue Medium" size="14.0" />
                     </font>
                 </Button>
             </VBox>
         </center>
         <left>
-            <Region prefWidth="100.0" BorderPane.alignment="CENTER"/>
+            <Region prefWidth="100.0" BorderPane.alignment="CENTER" />
         </left>
         <right>
-            <Region prefWidth="100.0" BorderPane.alignment="CENTER"/>
+            <Region prefWidth="100.0" BorderPane.alignment="CENTER" />
         </right>
         <bottom>
-          <HBox alignment="CENTER" prefHeight="50.0" BorderPane.alignment="CENTER"/>
+          <HBox alignment="CENTER" prefHeight="50.0" BorderPane.alignment="CENTER" />
         </bottom>
     </BorderPane>
 </VBox>
