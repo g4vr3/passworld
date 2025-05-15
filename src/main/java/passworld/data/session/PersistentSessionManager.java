@@ -8,13 +8,38 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Properties;
 
 public class PersistentSessionManager {
 
     private static final String API_KEY = "AIzaSyB02VJOwdZp-QTf43icfVew7x0uNcdGEHE";
-    private static final String AUTH_FILE = "auth.properties";
+    private static final String authFilePath;
+
+    static {
+        String userHome = System.getProperty("user.home");
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win")) {
+            authFilePath = userHome + "\\AppData\\Local\\passworld\\auth\\auth.properties";
+        } else if (os.contains("mac")) {
+            authFilePath = userHome + "/Library/Application Support/passworld/auth/auth.properties";
+        } else {
+            authFilePath = userHome + "/.local/share/passworld/auth/auth.properties";
+        }
+
+        File authDir = new File(authFilePath).getParentFile();
+        if (!authDir.exists()) {
+            boolean created = authDir.mkdirs();
+            if (created) {
+                System.out.println("Directorio creado: " + authDir.getAbsolutePath());
+            } else {
+                System.out.println("No se pudo crear el directorio.");
+            }
+        }
+    }
 
     // Comprueba si hay un token guardado localmente
     public static boolean tokenSavedLocally() {
@@ -114,7 +139,7 @@ public class PersistentSessionManager {
 
     // Borra los tokens
     public static void clearTokens() {
-        new File(AUTH_FILE).delete();
+        new File(authFilePath).delete();
         UserSession.getInstance().clearSession();
     }
 
@@ -215,14 +240,14 @@ public class PersistentSessionManager {
 
     private static Properties loadProperties() {
         Properties props = new Properties();
-        try (FileInputStream in = new FileInputStream(AUTH_FILE)) {
+        try (FileInputStream in = new FileInputStream(authFilePath)) {
             props.load(in);
         } catch (Exception ignored) {}
         return props;
     }
 
     private static void saveProperties(Properties props) {
-        try (FileOutputStream out = new FileOutputStream(AUTH_FILE)) {
+        try (FileOutputStream out = new FileOutputStream(authFilePath)) {
             props.store(out, null);
         } catch (Exception e) {
             e.printStackTrace();
