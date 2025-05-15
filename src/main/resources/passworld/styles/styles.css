@@ -421,3 +421,13 @@ bold-label {
     -fx-text-fill: tomato;
     -fx-font-size: 12px;
 }
+
+.search-bar {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #c8c8c8 transparent; /* Línea fina abajo */
+    -fx-border-width: 0 0 1px 0; /* Solo la línea inferior */
+    -fx-border-radius: 0px; /* Sin bordes redondeados */
+    -fx-padding: 0 0 5px 0; /* Sin padding */
+    -fx-focus-color: #c8c8c8; /* Color de la línea al enfocar */
+    -fx-faint-focus-color: transparent; /* Sin color de enfoque tenue */
+}

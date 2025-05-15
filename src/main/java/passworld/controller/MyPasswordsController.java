@@ -1,30 +1,29 @@
 package passworld.controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
-import passworld.data.session.PersistentSessionManager;
 import passworld.data.session.UserSession;
 import passworld.data.sync.SyncHandler;
 import passworld.service.LanguageManager;
 import passworld.service.SecurityFilterManager;
-import passworld.utils.DialogUtil;
-import passworld.utils.Notifier;
+import passworld.utils.*;
 import passworld.service.PasswordManager;
-import passworld.utils.ThemeManager;
-import passworld.utils.ViewManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,8 +76,17 @@ public class MyPasswordsController {
     private Button newPasswordButton;
     @FXML
     private ImageView newPasswordImageView;
+    @FXML
+    private ImageView searchImageView;
+    @FXML
+    private Button searchButton;
+    @FXML
+    private HBox tableHeaderHBox;
+    @FXML
+    private Region tableHeaderRegion;
 
     private Button activeFilterButton; // Variable para rastrear el filtro activo
+    private final TextField searchField = new TextField(); // Campo de búsqueda
 
     private Image protectIcon;
     private Image issuePasswordsIcon;
@@ -122,7 +130,7 @@ public class MyPasswordsController {
 
         // Resaltar el botón de todas las contraseñas
         highlightSelectedFilterButton(showAllPasswordsButton);
-        
+
         // Mostrar u ocultar el ComboBox de ordenación según los datos
         sortComboBox.setVisible(!passwordList.isEmpty());
 
@@ -136,6 +144,10 @@ public class MyPasswordsController {
 
         // Etiqueta de descripción de los registros mostrados en la tabla
         myPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
+
+        // Configurar el botón de búsqueda
+        HBox searchBar = createSearchBar(searchButton, searchImageView, passwordList, issuePasswordsList, passwordTable);
+        tableHeaderHBox.getChildren().add(2, searchBar);
 
         // Agregar el listener para el ComboBox
         sortComboBox.setOnAction(_ -> sortPasswords(passwordTable.getItems()));
@@ -188,6 +200,9 @@ public class MyPasswordsController {
 
     private void loadPasswords() {
         try {
+            // Guardar el filtro actual
+            String currentFilter = searchField.getText().toLowerCase();
+
             // Obtener datos de la base de datos y almacenarlos en la lista original
             List<PasswordDTO> passwords = PasswordDAO.readAllPasswords();
             passwordList.setAll(passwords); // Actualizar la lista observable
@@ -195,25 +210,33 @@ public class MyPasswordsController {
                     .filter(SecurityFilterManager::hasPasswordSecurityIssues)
                     .collect(Collectors.toList())); // Actualizar la lista de contraseñas con problemas
 
-            passwordTable.setItems(passwordList);
-            sortPasswords(passwordList); // Ordenar las contraseñas
+            // Restaurar la lista activa
+            ObservableList<PasswordDTO> activeList = activeFilterButton == showIssuePasswordsButton ? issuePasswordsList : passwordList;
+            passwordTable.setItems(activeList);
 
-            // Mostrar u ocultar el ComboBox de ordenación
-            sortComboBox.setVisible(!passwordList.isEmpty());
+            // ordenar la lista activa
+            sortPasswords(activeList);
 
-            adjustTableHeight(passwordList.size());
+            // Aplicar el filtro actual
+            if (!currentFilter.isEmpty()) {
+                FilteredList<PasswordDTO> filteredPasswords = new FilteredList<>(activeList, password ->
+                        (password.getDescription() != null && password.getDescription().toLowerCase().startsWith(currentFilter)) ||
+                        (password.getUsername() != null && password.getUsername().toLowerCase().startsWith(currentFilter)) ||
+                        (password.getUrl() != null && password.getUrl().toLowerCase().startsWith(currentFilter)));
+                passwordTable.setItems(filteredPasswords);
+                adjustTableHeight(filteredPasswords.size());
+            } else {
+                adjustTableHeight(activeList.size());
+            }
 
             // Actualizar el texto de los botones
             allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
             issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
 
-            // Asignar el icono y texto al botón de mostrar contraseñas con problemas
-            updateIssuePasswordsButton();
-            if (activeFilterButton == showIssuePasswordsButton && !issuePasswordsList.isEmpty()) {
-                showIssuePasswords();
-            } else {
-                showAllPasswords();
-            }
+            // Mostrar u ocultar el ComboBox de ordenación
+            sortComboBox.setVisible(!passwordList.isEmpty());
+
+            passwordTable.refresh();
 
         } catch (SQLException e) {
             System.err.println("ERROR: " + e.getMessage());
@@ -222,6 +245,9 @@ public class MyPasswordsController {
 
     @FXML
     private void showAllPasswords() {
+        // Cerrar búsqueda si está abierta
+        toggleSearchBar(false);
+
         passwordTable.setItems(passwordList); // Mostrar todas las contraseñas
         myPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_all"));
         sortPasswords(passwordList); // Ordenar la lista completa
@@ -242,6 +268,9 @@ public class MyPasswordsController {
 
     @FXML
     private void showIssuePasswords() {
+        // Cerrar búsqueda si está abierta
+        toggleSearchBar(false);
+
         passwordTable.setItems(issuePasswordsList); // Mostrar solo las contraseñas con problemas
         myPasswordsHeaderLabel.setText(getBundle().getString("password_entry_header_issue"));
         sortPasswords(issuePasswordsList); // Ordenar la lista de contraseñas con problemas
@@ -598,4 +627,91 @@ public class MyPasswordsController {
         }, "PasswordSyncThread").start();
     }
 
+    public HBox createSearchBar(Button searchButton, ImageView searchImageView, ObservableList<PasswordDTO> passwordList, ObservableList<PasswordDTO> issuePasswordsList, TableView<PasswordDTO> passwordTable) {
+        // Crear el TextField (campo de búsqueda)
+        searchField.setPromptText(getBundle().getString("search_field_prompt"));
+        searchField.setVisible(false); // Oculto inicialmente
+        searchField.setManaged(false); // No ocupa espacio inicialmente
+        searchField.setPrefWidth(0); // Ancho inicial 0
+        searchField.getStyleClass().add("search-bar");
+
+        // Crear el botón con el icono de lupa
+        searchImageView.setImage(new Image(Objects.requireNonNull(MyPasswordsController.class.getResource("/passworld/images/search_icon.png")).toExternalForm()));
+        searchImageView.getStyleClass().add("icon");
+        ThemeManager.applyThemeToImage(searchImageView);
+
+        searchButton.getStyleClass().add("icon-button");
+
+        // Contenedor para el buscador
+        HBox searchBox = new HBox(searchField, searchButton);
+        searchBox.setSpacing(5);
+        searchBox.setAlignment(javafx.geometry.Pos.CENTER); // Centrar verticalmente
+        HBox.setHgrow(searchField, Priority.ALWAYS); // Permitir que el TextField ocupe espacio
+
+        // Animación para expandir/colapsar el buscador
+        searchButton.setOnAction(_ -> toggleSearchBar(!searchField.isVisible()));
+
+        // Lógica de filtrado
+        searchField.textProperty().addListener((_, _, newVal) -> {
+            String filter = newVal.toLowerCase();
+
+            // Determinar la lista activa
+            ObservableList<PasswordDTO> activeList = passwordTable.getItems() == issuePasswordsList ? issuePasswordsList : passwordList;
+
+            FilteredList<PasswordDTO> filteredPasswords = new FilteredList<>(activeList, password -> {
+                if (filter.isEmpty()) return true;
+
+                return (password.getDescription() != null && password.getDescription().toLowerCase().startsWith(filter)) ||
+                        (password.getUsername() != null && password.getUsername().toLowerCase().startsWith(filter)) ||
+                        (password.getUrl() != null && password.getUrl().toLowerCase().startsWith(filter));
+            });
+
+            passwordTable.setItems(filteredPasswords);
+            passwordTable.refresh(); // Actualizar la tabla para reflejar los cambios
+            adjustTableHeight(filteredPasswords.size()); // Ajustar la altura de la tabla
+        });
+
+        return searchBox;
+    }
+
+    private void toggleSearchBar(boolean expand) {
+        if (expand) {
+            searchField.setVisible(true);
+            searchField.setManaged(true);
+
+            Timeline show = new Timeline(
+                    new KeyFrame(Duration.millis(300),
+                            new KeyValue(searchField.prefWidthProperty(), 380) // Ancho expandido
+                    )
+            );
+            myPasswordsHeaderLabel.setVisible(false); // Ocultar el label al expandir
+            myPasswordsHeaderLabel.setManaged(false);
+            tableHeaderRegion.setVisible(false); // Ocultar el region de la tabla
+
+            show.play();
+            searchField.requestFocus();
+        } else {
+            Timeline collapse = new Timeline(
+                    new KeyFrame(Duration.millis(300),
+                            new KeyValue(searchField.prefWidthProperty(), 0)
+                    )
+            );
+            collapse.setOnFinished(_ -> {
+                searchField.setVisible(false);
+                searchField.setManaged(false);
+                searchField.clear();
+
+                myPasswordsHeaderLabel.setVisible(true); // Mostrar el label al colapsar
+                myPasswordsHeaderLabel.setManaged(true);
+                tableHeaderRegion.setVisible(true); // Mostrar el region de la tabla
+                tableHeaderRegion.setManaged(true);
+
+                // Restaurar la lista completa
+                passwordTable.setItems(activeFilterButton == showIssuePasswordsButton ? issuePasswordsList : passwordList);
+                passwordTable.refresh();
+                adjustTableHeight(passwordTable.getItems().size()); // Ajustar la altura de la tabla
+            });
+            collapse.play();
+        }
+    }
 }
