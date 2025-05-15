@@ -68,6 +68,8 @@ public class AuthController {
         setupValidationListeners(); // Configurar validaciones de los campos
         showLoginSection(); // Mostrar la sección de inicio de sesión por defecto
         setupKeyNavigationAndActions(); // Configurar navegación con flechas y acción de Enter
+        disablePasteOnPasswordFields(); // Deshabilitar pegado en campos de contraseña
+        disableContextMenuOnPasswordFields(); // Deshabilitar menú contextual en campos de contraseña
     }
 
     private void setupKeyNavigationAndActions() {
@@ -423,5 +425,28 @@ public class AuthController {
         alert.setHeaderText(null);  // Si necesitas un header, puedes agregarlo aquí
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    // Deshabilita el paste para los campos de confirmación de contraseñas
+    private void disablePasteOnPasswordFields() {
+        EventHandler<KeyEvent> pasteEventHandler = event -> {
+            if ((event.isControlDown() || event.isMetaDown()) && event.getCode().toString().equals("V")) {
+                event.consume();
+            }
+        };
+
+        signupConfirmPasswordField.addEventFilter(KeyEvent.KEY_PRESSED, pasteEventHandler);
+        signupConfirmMasterPasswordField.addEventFilter(KeyEvent.KEY_PRESSED, pasteEventHandler);
+    }
+
+    // Deshabilita el menú contextual en los campos de contraseñas
+    private void disableContextMenuOnPasswordFields() {
+        ContextMenu emptyContextMenu = new ContextMenu(); // Menú contextual vacío
+
+        signupPasswordField.setContextMenu(emptyContextMenu);
+        signupConfirmPasswordField.setContextMenu(emptyContextMenu);
+        signupMasterPasswordField.setContextMenu(emptyContextMenu);
+        signupConfirmMasterPasswordField.setContextMenu(emptyContextMenu);
+        loginPasswordField.setContextMenu(emptyContextMenu);
     }
 }
