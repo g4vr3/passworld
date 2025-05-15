@@ -28,6 +28,9 @@ public class HeaderConfigurator {
                 : "/passworld/images/dark_mode_icon.png";
         Image themeIcon = new Image(Objects.requireNonNull(HeaderConfigurator.class.getResource(themeIconPath)).toExternalForm());
         ImageView themeImageView = new ImageView(themeIcon);
+        // Configuración de tamaño redundante para evitar problemas de visualización
+        themeImageView.setFitWidth(15);
+        themeImageView.setFitHeight(15);
         themeImageView.getStyleClass().add("icon");
         toggleThemeButton.setGraphic(themeImageView);
         toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
