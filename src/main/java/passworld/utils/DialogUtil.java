@@ -145,7 +145,7 @@ public class DialogUtil {
         regeneratePasswordButton.setGraphic(reloadIconView);
 
 // Acción del botón
-        regeneratePasswordButton.setOnAction(event -> {
+        regeneratePasswordButton.setOnAction(_ -> {
             String newPassword = PasswordGenerator.generateDefaultPassword();
             passwordField.setText(newPassword);
         });

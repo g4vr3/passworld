@@ -26,7 +26,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class PasswordInfoController {
