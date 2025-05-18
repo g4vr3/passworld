@@ -391,19 +391,10 @@ public class PasswordInfoController {
         }
     }
 
+    // Solicitar confirmación y eliminar la contraseña
     private void deletePassword() {
-        Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationDialog.setTitle(getBundle().getString("delete_confirmation_title"));
-        confirmationDialog.setHeaderText(getBundle().getString("delete_confirmation_header"));
-        confirmationDialog.setContentText(getBundle().getString("delete_confirmation_message"));
-
-        // Aplicar el tema actual al DialogPane
-        DialogPane dialogPane = confirmationDialog.getDialogPane();
-        dialogPane.getStylesheets().add(ThemeManager.getCurrentStylesheet());
-        dialogPane.getStyleClass().add("delete-dialog");
-
-        Optional<ButtonType> confirmationResult = confirmationDialog.showAndWait();
-        if (confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK) {
+        boolean confirmed = DialogUtil.showConfirmationDialog("delete_confirmation_title", "delete_confirmation_header", "delete_confirmation_message");
+        if (confirmed) {
             passwordsController.deletePassword(password);
             ((Stage) deleteButton.getScene().getWindow()).close();
         }
