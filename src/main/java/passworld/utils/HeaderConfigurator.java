@@ -22,7 +22,6 @@ public class HeaderConfigurator {
         ThemeManager.applyThemeToImage(helpIconImageView);
         helpIconImageView.getStyleClass().add("icon");
         helpButton.setGraphic(helpIconImageView);
-        helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
 
         // Acción del botón de ayuda para abrir la web
         helpButton.setOnAction(_ -> {
@@ -52,6 +51,5 @@ public class HeaderConfigurator {
         themeImageView.setFitHeight(15);
         themeImageView.getStyleClass().add("icon");
         toggleThemeButton.setGraphic(themeImageView);
-        toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
     }
 }

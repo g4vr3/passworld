@@ -43,6 +43,7 @@ public class AuthController {
     private PasswordField signupPasswordField, signupConfirmPasswordField, signupMasterPasswordField, signupConfirmMasterPasswordField, loginPasswordField;
 
     private EventHandler<KeyEvent> keyEventHandler;
+
     public static void showView() {
         Stage mainStage = new Stage();
         FXMLLoader loader = new FXMLLoader(AuthController.class.getResource("/passworld/authentication-view.fxml"));
@@ -149,6 +150,10 @@ public class AuthController {
 
     // Establece los textos de la interfaz según el idioma seleccionado
     private void setUITexts() {
+        helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
+        toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
+        languageComboBox.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_languageComboBox")));
+
         vaultProtectionLabel.setText(LanguageManager.getBundle().getString("vaultProtectionLabel"));
         accountPasswordLabel.setText(LanguageManager.getBundle().getString("accountPasswordLabel"));
         accountMailLabel.setText(LanguageManager.getBundle().getString("accountMailLabel"));

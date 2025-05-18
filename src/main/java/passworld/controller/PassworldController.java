@@ -237,6 +237,10 @@ public class PassworldController {
 
     // Establece los textos de la interfaz con los valores del ResourceBundle
     private void setUITexts() {
+        helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
+        toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
+        languageComboBox.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_languageComboBox")));
+
         ResourceBundle bundle = LanguageManager.getBundle();  // Obtener el ResourceBundle desde LanguageSupport
         passwordLabel.setText(bundle.getString("generatedPassword_label"));
         passwordField.setPromptText(bundle.getString("prompt_generatedPasswordField"));

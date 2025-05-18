@@ -7,6 +7,7 @@ import javafx.scene.image.ImageView;
 import passworld.data.LocalAuthUtil;
 import passworld.data.exceptions.EncryptionException;
 import passworld.data.session.UserSession;
+import passworld.service.LanguageManager;
 import passworld.utils.*;
 
 import static passworld.service.LanguageManager.getBundle;
@@ -66,6 +67,10 @@ public class VaultProtectionController {
 
     // Configura el texto de la interfaz según el idioma seleccionado
     private void setUITexts() {
+        helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
+        toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
+        languageComboBox.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_languageComboBox")));
+
         vaultTitleLabel.setText(getBundle().getString("vaultProtectionLabel"));
         vaultTextLabel.setText(getBundle().getString("vaultProtectionText"));
 
