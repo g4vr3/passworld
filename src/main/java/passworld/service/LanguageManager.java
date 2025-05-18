@@ -3,7 +3,6 @@ package passworld.service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Tooltip;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
