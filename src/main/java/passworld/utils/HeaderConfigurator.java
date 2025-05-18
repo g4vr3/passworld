@@ -19,6 +19,9 @@ public class HeaderConfigurator {
         ImageView helpIconImageView = new ImageView(helpIcon);
         ThemeManager.applyThemeToImage(helpIconImageView);
         helpIconImageView.getStyleClass().add("icon");
+        // Configuración de tamaño redundante para evitar problemas de visualización
+        helpIconImageView.setFitWidth(15);
+        helpIconImageView.setFitHeight(15);
         helpButton.setGraphic(helpIconImageView);
 
         // Acción del botón de ayuda para abrir la web
@@ -57,6 +60,9 @@ public class HeaderConfigurator {
         logoutImageView.setImage(logoutImage);
         ThemeManager.applyThemeToImage(logoutImageView);
         logoutImageView.getStyleClass().add("icon");
+        // Configuración de tamaño redundante para evitar problemas de visualización
+        logoutImageView.setFitWidth(15);
+        logoutImageView.setFitHeight(15);
 
         // Acción del botón de logout
         logoutButton.setOnAction(_ -> {
