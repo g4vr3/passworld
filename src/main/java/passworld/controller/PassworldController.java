@@ -287,7 +287,7 @@ public class PassworldController {
 
                 // Notificar al usuario
                 Window window = savePasswordButton.getScene().getWindow();
-                Notifier.showNotification(window, LanguageManager.getBundle().getString(" "));
+                Notifier.showNotification(window, LanguageManager.getBundle().getString("toolTip_logout_success"));
 
                 // Cambiar a la vista de inicio de sesión
                 ViewManager.changeView("/passworld/authentication-view.fxml", "passworld");
