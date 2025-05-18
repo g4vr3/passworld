@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
 
 public class LanguageManager {
     private static ResourceBundle bundle;
+    private static String currentLanguage;
 
     // Lista de idiomas soportados
     private static final ObservableList<String> supportedLanguages = FXCollections.observableArrayList(
@@ -42,6 +43,7 @@ public class LanguageManager {
 
         // Carga el ResourceBundle correspondiente al idioma seleccionado
         bundle = ResourceBundle.getBundle("passworld.resource_bundle.lang_" + languageCode);
+        currentLanguage = language;
     }
 
     // Método para obtener el ResourceBundle cargado
@@ -59,14 +61,13 @@ public class LanguageManager {
 
         // Asegura que el idioma esté cargado antes de acceder al bundle
         if (bundle == null) {
-            loadLanguage(getSystemLanguage());
+            String systemLanguage = getSystemLanguage();
+            loadLanguage(systemLanguage);
+            languageComboBox.setValue(systemLanguage);
         }
 
-        languageComboBox.setTooltip(new Tooltip(bundle.getString("toolTip_languageComboBox")));
-
-        // Configura el idioma predeterminado del sistema
-        String systemLanguage = getSystemLanguage();
-        languageComboBox.setValue(systemLanguage);
+        // Establecer el idioma seleccionado en el ComboBox
+        languageComboBox.setValue(currentLanguage);
 
         // Cargar los textos de la UI
         setUITexts.run();
