@@ -7,8 +7,10 @@ import javafx.scene.control.Tooltip;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 public class LanguageManager {
+    private static final Preferences prefs = Preferences.userNodeForPackage(LanguageManager.class);
     private static ResourceBundle bundle;
     private static String currentLanguage;
 
@@ -21,8 +23,13 @@ public class LanguageManager {
         return supportedLanguages;
     }
 
-    // Método para obtener el idioma predeterminado del sistema
+    // Obtener el idioma predeterminado del sistema o el guardado en preferencias
     public static String getSystemLanguage() {
+        String savedLanguage = prefs.get("language", null);
+        if (savedLanguage != null) {
+            return savedLanguage;
+        }
+
         Locale systemLocale = Locale.getDefault();
         return switch (systemLocale.getLanguage()) {
             case "es" -> "Español";
@@ -44,6 +51,9 @@ public class LanguageManager {
         // Carga el ResourceBundle correspondiente al idioma seleccionado
         bundle = ResourceBundle.getBundle("passworld.resource_bundle.lang_" + languageCode);
         currentLanguage = language;
+
+        // Guarda el idioma seleccionado en las preferencias
+        prefs.put("language", language);
     }
 
     // Método para obtener el ResourceBundle cargado
