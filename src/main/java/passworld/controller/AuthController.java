@@ -224,7 +224,7 @@ public class AuthController {
 
     private boolean isPasswordWeak(PasswordField passwordField, PasswordField confirmPasswordField, Label errorLabel) {
         int strength = PasswordEvaluator.calculateStrength(passwordField.getText());
-        if (strength < 3) {
+        if (strength < 2) {
             showFieldError(passwordField, confirmPasswordField, errorLabel, "weak_password");
             passwordField.clear();
             confirmPasswordField.clear();
