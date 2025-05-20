@@ -55,6 +55,10 @@ public class EncryptionUtil {
 
     // === CIFRADO Y DESCIFRADO ===
     public static String encryptData(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
+        if (plainPassword == null || masterKey == null) {
+            throw new EncryptionException(LanguageManager.getBundle().getString("nullEncryptionInput"));
+        }
+
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, masterKey);
@@ -66,6 +70,10 @@ public class EncryptionUtil {
     }
 
     public static String decryptData(String encryptedPassword, SecretKeySpec masterKey) throws EncryptionException {
+        if (encryptedPassword == null || masterKey == null) {
+            throw new EncryptionException(LanguageManager.getBundle().getString("nullDecryptionInput"));
+        }
+
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, masterKey);

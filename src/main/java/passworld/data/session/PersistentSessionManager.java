@@ -1,6 +1,7 @@
 package passworld.data.session;
 
 import org.json.JSONObject;
+import passworld.data.exceptions.EncryptionException;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -8,8 +9,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -70,11 +69,11 @@ public class PersistentSessionManager {
     }
 
     // Refresca el token con Firebase
-    public static boolean refreshToken() {
+    public static void refreshToken() {
         try {
             Properties props = loadProperties();
             String refreshToken = props.getProperty("refreshToken");
-            if (refreshToken == null) return false;
+            if (refreshToken == null) return;
 
             String decryptedRefreshToken = decrypt(refreshToken);
             String url = "https://securetoken.googleapis.com/v1/token?key=" + API_KEY;
@@ -102,12 +101,10 @@ public class PersistentSessionManager {
                 props.setProperty("uid", encrypt(uid));
 
                 saveProperties(props);
-                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     // Establece el UID en UserSession a partir del archivo
@@ -124,11 +121,24 @@ public class PersistentSessionManager {
     }
 
     // Guarda los tokens en sesión y archivo (encriptado)
-    public static void saveTokens(String idToken, String refreshToken, String uid) throws Exception {
+    public static void saveTokens(String idToken, String refreshToken, String uid) throws EncryptionException {
         Properties props = new Properties();
-        props.setProperty("idToken", encrypt(idToken));
-        props.setProperty("refreshToken", encrypt(refreshToken));
-        props.setProperty("uid", encrypt(uid));
+        try {
+            props.setProperty("idToken", encrypt(idToken));
+        } catch (Exception e) {
+            throw new EncryptionException("Error al cifrar el idToken", e);
+        }
+
+        try {
+            props.setProperty("refreshToken", encrypt(refreshToken));
+        } catch (Exception e) {
+            throw new EncryptionException("Error al cifrar el refreshToken", e);
+        }
+        try {
+            props.setProperty("uid", encrypt(uid));
+        } catch (Exception e) {
+            throw new EncryptionException("Error al cifrar el uid", e);
+        }
 
         UserSession.getInstance().setIdToken(idToken);
         UserSession.getInstance().setRefreshToken(refreshToken);
