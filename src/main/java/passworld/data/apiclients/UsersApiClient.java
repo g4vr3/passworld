@@ -61,7 +61,7 @@ public class UsersApiClient {
     }
 
     public static void loginUser(String email, String password)
-            throws IOException, CredentialsException {
+            throws CredentialsException, IOException {
         String endpoint = "signInWithPassword?key=" + API_KEY;
         String requestBody = String.format("""
 {
@@ -78,9 +78,16 @@ public class UsersApiClient {
         if (json.has("error")) {
             String message = json.getJSONObject("error").getString("message");
             System.out.println("Error de Firebase: " + message);
-            if (message.contains("INVALID_LOGIN_CREDENTIALS") || message.contains("EMAIL_NOT_FOUND") || message.contains("INVALID_EMAIL")) {
-                throw new CredentialsException("Credenciales incorrectas");
-            } else {
+            if (message.contains("INVALID_LOGIN_CREDENTIALS") ) {
+                throw new CredentialsException("invalidpassword");
+            } else if (message.contains("EMAIL_NOT_FOUND")) {
+                throw new CredentialsException("emailnotfound");
+            } else if (message.contains("TOO_MANY_ATTEMPTS_TRY_LATER")) {
+                throw new CredentialsException("Demasiados intentos fallidos. Intenta más tarde.");
+            } else if (message.contains("USER_DISABLED")) {
+                throw new CredentialsException("user-disabled");
+            }
+            else {
                 throw new IOException("Error de autenticación: " + message);
             }
         }
