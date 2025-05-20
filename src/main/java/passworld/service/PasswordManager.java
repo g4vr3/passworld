@@ -1,7 +1,9 @@
 package passworld.service;
 
+import passworld.data.LocalAuthUtil;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
+import passworld.utils.LogUtils;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -123,9 +125,11 @@ public class PasswordManager {
         ResourceBundle bundle = LanguageManager.getBundle();
 
         if (passwordDTO.getPassword() == null || passwordDTO.getPassword().isEmpty()) {
+            LogUtils.LOGGER.severe("Password is empty");
             throw new IllegalArgumentException(bundle.getString("empty_password"));
         }
         if (passwordDTO.getDescription() == null || passwordDTO.getDescription().isEmpty()) {
+            LogUtils.LOGGER.severe("Description is empty");
             throw new IllegalArgumentException(bundle.getString("empty_description"));
         }
     }
@@ -145,6 +149,7 @@ public class PasswordManager {
                 PasswordDAO.updatePasswordSecurity(dto);
             }
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error updating passwords security: " + e);
             e.printStackTrace();
         }
     }

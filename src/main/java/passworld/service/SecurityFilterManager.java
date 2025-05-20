@@ -2,6 +2,7 @@ package passworld.service;
 
 import passworld.data.PasswordDTO;
 import passworld.utils.CompromisedPasswordChecker;
+import passworld.utils.LogUtils;
 import passworld.utils.PasswordEvaluator;
 import passworld.utils.UnsafeUrlChecker;
 
@@ -44,6 +45,7 @@ public class SecurityFilterManager {
             return CompromisedPasswordChecker.isCompromisedPassword(password);
         } catch (Exception e) {
             System.err.println("Error checking compromised password: " + e.getMessage());
+            LogUtils.LOGGER.warning("Error checking compromised password: " + e.getMessage());
             return false;
         }
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import passworld.data.PasswordDTO;
 import passworld.data.session.UserSession;
+import passworld.utils.LogUtils;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -41,6 +42,9 @@ public class PasswordsApiClient {
         String response = sendRequest(passwordsEndpoint, "POST", requestBody);
 
         Map<String, Object> responseMap = objectMapper.readValue(response, Map.class);
+
+        LogUtils.LOGGER.info("Password created successfully");
+
         // Devuelve el id generado por Firebase (clave "name")
         return responseMap != null ? (String) responseMap.get("name") : null;
     }
@@ -73,6 +77,8 @@ public class PasswordsApiClient {
                 }
             }
         }
+
+        LogUtils.LOGGER.info("User passwords read successfully from remote database");
         return passwordList;
     }
 
@@ -96,8 +102,12 @@ public class PasswordsApiClient {
             passwordDTO.setUrlUnsafe((Boolean) passwordData.getOrDefault("isUrlUnsafe", false));
             passwordDTO.setLastModified(parseLastModified(passwordData.get("lastModified")));
             passwordDTO.setIdFb(passwordId);
+
+            LogUtils.LOGGER.info("User password read successfully from remote database");
             return passwordDTO;
         }
+
+        LogUtils.LOGGER.warning("Password not found in remote database");
         return null;
     }
 
@@ -121,6 +131,8 @@ public class PasswordsApiClient {
             }
         """, description, username, url, password, isWeak, isDuplicate, isCompromised, isUrlUnsafe, lastModified);
 
+        LogUtils.LOGGER.info("User password update successfully");
+
         return sendRequest(endpoint, "PUT", requestBody);
     }
 
@@ -132,6 +144,13 @@ public class PasswordsApiClient {
 
         // Verificar si fue eliminada
         PasswordDTO deleted = readPassword(userId, passwordId);
+
+        if (deleted != null) {
+            LogUtils.LOGGER.warning("Password not deleted from remote database");
+        } else {
+            LogUtils.LOGGER.info("User password deleted successfully from remote database");
+        }
+
         return deleted == null;
     }
 
@@ -148,8 +167,12 @@ public class PasswordsApiClient {
 
         try (Response response = client.newCall(request).execute()) {
             if (response.isSuccessful() && response.body() != null) {
+
+                LogUtils.LOGGER.info("Request to remote database successfully");
+
                 return response.body().string();
             } else {
+                LogUtils.LOGGER.severe("Request to remote database failed with code: " + response.code() + " and message: " + response.message());
                 throw new IOException("Error: " + (response.body() != null ? response.body().string() : "Unknown error"));
             }
         }
@@ -166,6 +189,7 @@ public class PasswordsApiClient {
             try {
                 return LocalDateTime.parse((String) lastModifiedObj);
             } catch (Exception e) {
+                LogUtils.LOGGER.warning("Error parsing lastModified: " + e);
                 // Manejo de error si el formato no es válido
                 return null;
             }

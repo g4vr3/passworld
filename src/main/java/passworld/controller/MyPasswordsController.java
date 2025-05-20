@@ -194,6 +194,7 @@ public class MyPasswordsController {
             } catch (SQLException e) {
                 System.err.println("Error saving password: " + e.getMessage());
                 Notifier.showNotification(newPasswordButton.getScene().getWindow(), getBundle().getString("toolTip_database_error"));
+                LogUtils.LOGGER.severe("Error saving password: " + e);
             }
         });
     }
@@ -240,6 +241,7 @@ public class MyPasswordsController {
 
         } catch (SQLException e) {
             System.err.println("ERROR: " + e.getMessage());
+            LogUtils.LOGGER.severe("Error loading passwords from the local database: " + e);
         }
     }
 
@@ -295,6 +297,7 @@ public class MyPasswordsController {
         InputStream iconStream = getClass().getResourceAsStream("/passworld/images/sort_icon.png");
         if (iconStream == null) {
             System.out.println("El recurso del ícono no se encontró.");
+            LogUtils.LOGGER.warning("Sort icon resource not found");
             return;
         }
         sortImage = new Image(iconStream);
@@ -531,6 +534,7 @@ public class MyPasswordsController {
         } catch (SQLException e) {
             System.err.println("ERROR: " + e.getMessage());
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
+            LogUtils.LOGGER.severe("Error deleting password: " + e);
         }
     }
 
@@ -548,6 +552,7 @@ public class MyPasswordsController {
         } catch (SQLException e) {
             System.err.println("ERROR: " + e.getMessage());
             Notifier.showNotification(window, getBundle().getString("toolTip_database_error"));
+            LogUtils.LOGGER.severe("Error updating password: " + e);
         }
     }
 
@@ -616,6 +621,7 @@ public class MyPasswordsController {
                     // Detecta cambio de estado para debug/log (opcional)
                     if (lastOnlineStatus != isOnline || lastLoginStatus != isLoggedIn) {
                         System.out.println("Estado actualizado: online=" + isOnline + ", login=" + isLoggedIn);
+                        LogUtils.LOGGER.info("Updated status: online=" + isOnline + ", login=" + isLoggedIn);
                         lastOnlineStatus = isOnline;
                         lastLoginStatus = isLoggedIn;
                     }
@@ -626,6 +632,7 @@ public class MyPasswordsController {
                     break;
                 } catch (IOException | SQLException e) {
                     System.out.println("Error during synchronization: " + e.getMessage());
+                    LogUtils.LOGGER.severe("Error during synchronization: " + e);
                 }
             }
         }, "PasswordSyncThread").start();

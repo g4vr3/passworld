@@ -3,6 +3,7 @@ package passworld.data;
 import passworld.data.exceptions.EncryptionException;
 import passworld.data.session.UserSession;
 import passworld.utils.EncryptionUtil;
+import passworld.utils.LogUtils;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.sql.*;
@@ -37,10 +38,13 @@ public class PasswordDAO {
                     if (generatedKeys.next()) {
                         int generatedId = generatedKeys.getInt(1);
                         password.setId(generatedId);
+
+                        LogUtils.LOGGER.info("Password created successfully with ID: " + generatedId);
                         return true;
                     }
                 }
             }
+            LogUtils.LOGGER.warning("Failed to create password.");
             return false;
         }
     }
@@ -70,10 +74,13 @@ public class PasswordDAO {
                     if (generatedKeys.next()) {
                         int generatedId = generatedKeys.getInt(1);
                         password.setId(generatedId);
+
+                        LogUtils.LOGGER.info("Password created successfully with ID: " + generatedId);
                         return true;
                     }
                 }
             }
+            LogUtils.LOGGER.warning("Failed to create password.");
             return false;
         }
     }
@@ -98,7 +105,14 @@ public class PasswordDAO {
             stmt.setInt(12, password.getId());
 
             int rowsUpdated = stmt.executeUpdate();
-            return rowsUpdated > 0;
+
+            if (rowsUpdated > 0) {
+                LogUtils.LOGGER.info("Password updated successfully locally with ID: " + password.getId());
+                return true;
+            } else {
+                LogUtils.LOGGER.warning("Failed to update password with ID: " + password.getId());
+                return false;
+            }
         }
     }
     // Método para actualizar una contraseña sin encriptar
@@ -121,7 +135,14 @@ public class PasswordDAO {
             stmt.setString(12, password.getIdFb());
 
             int rowsUpdated = stmt.executeUpdate();
-            return rowsUpdated > 0;
+
+            if (rowsUpdated > 0) {
+                LogUtils.LOGGER.info("Password updated successfully locally with ID: " + password.getId());
+                return true;
+            } else {
+                LogUtils.LOGGER.warning("Failed to update password with ID: " + password.getId());
+                return false;
+            }
         }
     }
     public static boolean updatePasswordById(PasswordDTO password) throws SQLException {
@@ -140,7 +161,15 @@ public class PasswordDAO {
             stmt.setBoolean(10, password.isSynced());
             stmt.setString(11, password.getIdFb());
             stmt.setInt(12, password.getId());
-            return stmt.executeUpdate() > 0;
+
+            if (stmt.executeUpdate() > 0) {
+                LogUtils.LOGGER.info("Password updated successfully with ID: " + password.getId());
+                return true;
+            } else {
+                LogUtils.LOGGER.warning("Failed to update password with ID: " + password.getId());
+
+                return false;
+            }
         }
     }
 
@@ -172,6 +201,7 @@ public class PasswordDAO {
                 passwords.add(password);
             }
         }
+        LogUtils.LOGGER.info("Passwords read successfully from local database");
         return passwords;
     }
     public static List<PasswordDTO> readAllPasswordsDecrypted() throws SQLException {
@@ -211,7 +241,13 @@ public class PasswordDAO {
             if (rowsDeleted > 0 && idFb != null) {
                 DeletedPasswordsDAO.addDeletedIdFb(idFb);
             }
-            return rowsDeleted > 0;
+            if (rowsDeleted > 0) {
+                LogUtils.LOGGER.info("Password deleted successfully with ID: " + id);
+                return true;
+            } else {
+                LogUtils.LOGGER.warning("Failed to delete password with ID: " + id);
+                return false;
+            }
         }
     }
     public static void deletePasswordLocalOnly(int id) throws SQLException {
@@ -221,6 +257,11 @@ public class PasswordDAO {
             stmt.setInt(1, id);
             int rowsDeleted = stmt.executeUpdate();
             System.out.println("Rows deleted local only: " + rowsDeleted);
+            if (rowsDeleted > 0) {
+                LogUtils.LOGGER.info("Password deleted locally only successfully with ID: " + id);
+            } else {
+                LogUtils.LOGGER.warning("Failed to delete locally only password with ID: " + id);
+            }
         }
     }
 
@@ -230,7 +271,14 @@ public class PasswordDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             int rowsDeleted = stmt.executeUpdate();
-            return rowsDeleted > 0;
+
+            if (rowsDeleted > 0) {
+                LogUtils.LOGGER.info("All passwords deleted successfully");
+                return true;
+            } else {
+                LogUtils.LOGGER.warning("Failed to delete all passwords");
+                return false;
+            }
         }
     }
 
@@ -278,6 +326,7 @@ public class PasswordDAO {
             SecretKeySpec key = UserSession.getInstance().getMasterKey();
             return EncryptionUtil.encryptData(plainText, key);
         } catch (EncryptionException e) {
+            LogUtils.LOGGER.severe("Error encrypting data: " + e);
             throw new RuntimeException("Error al cifrar el dato: " + e.getMessage(), e);
         }
     }
@@ -287,6 +336,7 @@ public class PasswordDAO {
             SecretKeySpec key = UserSession.getInstance().getMasterKey();
             return EncryptionUtil.decryptData(encryptedText, key);
         } catch (EncryptionException e) {
+            LogUtils.LOGGER.severe("Error decrypting data: " + e);
             throw new RuntimeException("Error al descifrar el dato: " + e.getMessage(), e);
         }
     }

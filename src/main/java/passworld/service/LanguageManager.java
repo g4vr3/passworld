@@ -3,6 +3,7 @@ package passworld.service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
+import passworld.utils.LogUtils;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -51,8 +52,11 @@ public class LanguageManager {
         bundle = ResourceBundle.getBundle("passworld.resource_bundle.lang_" + languageCode);
         currentLanguage = language;
 
+        LogUtils.LOGGER.info("Language loaded: " + language);
+
         // Guarda el idioma seleccionado en las preferencias
         prefs.put("language", language);
+        LogUtils.LOGGER.info("Language preferences saved: " + language);
     }
 
     // Método para obtener el ResourceBundle cargado
