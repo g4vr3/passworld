@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import passworld.controller.SplashScreenController;
 import passworld.data.DDL;
+import passworld.utils.LogUtils;
 import passworld.utils.ViewManager;
 
 import java.io.IOException;
@@ -18,6 +19,10 @@ import java.util.Objects;
 public class PassworldApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
+
+        // Log de inicio de la aplicación
+        LogUtils.LOGGER.info("\n\n\n---------Application STARTED---------");
+
         // Crear la base de datos si no existe
         DDL.createDatabase();
 
@@ -45,6 +50,11 @@ public class PassworldApplication extends Application {
 
         // Mostrar el splash
         splash.show();
+
+        // Log de cierre de la aplicación
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+                LogUtils.LOGGER.info("\n\n\n---------Application EXITED---------")
+        ));
     }
 
     public static void main(String[] args) {
