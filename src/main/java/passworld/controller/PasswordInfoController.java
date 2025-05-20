@@ -84,6 +84,7 @@ public class PasswordInfoController {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Error loading PasswordInfoController: " + e.getMessage());
+            LogUtils.LOGGER.severe("Error loading passwordInfo view: " + e);
         }
     }
 
@@ -257,10 +258,12 @@ public class PasswordInfoController {
         try {
             SecretKeySpec masterKey = UserSession.getInstance().getMasterKey();
             if (masterKey == null) {
+                LogUtils.LOGGER.severe("Master key not available");
                 throw new IllegalStateException("Master key no disponible");
             }
             return EncryptionUtil.decryptData(encryptedData, masterKey);
         } catch (EncryptionException e) {
+            LogUtils.LOGGER.severe("Error decrypting password: " + e);
             Notifier.showNotification(
                     copyButton.getScene().getWindow(),
                     getBundle().getString("error_decrypting_password")
@@ -383,9 +386,11 @@ public class PasswordInfoController {
 
                 // Mostrar notificación de éxito
                 Notifier.showNotification(saveButton.getScene().getWindow(), getBundle().getString("password_updated_successfully"));
+                LogUtils.LOGGER.info("Password updated successfully");
             } else {
                 // Manejar el caso en que no se pueda recargar el objeto
                 Notifier.showNotification(saveButton.getScene().getWindow(), getBundle().getString("error_loading_password"));
+                LogUtils.LOGGER.severe("Error loading password after update");
             }
         }
     }

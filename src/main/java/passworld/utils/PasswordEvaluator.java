@@ -28,6 +28,7 @@ public class PasswordEvaluator {
                 commonWordsTrie.insert(line.trim().toLowerCase());
             }
         } catch (IOException | NullPointerException e) {
+            LogUtils.LOGGER.severe("Error loading common words file: " + e);
             throw new RuntimeException("Error loading common words file", e);
         }
     }

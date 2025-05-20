@@ -2,6 +2,7 @@ package passworld.data.session;
 
 import org.json.JSONObject;
 import passworld.data.exceptions.EncryptionException;
+import passworld.utils.LogUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -34,8 +35,10 @@ public class PersistentSessionManager {
             boolean created = authDir.mkdirs();
             if (created) {
                 System.out.println("Directorio creado: " + authDir.getAbsolutePath());
+                LogUtils.LOGGER.info("Auth direcroty created successfully: " + authDir.getAbsolutePath());
             } else {
                 System.out.println("No se pudo crear el directorio.");
+                LogUtils.LOGGER.severe("Failed to create auth directory: " + authDir.getAbsolutePath());
             }
         }
     }
@@ -49,6 +52,7 @@ public class PersistentSessionManager {
                 UserSession.getInstance().setRefreshToken(decrypt(refreshToken));
                 return true;
             } catch (Exception e) {
+                LogUtils.LOGGER.severe("Error fetching the refresh token: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -62,8 +66,10 @@ public class PersistentSessionManager {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(2000);
             conn.connect();
+            LogUtils.LOGGER.info("Internet connection available");
             return conn.getResponseCode() == 200;
         } catch (Exception e) {
+
             return false;
         }
     }
@@ -101,8 +107,10 @@ public class PersistentSessionManager {
                 props.setProperty("uid", encrypt(uid));
 
                 saveProperties(props);
+                LogUtils.LOGGER.info("Token refreshed successfully with Firebase");
             }
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error refreshing token with Firebase: " + e);
             e.printStackTrace();
         }
     }
@@ -114,7 +122,9 @@ public class PersistentSessionManager {
         if (uid != null) {
             try {
                 UserSession.getInstance().setUserId(decrypt(uid));
+                LogUtils.LOGGER.info("User id set successfully");
             } catch (Exception e) {
+                LogUtils.LOGGER.severe("Error setting the user id: " + e);
                 e.printStackTrace();
             }
         }
@@ -125,18 +135,24 @@ public class PersistentSessionManager {
         Properties props = new Properties();
         try {
             props.setProperty("idToken", encrypt(idToken));
+            LogUtils.LOGGER.info("idToken encrypted successfully");
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error encrypting the idToken: " + e);
             throw new EncryptionException("Error al cifrar el idToken", e);
         }
 
         try {
             props.setProperty("refreshToken", encrypt(refreshToken));
+            LogUtils.LOGGER.info("refreshToken encrypted successfully");
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error encrypting the refreshToken: " + e);
             throw new EncryptionException("Error al cifrar el refreshToken", e);
         }
         try {
             props.setProperty("uid", encrypt(uid));
+            LogUtils.LOGGER.info("uid encrypted successfully");
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error encrypting the uid: " + e);
             throw new EncryptionException("Error al cifrar el uid", e);
         }
 
@@ -145,6 +161,7 @@ public class PersistentSessionManager {
         UserSession.getInstance().setUserId(uid);
 
         saveProperties(props);
+        LogUtils.LOGGER.info("Tokens saved successfully");
     }
 
     // Borra los tokens
@@ -159,6 +176,7 @@ public class PersistentSessionManager {
             JSONObject jsonObject = new JSONObject(json);
             return jsonObject.getString(key);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error extracting JSON value: " + e);
             e.printStackTrace();
             return null;
         }
@@ -202,8 +220,10 @@ public class PersistentSessionManager {
                 // PowerShell moderno para Windows 10/11
                 String command = "powershell -Command \"(Get-CimInstance -Class Win32_ComputerSystemProduct).UUID\"";
                 process = Runtime.getRuntime().exec(command);
+                LogUtils.LOGGER.info("Executing command: " + command);
             } else if (os.contains("mac")) {
                 process = Runtime.getRuntime().exec(new String[]{"ioreg", "-rd1", "-c", "IOPlatformExpertDevice"});
+                LogUtils.LOGGER.info("Executing command: ioreg -rd1 -c IOPlatformExpertDevice");
             } else if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
                 File machineId = new File("/etc/machine-id");
                 if (machineId.exists()) {
@@ -217,6 +237,7 @@ public class PersistentSessionManager {
                     return cachedUUID;
                 }
 
+                LogUtils.LOGGER.warning("No such machine-id: " + cachedUUID);
                 process = Runtime.getRuntime().exec("cat /etc/machine-id");
             }
 
@@ -234,6 +255,7 @@ public class PersistentSessionManager {
             }
 
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error getting system UUID: " + e);
             e.printStackTrace();
         }
 
@@ -260,6 +282,7 @@ public class PersistentSessionManager {
         try (FileOutputStream out = new FileOutputStream(authFilePath)) {
             props.store(out, null);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error saving properties: " + e);
             e.printStackTrace();
         }
     }

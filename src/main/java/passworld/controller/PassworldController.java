@@ -226,9 +226,11 @@ public class PassworldController {
                         Notifier.showNotification(window, bundle.getString("toolTip_password_not_saved"));
                     }
                 } catch (IllegalArgumentException e) {
+                    LogUtils.LOGGER.severe("Validation error while saving password: " + e);
                     // Mostrar mensaje de error de validación
                     Notifier.showNotification(window, e.getMessage());
                 } catch (SQLException e) {
+                    LogUtils.LOGGER.severe("Database error while saving password: " + e);
                     System.err.println("Error al guardar la contraseña: " + e.getMessage());
                     // Mostrar mensaje de error de base de datos
                     Notifier.showNotification(window, bundle.getString("toolTip_database_error"));
@@ -287,11 +289,14 @@ public class PassworldController {
 
                 // Notificar al usuario
                 Window window = savePasswordButton.getScene().getWindow();
+
+                LogUtils.LOGGER.info("Logout successful");
                 Notifier.showNotification(window, LanguageManager.getBundle().getString("toolTip_logout_success"));
 
                 // Cambiar a la vista de inicio de sesión
                 ViewManager.changeView("/passworld/authentication-view.fxml", "passworld");
             } catch (Exception e) {
+                LogUtils.LOGGER.severe("Error while logging out: " + e);
                 System.err.println("Error al cerrar sesión: " + e.getMessage());
                 e.printStackTrace();
                 // Mostrar mensaje de error

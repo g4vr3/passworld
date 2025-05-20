@@ -27,9 +27,11 @@ public class TimeSyncManager {
 
                 timeOffset = Duration.between(localNow, serverTime);
                 System.out.println("[TimeSyncManager] Offset calculado: " + timeOffset.getSeconds() + " segundos");
+                LogUtils.LOGGER.info("[TimeSyncManager] Offset: " + timeOffset.getSeconds() + " seconds");
             }
         } catch (Exception e) {
             System.err.println("[TimeSyncManager] Error al sincronizar hora: " + e.getMessage());
+            LogUtils.LOGGER.warning("[TimeSyncManager] Error syncing time: " + e);
         }
     }
 

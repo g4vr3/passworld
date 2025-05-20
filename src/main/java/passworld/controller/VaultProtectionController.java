@@ -101,7 +101,10 @@ public class VaultProtectionController {
                 // Si la contraseña es válida, se establece la clave maestra en la sesión
                 try {
                     UserSession.getInstance().setMasterKey(EncryptionUtil.deriveAESKey(enteredPassword));
+                    LogUtils.LOGGER.info("Master key derived successfully");
                 } catch (EncryptionException e) {
+                    LogUtils.LOGGER.severe("Error deriving key: " + e);
+
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Error");
                     alert.setContentText(getBundle().getString("errorDerivingKey"));
@@ -121,6 +124,8 @@ public class VaultProtectionController {
 
                 // Agitar el campo de contraseña
                 AnimationUtil.shakeField(masterPasswordField);
+
+                LogUtils.LOGGER.warning("Master key verification failed");
             }
         });
     }
@@ -133,6 +138,8 @@ public class VaultProtectionController {
             // Verifica la contraseña ingresada usando EncryptionUtil
             return EncryptionUtil.verifyMasterPassword(enteredPassword, storedHash);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error while validating password: " + e);
+
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Error");
             alert.setContentText(e.getMessage());

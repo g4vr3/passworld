@@ -29,6 +29,7 @@ public class EncryptionUtil {
             byte[] hash = factory.generateSecret(spec).getEncoded();
             return Base64.getEncoder().encodeToString(hash);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error hashing master password: " + e);
             throw new EncryptionException(LanguageManager.getBundle().getString("errorHashingMasterPassword"), e);
         }
     }
@@ -38,6 +39,7 @@ public class EncryptionUtil {
             String hashOfInput = hashMasterPassword(enteredPassword);
             return hashOfInput.equals(storedHashBase64);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error verifying master password: " + e);
             throw new EncryptionException(LanguageManager.getBundle().getString("errorVerifyingMasterPassword"), e);
         }
     }
@@ -49,6 +51,7 @@ public class EncryptionUtil {
             byte[] derivedKey = factory.generateSecret(spec).getEncoded();
             return new SecretKeySpec(derivedKey, ALGORITHM);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error deriving AES key: " + e);
             throw new EncryptionException(LanguageManager.getBundle().getString("errorDerivingAESKey"), e);
         }
     }
@@ -56,6 +59,7 @@ public class EncryptionUtil {
     // === CIFRADO Y DESCIFRADO ===
     public static String encryptData(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
         if (plainPassword == null || masterKey == null) {
+            LogUtils.LOGGER.severe("Error decrypting data: Data is null");
             throw new EncryptionException(LanguageManager.getBundle().getString("nullEncryptionInput"));
         }
 
@@ -65,12 +69,14 @@ public class EncryptionUtil {
             byte[] encrypted = cipher.doFinal(plainPassword.getBytes());
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error encrypting data: " + e);
             throw new EncryptionException(LanguageManager.getBundle().getString("errorEncryptingPassword"), e);
         }
     }
 
     public static String decryptData(String encryptedPassword, SecretKeySpec masterKey) throws EncryptionException {
         if (encryptedPassword == null || masterKey == null) {
+            LogUtils.LOGGER.severe("Error decrypting data: Data is null");
             throw new EncryptionException(LanguageManager.getBundle().getString("nullDecryptionInput"));
         }
 
@@ -80,6 +86,7 @@ public class EncryptionUtil {
             byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedPassword));
             return new String(decrypted);
         } catch (Exception e) {
+            LogUtils.LOGGER.severe("Error decrypting data: " + e);
             throw new EncryptionException(LanguageManager.getBundle().getString("errorDecryptingPassword"), e);
         }
     }

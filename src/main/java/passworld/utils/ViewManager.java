@@ -50,6 +50,7 @@ public class ViewManager {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Error loading FXML file: " + e.getMessage());
+            LogUtils.LOGGER.severe("Error loading FXML file: " + fxmlPath + "/n" + e);
         }
     }
 

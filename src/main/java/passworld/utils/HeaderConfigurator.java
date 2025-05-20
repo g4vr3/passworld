@@ -31,6 +31,7 @@ public class HeaderConfigurator {
                 java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
             } catch (Exception e) {
                 System.err.println("Error al abrir la URL de ayuda: " + url);
+                LogUtils.LOGGER.warning("Error opening help URL: " + url);
                 e.printStackTrace();
             }
         });
