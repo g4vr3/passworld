@@ -84,6 +84,9 @@ public class MyPasswordsController {
     private HBox tableHeaderHBox;
     @FXML
     private Region tableHeaderRegion;
+    @FXML
+    private ImageView syncStatusImageView;
+
 
     private Button activeFilterButton; // Variable para rastrear el filtro activo
     private final TextField searchField = new TextField(); // Campo de búsqueda
@@ -176,6 +179,10 @@ public class MyPasswordsController {
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
         issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
         syncPasswordsPeriodically();
+
+        // TODO: Logica
+        // Estado de sincronización en pendiente por defecto
+        toggleSyncStatus(false);
     }
 
     private void createNewPassword() {
@@ -724,5 +731,17 @@ public class MyPasswordsController {
             });
             collapse.play();
         }
+    }
+
+    // Alternar el icono de sincronización
+    public void toggleSyncStatus(boolean syncStatus) {
+        if (syncStatus) {
+            syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/sync_icon.png")).toExternalForm()));
+            myPasswordsHeaderLabel.setTooltip(new Tooltip(getBundle().getString("sync_status_label_synced")));
+        } else {
+            syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/sync_pending_icon.png")).toExternalForm()));
+            myPasswordsHeaderLabel.setTooltip(new Tooltip(getBundle().getString("sync_status_label_syncing")));
+        }
+        ThemeManager.applyThemeToImage(syncStatusImageView);
     }
 }
