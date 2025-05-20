@@ -13,12 +13,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import passworld.data.LocalAuthUtil;
 import passworld.data.apiclients.UsersApiClient;
+import passworld.data.exceptions.CredentialsException;
+import passworld.data.exceptions.EncryptionException;
 import passworld.data.session.PersistentSessionManager;
 import passworld.data.session.UserSession;
 import passworld.service.LanguageManager;
 import passworld.utils.*;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
@@ -285,6 +288,20 @@ public class AuthController {
         }
         return true;
     }
+    private void handleCredentialsException(TextField field, Label errorLabel, String errorMessageKey) {
+        // Limpiar el campo
+        field.clear();
+
+        // Aplicar estilo error-border si no está ya aplicado
+        if (!field.getStyleClass().contains("error-border")) {
+            field.getStyleClass().add("error-border");
+        }
+
+        // Mostrar mensaje de error
+        errorLabel.setText(LanguageManager.getBundle().getString(errorMessageKey));
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
+    }
 
     // Limpia los estilos de error de un campo si ya no está vacío
     private void clearErrorStyles(TextField field, Label errorLabel) {
@@ -338,14 +355,40 @@ public class AuthController {
 
         // Si es válido, proceder con el registro
         try {
+            String hashedMasterPassword = UsersApiClient.registerUserWithMasterPassword(
+                    signupMailField.getText(),
+                    signupPasswordField.getText(),
+                    signupMasterPasswordField.getText()
+            );
 
-            String hashedMasterPassword = UsersApiClient.registerUserWithMasterPassword(signupMailField.getText(), signupPasswordField.getText(), signupMasterPasswordField.getText());
             LocalAuthUtil.clearMasterPassword();
             LocalAuthUtil.saveMasterPasswordHash(hashedMasterPassword);
+
             UserSession userSession = UserSession.getInstance();
-            PersistentSessionManager.saveTokens(userSession.getIdToken(), userSession.getRefreshToken(), userSession.getUserId());
-        } catch (Exception e) {
-            showErrorAlert("signUpErrorTitle",e.getMessage()); // Fallback para errores no controlados
+            PersistentSessionManager.saveTokens(
+                    userSession.getIdToken(),
+                    userSession.getRefreshToken(),
+                    userSession.getUserId()
+            );
+        }
+        catch (CredentialsException ce) {
+            if (!signupPasswordField.getStyleClass().contains("error-border")) {
+                signupPasswordField.getStyleClass().add("error-border");
+            }
+
+            if (!signupConfirmPasswordField.getStyleClass().contains("error-border")) {
+                signupConfirmPasswordField.getStyleClass().add("error-border");
+            }
+            if (!signupMailField.getStyleClass().contains("error-border")) {
+                signupMailField.getStyleClass().add("error-border");
+            }
+
+        }
+        catch (IOException ioe) {
+            showErrorAlert("signupErrorTitle", "network_error");
+        }
+        catch (SQLException | EncryptionException e) {
+            showErrorAlert("signupErrorTitle", e.getMessage());
         }
 
         // Solicitar desbloqueo de base de datos
@@ -372,9 +415,28 @@ public class AuthController {
             UserSession userSession = UserSession.getInstance();
             PersistentSessionManager.saveTokens(userSession.getIdToken(), userSession.getRefreshToken(), userSession.getUserId());
             // Continuar al dashboard o pantalla principal
-        } catch (Exception e) {
-            showErrorAlert("loginErrorTitle", e.getMessage());
         }
+        catch (CredentialsException | IOException e) {
+            if (e.getMessage().equals("emailnotfound")) {
+                handleCredentialsException(loginMailField, loginEmailErrorLabel, "email_not_found");
+            } else if (e.getMessage().equals("invalidpassword")) {
+                handleCredentialsException(loginPasswordField, loginPasswordErrorLabel, "invalid_password");
+            } else if (e.getMessage().equals("user-disabled")) {
+                handleCredentialsException(loginMailField, loginEmailErrorLabel, "user_disabled");
+            } else if (e.getMessage().equals("user-not-found")) {
+                handleCredentialsException(loginMailField, loginEmailErrorLabel, "user_not_found");
+            }
+            return;
+        } catch (EncryptionException ex) {;
+            showErrorAlert("loginErrorTitle", ex.getMessage());
+            return;
+        } catch (SQLException ex) {
+            showErrorAlert(ex.getMessage(), ex.getMessage());
+            return;
+        }
+
+
+
 
         // Solicitar desbloqueo de base de datos
         removeKeyEventFilter();

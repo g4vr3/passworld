@@ -181,26 +181,19 @@ public class PasswordDAO {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            SecretKeySpec key = UserSession.getInstance().getMasterKey();
             while (rs.next()) {
-                try {
-                    PasswordDTO password = mapResultSetToPasswordDTO(rs);
+                PasswordDTO password = mapResultSetToPasswordDTO(rs);
 
-                    if (password.getPassword() != null)
-                        password.setPassword(EncryptionUtil.decryptData(password.getPassword(), key));
-                    if (password.getDescription() != null)
-                        password.setDescription(EncryptionUtil.decryptData(password.getDescription(), key));
-                    if (password.getUsername() != null)
-                        password.setUsername(EncryptionUtil.decryptData(password.getUsername(), key));
-                    if (password.getUrl() != null)
-                        password.setUrl(EncryptionUtil.decryptData(password.getUrl(), key));
+                if (password.getPassword() != null)
+                    password.setPassword( decryptData(password.getPassword()));
+                if (password.getDescription() != null)
+                    password.setDescription(decryptData(password.getDescription()));
+                if (password.getUsername() != null)
+                    password.setUsername(decryptData(password.getUsername()));
+                if (password.getUrl() != null)
+                    password.setUrl(decryptData(password.getUrl()));
 
-                    passwords.add(password);
-                } catch (EncryptionException e) {
-                    System.out.println("Error al desencriptar la contraseña: " + e.getMessage());
-                    e.printStackTrace();
-                    // Continúa con la siguiente contraseña
-                }
+                passwords.add(password);
             }
         }
         return passwords;
@@ -289,7 +282,7 @@ public class PasswordDAO {
         }
     }
     private static String decryptData(String encryptedText) {
-        if (encryptedText == null) return null;
+        if (encryptedText == null || encryptedText.equals("null")) return null;
         try {
             SecretKeySpec key = UserSession.getInstance().getMasterKey();
             return EncryptionUtil.decryptData(encryptedText, key);
