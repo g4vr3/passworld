@@ -1,7 +1,12 @@
 package passworld.data.session;
 
+import passworld.data.LocalAuthUtil;
+import passworld.data.PasswordDAO;
+
 import javax.crypto.spec.SecretKeySpec;
+import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class UserSession {
     private static UserSession instance;
@@ -62,7 +67,7 @@ public class UserSession {
     }
 
     // Limpia todos los datos sensibles de la sesión
-    public void clearSession() {
+    public void clearSession() throws SQLException {
         loggedIn = false;
         userId = null;
         if (idToken != null) {
@@ -74,6 +79,9 @@ public class UserSession {
             refreshToken = null;
         }
         clearMasterKey();
+        LocalAuthUtil.clearMasterPassword();
+        PasswordDAO.deleteAllPasswords();
+
     }
 
     // Limpia la master key de memoria

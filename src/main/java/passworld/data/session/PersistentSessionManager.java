@@ -10,6 +10,9 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.Base64;
 import java.util.Properties;
 
@@ -166,8 +169,14 @@ public class PersistentSessionManager {
 
     // Borra los tokens
     public static void clearTokens() {
-        new File(authFilePath).delete();
-        UserSession.getInstance().clearSession();
+        try {
+            UserSession.getInstance().clearSession();
+            Files.delete(Path.of(authFilePath));
+        } catch (SQLException | IOException e) {
+            LogUtils.LOGGER.severe("Error clearing tokens: " + e);
+        }
+
+
     }
 
     // Extrae un valor de un JSON plano
