@@ -6,6 +6,7 @@ import passworld.data.exceptions.CredentialsException;
 import passworld.data.exceptions.EncryptionException;
 import passworld.data.session.UserSession;
 import passworld.utils.EncryptionUtil;
+import passworld.utils.LogUtils;
 
 
 import java.io.IOException;
@@ -32,10 +33,14 @@ public class UsersApiClient {
         String registerResponse;
         try {
             registerResponse = sendRequest(registerEndpoint, "POST", registerRequestBody);
+
+            LogUtils.LOGGER.info("User registered successfully");
         } catch (IOException e) {
             if (e.getMessage().contains("EMAIL_EXISTS")) {
+                LogUtils.LOGGER.warning("User already exists");
                 throw new CredentialsException("El usuario ya existe.");
             } else {
+                LogUtils.LOGGER.severe("Error during user registration: " + e);
                 throw e;
             }
         }
@@ -77,17 +82,23 @@ public class UsersApiClient {
         JSONObject json = new JSONObject(response);
         if (json.has("error")) {
             String message = json.getJSONObject("error").getString("message");
+            LogUtils.LOGGER.warning("Firebase error: " + message);
             System.out.println("Error de Firebase: " + message);
             if (message.contains("INVALID_LOGIN_CREDENTIALS") ) {
+                LogUtils.LOGGER.warning("Invalid login credentials");
                 throw new CredentialsException("invalidpassword");
             } else if (message.contains("EMAIL_NOT_FOUND")) {
+                LogUtils.LOGGER.warning("Email not found");
                 throw new CredentialsException("emailnotfound");
             } else if (message.contains("TOO_MANY_ATTEMPTS_TRY_LATER")) {
+                LogUtils.LOGGER.warning("Too many attempts");
                 throw new CredentialsException("Demasiados intentos fallidos. Intenta más tarde.");
             } else if (message.contains("USER_DISABLED")) {
+                LogUtils.LOGGER.warning("User disabled");
                 throw new CredentialsException("user-disabled");
             }
             else {
+                LogUtils.LOGGER.severe("Authentication error: " + message);
                 throw new IOException("Error de autenticación: " + message);
             }
         }
@@ -111,6 +122,7 @@ public class UsersApiClient {
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
+                LogUtils.LOGGER.severe("Error while fetching master password: " + response.message());
                 throw new IOException("Error al recuperar la master password: " + response.message());
             }
             // El valor es un string plano (hash)
@@ -132,7 +144,9 @@ public class UsersApiClient {
                 JSONObject json = new JSONObject(response.body().string());
                 session.setIdToken(json.getString("idToken"));
                 session.setRefreshToken(json.getString("refreshToken"));
+                LogUtils.LOGGER.info("Token refreshed successfully");
             } else {
+                LogUtils.LOGGER.severe("Error refreshing token: " + response.message());
                 throw new IOException("No se pudo refrescar el token");
             }
         }
@@ -151,6 +165,7 @@ public class UsersApiClient {
         try (Response response = client.newCall(request).execute()) {
             String responseBody = response.body() != null ? response.body().string() : "";
             if (!response.isSuccessful()) {
+                LogUtils.LOGGER.severe("HTTP Error: " + response.code() + " - " + responseBody);
                 throw new IOException("Error en la solicitud HTTP: " + response.code() + " - " + responseBody);
             }
             return responseBody;

@@ -34,6 +34,11 @@
                 <Button fx:id="toggleThemeButton" contentDisplay="CENTER" graphicTextGap="0.0" mnemonicParsing="false" prefWidth="20.0" styleClass="icon-button" />
                 <ImageView fx:id="languageImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" />
                 <ComboBox fx:id="languageComboBox" centerShape="false" scaleShape="false" styleClass="language-selector" />
+            <Button fx:id="logoutButton" maxHeight="20.0" maxWidth="20.0" mnemonicParsing="false" styleClass="icon-button">
+               <graphic>
+                  <ImageView fx:id="logoutImageView" fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true" styleClass="icon" />
+               </graphic>
+            </Button>
             </HBox>
         </top>
         <center>

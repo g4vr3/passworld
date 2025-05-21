@@ -39,6 +39,7 @@ public class UnsafeUrlChecker {
             }
         } catch (Exception e) {
             System.err.println("Error checking URL safety: " + e.getMessage());
+            LogUtils.LOGGER.warning("Error checking URL safety: " + e);
         }
         return false;
     }

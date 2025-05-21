@@ -145,7 +145,7 @@ public class DialogUtil {
         regeneratePasswordButton.setGraphic(reloadIconView);
 
 // Acción del botón
-        regeneratePasswordButton.setOnAction(event -> {
+        regeneratePasswordButton.setOnAction(_ -> {
             String newPassword = PasswordGenerator.generateDefaultPassword();
             passwordField.setText(newPassword);
         });
@@ -247,5 +247,24 @@ public class DialogUtil {
         ThemeManager.applyThemeToImage(cancelIconView); // Aplicar el tema al icono
         cancelIconView.getStyleClass().add("icon");
         cancelButton.setGraphic(cancelIconView);
+    }
+
+    // Mostrar un cuadro de diálogo de confirmación y devolver el resultado
+    public static boolean showConfirmationDialog(String titleKey, String headerKey, String messageKey) {
+        ResourceBundle bundle = LanguageManager.getBundle();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(bundle.getString(titleKey));
+        alert.setHeaderText(bundle.getString(headerKey));
+        alert.setContentText(bundle.getString(messageKey));
+
+        // Establecer tema y clase al cuadro de diálogo
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.getStylesheets().add(
+                Objects.requireNonNull(ThemeManager.getCurrentStylesheet())
+        );
+        dialogPane.getStyleClass().add("confirmation-dialog");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 }

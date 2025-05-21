@@ -13,6 +13,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import passworld.data.session.PersistentSessionManager;
+import passworld.utils.LogUtils;
 import passworld.utils.PasswordEvaluator;
 import passworld.utils.TimeSyncManager;
 
@@ -71,10 +72,12 @@ public class SplashScreenController {
 
             Timeline delay = new Timeline(new KeyFrame(Duration.seconds(0.1), e -> onSplashFinished()));
             delay.play();
+            LogUtils.LOGGER.info("Trie loaded successfully");
         });
 
         loadTrieTask.setOnFailed(event -> {
             mediaPlayer.stop();
+            LogUtils.LOGGER.severe("Failed to load trie file");
             throw new RuntimeException("Error al cargar el Trie", loadTrieTask.getException());
         });
 
@@ -130,11 +133,13 @@ public class SplashScreenController {
                 Platform.runLater(() -> {
                     boolean session = PersistentSessionManager.tokenSavedLocally();
                     if (session) {
+                        LogUtils.LOGGER.info("Session found after reconnection");
                         System.out.println("Sesión encontrada tras reconexión");
                         // Si hay sesión y conexión, refrescamos el token
                         PersistentSessionManager.refreshToken();
 
                     } else {
+                        LogUtils.LOGGER.warning("No session found after reconnection");
                         System.out.println("Sin sesión tras reconexión, redirigiendo a login");
                         AuthController.showView();
                     }
@@ -142,6 +147,7 @@ public class SplashScreenController {
             }
             // desconexión
             else if (lastOnlineStatus && !online) {
+                LogUtils.LOGGER.warning("Lost connection");
                 System.out.println("Se perdió la conexión");
                 // podrías mostrar un banner o notificación aquí
             }

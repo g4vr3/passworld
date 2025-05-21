@@ -19,6 +19,9 @@ public class HeaderConfigurator {
         ImageView helpIconImageView = new ImageView(helpIcon);
         ThemeManager.applyThemeToImage(helpIconImageView);
         helpIconImageView.getStyleClass().add("icon");
+        // Configuración de tamaño redundante para evitar problemas de visualización
+        helpIconImageView.setFitWidth(15);
+        helpIconImageView.setFitHeight(15);
         helpButton.setGraphic(helpIconImageView);
 
         // Acción del botón de ayuda para abrir la web
@@ -28,6 +31,7 @@ public class HeaderConfigurator {
                 java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
             } catch (Exception e) {
                 System.err.println("Error al abrir la URL de ayuda: " + url);
+                LogUtils.LOGGER.warning("Error opening help URL: " + url);
                 e.printStackTrace();
             }
         });
@@ -49,5 +53,22 @@ public class HeaderConfigurator {
         themeImageView.setFitHeight(15);
         themeImageView.getStyleClass().add("icon");
         toggleThemeButton.setGraphic(themeImageView);
+    }
+
+    public static void configureLogoutButton(Button logoutButton, ImageView logoutImageView, Runnable handleLogout) {
+        // Establecer imagen de logout
+        Image logoutImage = new Image(Objects.requireNonNull(HeaderConfigurator.class.getResource("/passworld/images/logout_icon.png")).toExternalForm());
+        logoutImageView.setImage(logoutImage);
+        ThemeManager.applyThemeToImage(logoutImageView);
+        logoutImageView.getStyleClass().add("icon");
+        // Configuración de tamaño redundante para evitar problemas de visualización
+        logoutImageView.setFitWidth(15);
+        logoutImageView.setFitHeight(15);
+
+        // Acción del botón de logout
+        logoutButton.setOnAction(_ -> {
+            // Llamar al handleLogout pasado como parámetro
+            handleLogout.run();
+        });
     }
 }

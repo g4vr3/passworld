@@ -439,25 +439,25 @@ bold-label {
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 1); /* Sombra sutil */
 }
 
-.delete-dialog {
+.confirmation-dialog {
     -fx-background-color: #292929;
     -fx-border-color: transparent;
     -fx-padding: 10px;
 }
 
-.delete-dialog .header-panel {
+.confirmation-dialog .header-panel {
     -fx-text-fill: #c8c8c8;
     -fx-background-color: #292929;
     -fx-border-color: #434343; /* Línea separadora */
     -fx-border-width: 0 0 1px 0; /* Solo borde inferior */
 }
 
-.delete-dialog .content {
+.confirmation-dialog .content {
     -fx-text-fill: #b1b1b1;
 }
 
 /* Botón "OK" con color más claro */
-.delete-dialog .button-bar .button:default {
+.confirmation-dialog .button-bar .button:default {
     -fx-background-color: #616161; /* Color más claro */
     -fx-border-color: #616161;
     -fx-text-fill: #202020;
@@ -467,7 +467,7 @@ bold-label {
 }
 
 /* Botón "Cancel" con color más oscuro */
-.delete-dialog .button-bar .button {
+.confirmation-dialog .button-bar .button {
     -fx-background-color: transparent; /* Color más oscuro */
     -fx-text-fill: #b1b1b1;
     -fx-border-color: #616161;

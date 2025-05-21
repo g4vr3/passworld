@@ -26,6 +26,7 @@ public class ThemeManager {
 
         isDarkMode = !isDarkMode;
         prefs.putBoolean("darkMode", isDarkMode); // Guarda la preferencia del usuario
+        LogUtils.LOGGER.info("Theme changed to: " + (isDarkMode ? "Dark" : "Light") + ". Saved preferences");
         darkModeProperty.set(isDarkMode); // Notifica a los listeners para que se actualicen las imágenes
     }
 
@@ -34,6 +35,7 @@ public class ThemeManager {
         if (!prefs.getBoolean("themeInitialized", false)) {
             isDarkMode = isSystemInDarkMode();
             prefs.putBoolean("darkMode", isDarkMode);
+            LogUtils.LOGGER.info("System theme detected: " + (isDarkMode ? "Dark" : "Light") + ". Saved preferences");
             prefs.putBoolean("themeInitialized", true); // Marcar como inicializado
         }
 

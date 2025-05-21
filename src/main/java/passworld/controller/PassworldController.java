@@ -8,6 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.Window;
+import passworld.data.session.PersistentSessionManager;
 import passworld.service.LanguageManager;
 import passworld.service.PasswordManager;
 import passworld.utils.*;
@@ -58,6 +59,10 @@ public class PassworldController {
     Button helpButton; // Botón de ayuda
     @FXML
     ImageView helpImageView; // Icono de ayuda
+    @FXML
+    Button logoutButton; // Botón de cerrar sesión
+    @FXML
+    ImageView logoutImageView; // Icono de cerrar sesión
 
     public static void showView() {
         ViewManager.changeView("/passworld/main-view.fxml", "passworld");
@@ -115,6 +120,8 @@ public class PassworldController {
     private void setIcons() {
         // Configurar el encabezado
         HeaderConfigurator.configureHeader(logoImageView, languageImageView, toggleThemeButton, helpButton);
+        // Configurar el botón de cerrar sesión
+        HeaderConfigurator.configureLogoutButton(logoutButton, logoutImageView, this::handleLogout);
 
         // Label contraseña
         Image passwordIcon = new Image(Objects.requireNonNull(getClass().getResource("/passworld/images/password_icon.png")).toExternalForm());
@@ -219,9 +226,11 @@ public class PassworldController {
                         Notifier.showNotification(window, bundle.getString("toolTip_password_not_saved"));
                     }
                 } catch (IllegalArgumentException e) {
+                    LogUtils.LOGGER.severe("Validation error while saving password: " + e);
                     // Mostrar mensaje de error de validación
                     Notifier.showNotification(window, e.getMessage());
                 } catch (SQLException e) {
+                    LogUtils.LOGGER.severe("Database error while saving password: " + e);
                     System.err.println("Error al guardar la contraseña: " + e.getMessage());
                     // Mostrar mensaje de error de base de datos
                     Notifier.showNotification(window, bundle.getString("toolTip_database_error"));
@@ -240,6 +249,7 @@ public class PassworldController {
         helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
         toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
         languageComboBox.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_languageComboBox")));
+        logoutButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_logoutButton")));
 
         ResourceBundle bundle = LanguageManager.getBundle();  // Obtener el ResourceBundle desde LanguageSupport
         passwordLabel.setText(bundle.getString("generatedPassword_label"));
@@ -265,5 +275,34 @@ public class PassworldController {
         viewMyPasswordsButton.setTooltip(new Tooltip(bundle.getString("toolTip_viewMyPasswords")));
 
         PasswordEvaluator.updateStrengthLabelOnLanguageChange(passwordField.getText(), passwordStrengthLabel, passwordStrengthProgressBar); // Actualiza la etiqueta de fortaleza de la contraseña
+    }
+
+    @FXML
+    private void handleLogout() {
+        // Muestra el diálogo de confirmación
+        boolean confirmed = DialogUtil.showConfirmationDialog("logout_confirmation_title", "logout_confirmation_header", "logout_confirmation_message"); // Muestra el diálogo de confirmación
+
+        if (confirmed) {
+            try {
+                // Borrar tokens y datos de sesión
+                PersistentSessionManager.clearTokens();
+
+                // Notificar al usuario
+                Window window = savePasswordButton.getScene().getWindow();
+
+                LogUtils.LOGGER.info("Logout successful");
+                Notifier.showNotification(window, LanguageManager.getBundle().getString("toolTip_logout_success"));
+
+                // Cambiar a la vista de inicio de sesión
+                ViewManager.changeView("/passworld/authentication-view.fxml", "passworld");
+            } catch (Exception e) {
+                LogUtils.LOGGER.severe("Error while logging out: " + e);
+                System.err.println("Error al cerrar sesión: " + e.getMessage());
+                e.printStackTrace();
+                // Mostrar mensaje de error
+                Window window = savePasswordButton.getScene().getWindow();
+                Notifier.showNotification(window, LanguageManager.getBundle().getString("toolTip_logout_error"));
+            }
+        }
     }
 }

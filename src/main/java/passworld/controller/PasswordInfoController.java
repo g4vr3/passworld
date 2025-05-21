@@ -26,7 +26,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class PasswordInfoController {
@@ -85,6 +84,7 @@ public class PasswordInfoController {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Error loading PasswordInfoController: " + e.getMessage());
+            LogUtils.LOGGER.severe("Error loading passwordInfo view: " + e);
         }
     }
 
@@ -258,10 +258,12 @@ public class PasswordInfoController {
         try {
             SecretKeySpec masterKey = UserSession.getInstance().getMasterKey();
             if (masterKey == null) {
+                LogUtils.LOGGER.severe("Master key not available");
                 throw new IllegalStateException("Master key no disponible");
             }
             return EncryptionUtil.decryptData(encryptedData, masterKey);
         } catch (EncryptionException e) {
+            LogUtils.LOGGER.severe("Error decrypting password: " + e);
             Notifier.showNotification(
                     copyButton.getScene().getWindow(),
                     getBundle().getString("error_decrypting_password")
@@ -384,26 +386,19 @@ public class PasswordInfoController {
 
                 // Mostrar notificación de éxito
                 Notifier.showNotification(saveButton.getScene().getWindow(), getBundle().getString("password_updated_successfully"));
+                LogUtils.LOGGER.info("Password updated successfully");
             } else {
                 // Manejar el caso en que no se pueda recargar el objeto
                 Notifier.showNotification(saveButton.getScene().getWindow(), getBundle().getString("error_loading_password"));
+                LogUtils.LOGGER.severe("Error loading password after update");
             }
         }
     }
 
+    // Solicitar confirmación y eliminar la contraseña
     private void deletePassword() {
-        Alert confirmationDialog = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationDialog.setTitle(getBundle().getString("delete_confirmation_title"));
-        confirmationDialog.setHeaderText(getBundle().getString("delete_confirmation_header"));
-        confirmationDialog.setContentText(getBundle().getString("delete_confirmation_message"));
-
-        // Aplicar el tema actual al DialogPane
-        DialogPane dialogPane = confirmationDialog.getDialogPane();
-        dialogPane.getStylesheets().add(ThemeManager.getCurrentStylesheet());
-        dialogPane.getStyleClass().add("delete-dialog");
-
-        Optional<ButtonType> confirmationResult = confirmationDialog.showAndWait();
-        if (confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK) {
+        boolean confirmed = DialogUtil.showConfirmationDialog("delete_confirmation_title", "delete_confirmation_header", "delete_confirmation_message");
+        if (confirmed) {
             passwordsController.deletePassword(password);
             ((Stage) deleteButton.getScene().getWindow()).close();
         }
