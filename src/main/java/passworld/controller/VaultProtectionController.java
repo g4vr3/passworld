@@ -25,6 +25,7 @@ public class VaultProtectionController {
     private Label vaultTitleLabel, errorLabel, vaultTextLabel;
     @FXML
     private PasswordField masterPasswordField;
+    public static boolean passwordVerified = false;
 
     public static void showView() {
         ViewManager.changeView("/passworld/vault-protection-view.fxml", String.format("passworld - " + getBundle().getString("vaultProtectionLabel")));
@@ -102,6 +103,7 @@ public class VaultProtectionController {
                 try {
                     UserSession.getInstance().setMasterKey(EncryptionUtil.deriveAESKey(enteredPassword));
                     LogUtils.LOGGER.info("Master key derived successfully");
+                    passwordVerified = true;
                 } catch (EncryptionException e) {
                     LogUtils.LOGGER.severe("Error deriving key: " + e);
 
@@ -147,5 +149,24 @@ public class VaultProtectionController {
         }
 
         return false;
+    }
+
+    public static boolean showAndVerifyPassword() {
+
+
+        // Muestra la vista en el hilo de JavaFX
+        Platform.runLater(() -> showView());
+
+        // Espera hasta que la verificación haya ocurrido
+        while (!passwordVerified) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+
+        return passwordVerified;
     }
 }

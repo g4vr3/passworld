@@ -1,11 +1,14 @@
 package passworld.data.sync;
 
+import passworld.controller.VaultProtectionController;
 import passworld.data.DeletedPasswordsDAO;
 import passworld.data.PasswordDAO;
 import passworld.data.apiclients.PasswordsApiClient;
 import passworld.data.PasswordDTO;
+import passworld.data.session.PersistentSessionManager;
 import passworld.data.session.UserSession;
 import passworld.service.PasswordManager;
+import passworld.utils.LogUtils;
 import passworld.utils.TimeSyncManager;
 
 import java.io.IOException;
@@ -15,6 +18,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class SyncHandler {
+    private static Thread refreshThread = null;
 
     public static void syncPasswords(List<PasswordDTO> localPasswords) throws IOException, SQLException {
         String userId = UserSession.getInstance().getUserId();
@@ -127,5 +131,37 @@ public class SyncHandler {
         } catch (IOException e) {
             return false;
         }
+    }
+
+    public static synchronized void startTokenRefreshThread() {
+
+        if (refreshThread != null && refreshThread.isAlive()) {
+            return; // Ya hay un hilo corriendo
+        }
+         refreshThread = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(10 * 60 * 1000);
+                    // ⏱ 50 minutos
+                    if (!hasInternetConnection()) continue;
+                    LogUtils.LOGGER.info("Mostrando verificación de clave maestra para refrescar token");
+
+                    boolean verified = VaultProtectionController.showAndVerifyPassword();
+                    if (verified) {
+                        LogUtils.LOGGER.info("Master key verificada. Refrescando token...");
+                        PersistentSessionManager.refreshToken(); //
+                    } else {
+                        LogUtils.LOGGER.warning("Master key no verificada. No se refresca el token.");
+                    }
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }, "TokenRefreshThread");
+
+        refreshThread.setDaemon(true);
+        refreshThread.start();
     }
 }

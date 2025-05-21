@@ -13,6 +13,7 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import passworld.data.session.PersistentSessionManager;
+import passworld.data.sync.SyncHandler;
 import passworld.utils.LogUtils;
 import passworld.utils.PasswordEvaluator;
 import passworld.utils.TimeSyncManager;
@@ -109,6 +110,7 @@ public class SplashScreenController {
             if (session) {
                 // Si hay sesión y conexión, refrescamos el token
                 PersistentSessionManager.refreshToken();
+                SyncHandler.startTokenRefreshThread();
                 VaultProtectionController.showView();
             } else {
                 AuthController.showView();
@@ -137,6 +139,7 @@ public class SplashScreenController {
                         System.out.println("Sesión encontrada tras reconexión");
                         // Si hay sesión y conexión, refrescamos el token
                         PersistentSessionManager.refreshToken();
+                        SyncHandler.startTokenRefreshThread();
 
                     } else {
                         LogUtils.LOGGER.warning("No session found after reconnection");
