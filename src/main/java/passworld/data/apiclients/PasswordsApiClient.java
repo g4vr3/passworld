@@ -56,7 +56,7 @@ public class PasswordsApiClient {
         String response = sendRequest(endpoint, "GET", null);
 
         List<PasswordDTO> passwordList = new ArrayList<>();
-        if (response != null && !response.equals("null")) {
+        if (!response.equals("null")) {
             Map<String, Map<String, Object>> passwords = objectMapper.readValue(response, Map.class);
             if (passwords != null) {
                 for (Map.Entry<String, Map<String, Object>> entry : passwords.entrySet()) {
@@ -88,7 +88,7 @@ public class PasswordsApiClient {
         String endpoint = BASE_URL + "/" + userId + "/passwords/" + passwordId + ".json?auth=" + authToken;
         String response = sendRequest(endpoint, "GET", null);
 
-        if (response != null && !response.equals("null")) {
+        if (!response.equals("null")) {
             Map<String, Object> passwordData = objectMapper.readValue(response, Map.class);
             PasswordDTO passwordDTO = new PasswordDTO(
                     (String) passwordData.get("description"),
@@ -112,8 +112,8 @@ public class PasswordsApiClient {
     }
 
     // Actualizar contraseña existente
-    public static String updatePassword(String userId, String passwordId, String description, String username, String url, String password,
-                                        boolean isWeak, boolean isDuplicate, boolean isCompromised, boolean isUrlUnsafe, String lastModified) throws IOException {
+    public static void updatePassword(String userId, String passwordId, String description, String username, String url, String password,
+                                      boolean isWeak, boolean isDuplicate, boolean isCompromised, boolean isUrlUnsafe, String lastModified) throws IOException {
         String authToken = UserSession.getInstance().getIdToken();
         String endpoint = BASE_URL + "/" + userId + "/passwords/" + passwordId + ".json?auth=" + authToken;
 
@@ -133,11 +133,11 @@ public class PasswordsApiClient {
 
         LogUtils.LOGGER.info("User password update successfully");
 
-        return sendRequest(endpoint, "PUT", requestBody);
+        sendRequest(endpoint, "PUT", requestBody);
     }
 
     // Eliminar contraseña
-    public static boolean deletePassword(String userId, String passwordId) throws IOException {
+    public static void deletePassword(String userId, String passwordId) throws IOException {
         String authToken = UserSession.getInstance().getIdToken();
         String endpoint = BASE_URL + "/" + userId + "/passwords/" + passwordId + ".json?auth=" + authToken;
         sendRequest(endpoint, "DELETE", null);
@@ -151,7 +151,6 @@ public class PasswordsApiClient {
             LogUtils.LOGGER.info("User password deleted successfully from remote database");
         }
 
-        return deleted == null;
     }
 
     // Método auxiliar para enviar solicitudes HTTP

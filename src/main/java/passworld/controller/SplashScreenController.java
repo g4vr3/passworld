@@ -67,16 +67,16 @@ public class SplashScreenController {
         progressTimeline.play();
 
         // Cuando la carga del Trie termine
-        loadTrieTask.setOnSucceeded(event -> {
+        loadTrieTask.setOnSucceeded(_ -> {
             progressTimeline.stop();
             loadingBar.setProgress(1.0);
 
-            Timeline delay = new Timeline(new KeyFrame(Duration.seconds(0.1), e -> onSplashFinished()));
+            Timeline delay = new Timeline(new KeyFrame(Duration.seconds(0.1), _ -> onSplashFinished()));
             delay.play();
             LogUtils.LOGGER.info("Trie loaded successfully");
         });
 
-        loadTrieTask.setOnFailed(event -> {
+        loadTrieTask.setOnFailed(_ -> {
             mediaPlayer.stop();
             LogUtils.LOGGER.severe("Failed to load trie file");
             throw new RuntimeException("Error al cargar el Trie", loadTrieTask.getException());
@@ -87,8 +87,9 @@ public class SplashScreenController {
         thread.start();
 
         // Iniciar monitor de conexión
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleAtFixedRate(createConnectionMonitorTask(), 0, 10, TimeUnit.SECONDS);
+        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
+            executor.scheduleAtFixedRate(createConnectionMonitorTask(), 0, 10, TimeUnit.SECONDS);
+        }
     }
 
     /** Se dispara al terminar el timeline de la Splash. */

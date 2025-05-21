@@ -6,11 +6,9 @@ import passworld.data.PasswordDAO;
 import javax.crypto.spec.SecretKeySpec;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.Locale;
 
 public class UserSession {
     private static UserSession instance;
-    private boolean loggedIn;
     private String userId;
     private transient String idToken;
     private transient String refreshToken;
@@ -53,8 +51,7 @@ public class UserSession {
         return userId != null && !userId.isEmpty();
     }
 
-    public void setLoggedIn(boolean loggedIn) {
-        this.loggedIn = loggedIn;
+    public void setLoggedIn() {
     }
 
     // Master key en memoria
@@ -68,7 +65,6 @@ public class UserSession {
 
     // Limpia todos los datos sensibles de la sesión
     public void clearSession() throws SQLException {
-        loggedIn = false;
         userId = null;
         if (idToken != null) {
             Arrays.fill(idToken.toCharArray(), '\0');

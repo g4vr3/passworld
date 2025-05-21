@@ -10,6 +10,7 @@ import passworld.utils.LogUtils;
 
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class UsersApiClient {
 
@@ -106,7 +107,7 @@ public class UsersApiClient {
         }
 
         UserSession session = UserSession.getInstance();
-        session.setLoggedIn(true);
+        session.setLoggedIn();
         session.setUserId(json.getString("localId"));
         session.setIdToken(json.getString("idToken"));
         session.setRefreshToken(json.getString("refreshToken"));
@@ -129,7 +130,7 @@ public class UsersApiClient {
                 throw new IOException("Error al recuperar la master password: " + response.message());
             }
             // El valor es un string plano (hash)
-            return response.body().string().replace("\"", "");
+            return Objects.requireNonNull(response.body()).string().replace("\"", "");
         }
     }
 

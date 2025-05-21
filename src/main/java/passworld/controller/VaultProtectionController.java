@@ -134,7 +134,7 @@ public class VaultProtectionController {
 
     private boolean isValidPassword(String enteredPassword) {
             // Obtén el hash de la master password desde la base de datos local
-        String storedHash = null;
+        String storedHash;
         try {
             storedHash = LocalAuthUtil.getMasterPasswordHash();
             // Verifica la contraseña ingresada usando EncryptionUtil
@@ -155,7 +155,7 @@ public class VaultProtectionController {
 
 
         // Muestra la vista en el hilo de JavaFX
-        Platform.runLater(() -> showView());
+        Platform.runLater(VaultProtectionController::showView);
 
         // Espera hasta que la verificación haya ocurrido
         while (!passwordVerified) {

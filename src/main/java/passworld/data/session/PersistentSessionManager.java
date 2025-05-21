@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Properties;
 
 public class PersistentSessionManager {
@@ -105,9 +106,9 @@ public class PersistentSessionManager {
                 UserSession.getInstance().setRefreshToken(newRefreshToken);
                 UserSession.getInstance().setUserId(uid);
 
-                props.setProperty("idToken", encrypt(newIdToken));
-                props.setProperty("refreshToken", encrypt(newRefreshToken));
-                props.setProperty("uid", encrypt(uid));
+                props.setProperty("idToken", encrypt(Objects.requireNonNull(newIdToken)));
+                props.setProperty("refreshToken", encrypt(Objects.requireNonNull(newRefreshToken)));
+                props.setProperty("uid", encrypt(Objects.requireNonNull(uid)));
 
                 saveProperties(props);
                 LogUtils.LOGGER.info("Token refreshed successfully with Firebase");
@@ -193,7 +194,7 @@ public class PersistentSessionManager {
 
     // === CIFRADO/DECIFRADO AES CON CLAVE DERIVADA DEL UUID DEL SISTEMA ===
 
-    private static SecretKeySpec getSystemKey() throws Exception {
+    private static SecretKeySpec getSystemKey() {
         String uuid = getSystemUUID();
         byte[] keyBytes = uuid.substring(0, 16).getBytes(StandardCharsets.UTF_8);
         return new SecretKeySpec(keyBytes, "AES");
@@ -268,7 +269,7 @@ public class PersistentSessionManager {
             e.printStackTrace();
         }
 
-        if (uuid == null || uuid.isEmpty()) {
+        if (uuid == null) {
             uuid = "fallback-uuid-123456"; // fallback
         }
 

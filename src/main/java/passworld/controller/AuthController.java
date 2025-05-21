@@ -416,7 +416,7 @@ public class AuthController {
             handleCredentialsException(loginMailField, loginEmailErrorLabel, "incorrectCredentials");
             handleCredentialsException(loginPasswordField, loginPasswordErrorLabel,    "incorrectCredentials");
             return;
-        } catch (EncryptionException ex) {;
+        } catch (EncryptionException ex) {
             showErrorAlert("loginErrorTitle", ex.getMessage());
             return;
         } catch (SQLException ex) {
