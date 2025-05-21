@@ -372,14 +372,19 @@ public class AuthController {
             );
         }
         catch (CredentialsException ce) {
-            handleCredentialsException(signupMailField, signupEmailErrorLabel, "email_already_exists");
+            String msg = ce.getMessage();
+            if (msg.contains("already exists")) {
+                handleCredentialsException(signupMailField, signupEmailErrorLabel, "email_already_exists");
+            } else if (msg.contains("Invalid email")) {
+                handleCredentialsException(signupMailField, signupEmailErrorLabel, "invalid_email");
+            } else {
+                handleCredentialsException(signupMailField, signupEmailErrorLabel, "signupErrorTitle");
+            }
             return;
         }
-        catch (IOException ioe) {
-            showErrorAlert("signupErrorTitle", "network_error");
-        }
-        catch (SQLException | EncryptionException e) {
+        catch (SQLException | EncryptionException | IOException e) {
             showErrorAlert("signupErrorTitle", e.getMessage());
+            return;
         }
 
         // Solicitar desbloqueo de base de datos

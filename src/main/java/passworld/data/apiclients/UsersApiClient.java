@@ -23,12 +23,12 @@ public class UsersApiClient {
         // 1. Registrar usuario
         String registerEndpoint = AUTH_BASE_URL + "signUp?key=" + API_KEY;
         String registerRequestBody = String.format("""
-    {
-        "email": "%s",
-        "password": "%s",
-        "returnSecureToken": true
-    }
-    """, email, password);
+                {
+                    "email": "%s",
+                    "password": "%s",
+                    "returnSecureToken": true
+                }
+                """, email, password);
 
         String registerResponse;
         try {
@@ -37,11 +37,14 @@ public class UsersApiClient {
             LogUtils.LOGGER.info("User registered successfully");
         } catch (IOException e) {
             if (e.getMessage().contains("EMAIL_EXISTS")) {
-                LogUtils.LOGGER.warning("User already exists");
-                throw new CredentialsException("El usuario ya existe.");
+                LogUtils.LOGGER.warning("Email already exists");
+                throw new CredentialsException("Email already exists");
+            } else if (e.getMessage().contains("INVALID_EMAIL")) {
+                LogUtils.LOGGER.warning("Invalid email");
+                throw new CredentialsException("Invalid email");
             } else {
-                LogUtils.LOGGER.severe("Error during user registration: " + e);
-                throw e;
+                LogUtils.LOGGER.severe("Unknown error while sign up user: " + e.getMessage());
+                throw new IOException("Unknown error while sign up user: " + e.getMessage());
             }
         }
 
@@ -55,10 +58,10 @@ public class UsersApiClient {
         // 3. Crear nodos en la base de datos
         String databaseEndpoint = DATABASE_BASE_URL + userId + ".json?auth=" + idToken;
         String databaseRequestBody = String.format("""
-    {
-        "masterPassword": "%s"
-    }
-    """, hashedMasterPassword);
+                {
+                    "masterPassword": "%s"
+                }
+                """, hashedMasterPassword);
 
         sendRequest(databaseEndpoint, "PUT", databaseRequestBody);
         return hashedMasterPassword;
@@ -69,12 +72,12 @@ public class UsersApiClient {
             throws CredentialsException, IOException {
         String endpoint = "signInWithPassword?key=" + API_KEY;
         String requestBody = String.format("""
-{
-    "email": "%s",
-    "password": "%s",
-    "returnSecureToken": true
-}
-""", email, password);
+                {
+                    "email": "%s",
+                    "password": "%s",
+                    "returnSecureToken": true
+                }
+                """, email, password);
 
 
         String response = sendRequest(AUTH_BASE_URL + endpoint, "POST", requestBody);
@@ -84,7 +87,7 @@ public class UsersApiClient {
             String message = json.getJSONObject("error").getString("message");
             LogUtils.LOGGER.warning("Firebase error: " + message);
             System.out.println("Error de Firebase: " + message);
-            if (message.contains("INVALID_LOGIN_CREDENTIALS") ) {
+            if (message.contains("INVALID_LOGIN_CREDENTIALS")) {
                 LogUtils.LOGGER.warning("Invalid login credentials");
                 throw new CredentialsException("invalidpassword");
             } else if (message.contains("EMAIL_NOT_FOUND")) {
@@ -96,8 +99,7 @@ public class UsersApiClient {
             } else if (message.contains("USER_DISABLED")) {
                 LogUtils.LOGGER.warning("User disabled");
                 throw new CredentialsException("user-disabled");
-            }
-            else {
+            } else {
                 LogUtils.LOGGER.severe("Authentication error: " + message);
                 throw new IOException("Error de autenticación: " + message);
             }
@@ -110,6 +112,7 @@ public class UsersApiClient {
         session.setRefreshToken(json.getString("refreshToken"));
 
     }
+
     public static String fetchMasterPassword() throws IOException {
         UserSession session = UserSession.getInstance();
         String userId = session.getUserId();
