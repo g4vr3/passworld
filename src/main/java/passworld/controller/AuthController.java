@@ -60,7 +60,6 @@ public class AuthController {
             ViewManager.setPrimaryStage(mainStage);
         } catch (IOException e) {
             System.err.println("Error loading authentication view: " + e.getMessage());
-            LogUtils.LOGGER.severe("Error loading authentication view: " + e);
         }
     }
 
@@ -225,7 +224,7 @@ public class AuthController {
 
     private boolean isPasswordWeak(PasswordField passwordField, PasswordField confirmPasswordField, Label errorLabel) {
         int strength = PasswordEvaluator.calculateStrength(passwordField.getText());
-        if (strength < 2) {
+        if (strength < 3) {
             showFieldError(passwordField, confirmPasswordField, errorLabel, "weak_password");
             passwordField.clear();
             confirmPasswordField.clear();
@@ -246,7 +245,6 @@ public class AuthController {
             }
         } catch (Exception e) {
             System.err.println("Error checking compromised password: " + e.getMessage());
-            LogUtils.LOGGER.severe("Error checking compromised password: " + e);
             return true;
         }
         return false;
@@ -374,17 +372,8 @@ public class AuthController {
             );
         }
         catch (CredentialsException ce) {
-            if (!signupPasswordField.getStyleClass().contains("error-border")) {
-                signupPasswordField.getStyleClass().add("error-border");
-            }
-
-            if (!signupConfirmPasswordField.getStyleClass().contains("error-border")) {
-                signupConfirmPasswordField.getStyleClass().add("error-border");
-            }
-            if (!signupMailField.getStyleClass().contains("error-border")) {
-                signupMailField.getStyleClass().add("error-border");
-            }
-
+            handleCredentialsException(signupMailField, signupEmailErrorLabel, "email_already_exists");
+            return;
         }
         catch (IOException ioe) {
             showErrorAlert("signupErrorTitle", "network_error");
@@ -419,19 +408,8 @@ public class AuthController {
             // Continuar al dashboard o pantalla principal
         }
         catch (CredentialsException | IOException e) {
-            if (e.getMessage().equals("emailnotfound")) {
-                handleCredentialsException(loginMailField, loginEmailErrorLabel, "email_not_found");
-                LogUtils.LOGGER.severe("Email not found: " + e);
-            } else if (e.getMessage().equals("invalidpassword")) {
-                handleCredentialsException(loginPasswordField, loginPasswordErrorLabel, "invalid_password");
-                LogUtils.LOGGER.severe("Invalid password: " + e);
-            } else if (e.getMessage().equals("user-disabled")) {
-                handleCredentialsException(loginMailField, loginEmailErrorLabel, "user_disabled");
-                LogUtils.LOGGER.severe("User disabled: " + e);
-            } else if (e.getMessage().equals("user-not-found")) {
-                handleCredentialsException(loginMailField, loginEmailErrorLabel, "user_not_found");
-                LogUtils.LOGGER.severe("User not found: " + e);
-            }
+            handleCredentialsException(loginMailField, loginEmailErrorLabel, "incorrectCredentials");
+            handleCredentialsException(loginPasswordField, loginPasswordErrorLabel,    "incorrectCredentials");
             return;
         } catch (EncryptionException ex) {;
             showErrorAlert("loginErrorTitle", ex.getMessage());
