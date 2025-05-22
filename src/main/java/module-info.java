@@ -14,9 +14,10 @@ module passworld {
 
 
     opens passworld to javafx.fxml;
+
     exports passworld;
     exports passworld.utils;
-    opens passworld.utils to javafx.fxml;
+    opens passworld.utils;
     exports passworld.controller;
     opens passworld.controller to javafx.fxml;
     exports passworld.data;
@@ -24,5 +25,9 @@ module passworld {
     exports passworld.service;
     opens passworld.service to javafx.fxml;
     exports passworld.data.apiclients;
-    opens passworld.data.apiclients to javafx.fxml;
+    opens passworld.data.apiclients;
+    exports passworld.data.session;
+    opens passworld.data.session;
+    exports passworld.data.exceptions;
+    opens passworld.data.exceptions;
 }
