@@ -61,7 +61,7 @@ public class SecurityFilterManager {
     }
 
     // Limpiar la lista de contraseñas únicas
-    public void clearUniquePasswords() {
+    public static void clearUniquePasswords() {
         uniquePasswords.clear();
     }
 

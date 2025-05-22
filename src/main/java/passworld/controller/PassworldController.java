@@ -11,6 +11,7 @@ import javafx.stage.Window;
 import passworld.data.session.PersistentSessionManager;
 import passworld.service.LanguageManager;
 import passworld.service.PasswordManager;
+import passworld.service.SecurityFilterManager;
 import passworld.utils.*;
 
 import java.sql.SQLException;
@@ -284,7 +285,7 @@ public class PassworldController {
 
         if (confirmed) {
             try {
-                // Borrar tokens y datos de sesión
+                // Borrar tokens y datos de sesión (incluido filtro de seguridad)
                 PersistentSessionManager.clearTokens();
 
                 // Notificar al usuario
