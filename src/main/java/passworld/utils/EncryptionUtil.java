@@ -60,7 +60,7 @@ public class EncryptionUtil {
     public static String encryptData(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
         if (plainPassword == null || masterKey == null) {
             LogUtils.LOGGER.severe("Error decrypting data: Data is null");
-            throw new EncryptionException(LanguageManager.getBundle().getString("nullEncryptionInput"));
+            return null;
         }
 
         try {
@@ -77,7 +77,7 @@ public class EncryptionUtil {
     public static String decryptData(String encryptedPassword, SecretKeySpec masterKey) throws EncryptionException {
         if (encryptedPassword == null || masterKey == null) {
             LogUtils.LOGGER.severe("Error decrypting data: Data is null");
-            throw new EncryptionException(LanguageManager.getBundle().getString("nullDecryptionInput"));
+            return null;
         }
 
         try {
