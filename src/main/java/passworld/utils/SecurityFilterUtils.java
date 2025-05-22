@@ -1,15 +1,11 @@
-package passworld.service;
+package passworld.utils;
 
 import passworld.data.PasswordDTO;
-import passworld.utils.CompromisedPasswordChecker;
-import passworld.utils.LogUtils;
-import passworld.utils.PasswordEvaluator;
-import passworld.utils.UnsafeUrlChecker;
 
 import java.util.Set;
 import java.util.HashSet;
 
-public class SecurityFilterManager {
+public class SecurityFilterUtils {
 
     // Conjunto que mantiene las contraseñas únicas activas
     private static final Set<String> uniquePasswords = new HashSet<>();

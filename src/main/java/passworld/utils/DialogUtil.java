@@ -10,7 +10,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import passworld.data.PasswordDTO;
-import passworld.service.LanguageManager;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -20,7 +19,7 @@ public class DialogUtil {
 
     // Auxiliar para obtener el ResourceBundle dinámicamente
     private static ResourceBundle getBundle() {
-        return LanguageManager.getBundle();
+        return LanguageUtil.getBundle();
     }
 
     public static Optional<PasswordDTO> showPasswordCreationDialog(String password) {
@@ -251,7 +250,7 @@ public class DialogUtil {
 
     // Mostrar un cuadro de diálogo de confirmación y devolver el resultado
     public static boolean showConfirmationDialog(String titleKey, String headerKey, String messageKey) {
-        ResourceBundle bundle = LanguageManager.getBundle();
+        ResourceBundle bundle = LanguageUtil.getBundle();
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(bundle.getString(titleKey));
         alert.setHeaderText(bundle.getString(headerKey));

@@ -20,12 +20,11 @@ import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.data.session.UserSession;
 import passworld.data.sync.SyncHandler;
-import passworld.service.LanguageManager;
-import passworld.service.SecurityFilterManager;
+import passworld.utils.LanguageUtil;
+import passworld.utils.SecurityFilterUtils;
 import passworld.utils.*;
 import passworld.service.PasswordManager;
 
-import javax.tools.Tool;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -99,7 +98,7 @@ public class MyPasswordsController {
 
     // Auxiliar para obtener el ResourceBundle dinámicamente
     private static ResourceBundle getBundle() {
-        return LanguageManager.getBundle();
+        return LanguageUtil.getBundle();
     }
 
     public static void showView() {
@@ -214,7 +213,7 @@ public class MyPasswordsController {
             List<PasswordDTO> passwords = PasswordDAO.readAllPasswordsDecrypted();
             passwordList.setAll(passwords); // Actualizar la lista observable
             issuePasswordsList.setAll(passwords.stream()
-                    .filter(SecurityFilterManager::hasPasswordSecurityIssues)
+                    .filter(SecurityFilterUtils::hasPasswordSecurityIssues)
                     .collect(Collectors.toList())); // Actualizar la lista de contraseñas con problemas
 
             // Restaurar la lista activa
@@ -453,7 +452,7 @@ public class MyPasswordsController {
                     setGraphic(null);
                 } else {
                     PasswordDTO password = getTableRow().getItem();
-                    if (SecurityFilterManager.hasPasswordSecurityIssues(password)) {
+                    if (SecurityFilterUtils.hasPasswordSecurityIssues(password)) {
                         setGraphic(warningIconView);
                     } else {
                         setGraphic(null);

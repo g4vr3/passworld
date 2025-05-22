@@ -17,7 +17,7 @@ import passworld.data.exceptions.CredentialsException;
 import passworld.data.exceptions.EncryptionException;
 import passworld.data.session.PersistentSessionManager;
 import passworld.data.session.UserSession;
-import passworld.service.LanguageManager;
+import passworld.utils.LanguageUtil;
 import passworld.utils.*;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
-import static passworld.service.LanguageManager.setLanguageSupport;
+import static passworld.utils.LanguageUtil.setLanguageSupport;
 
 public class AuthController {
     @FXML
@@ -141,9 +141,9 @@ public class AuthController {
     // Muestra un mensaje informativo sobre la protección de la bóveda
     private void showVaultProtectionMessage() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(LanguageManager.getBundle().getString("vaultProtectionLabel"));
+        alert.setTitle(LanguageUtil.getBundle().getString("vaultProtectionLabel"));
         alert.setHeaderText(null);
-        alert.setContentText(LanguageManager.getBundle().getString("vaultProtectionTooltip"));
+        alert.setContentText(LanguageUtil.getBundle().getString("vaultProtectionTooltip"));
         alert.getDialogPane().setPrefWidth(400);
         ThemeManager.applyCurrentTheme(alert.getDialogPane().getScene());
         Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
@@ -153,31 +153,31 @@ public class AuthController {
 
     // Establece los textos de la interfaz según el idioma seleccionado
     private void setUITexts() {
-        helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
-        toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
-        languageComboBox.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_languageComboBox")));
+        helpButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_helpButton")));
+        toggleThemeButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_toggleThemeButton")));
+        languageComboBox.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_languageComboBox")));
 
-        vaultProtectionLabel.setText(LanguageManager.getBundle().getString("vaultProtectionLabel"));
-        accountPasswordLabel.setText(LanguageManager.getBundle().getString("accountPasswordLabel"));
-        accountMailLabel.setText(LanguageManager.getBundle().getString("accountMailLabel"));
-        accountDetailsLabel.setText(LanguageManager.getBundle().getString("accountDetailsLabel"));
+        vaultProtectionLabel.setText(LanguageUtil.getBundle().getString("vaultProtectionLabel"));
+        accountPasswordLabel.setText(LanguageUtil.getBundle().getString("accountPasswordLabel"));
+        accountMailLabel.setText(LanguageUtil.getBundle().getString("accountMailLabel"));
+        accountDetailsLabel.setText(LanguageUtil.getBundle().getString("accountDetailsLabel"));
 
-        signupMailField.setPromptText(LanguageManager.getBundle().getString("signupMailField"));
-        signupPasswordField.setPromptText(LanguageManager.getBundle().getString("signupPasswordField"));
-        signupConfirmPasswordField.setPromptText(LanguageManager.getBundle().getString("signupConfirmPasswordField"));
-        signupMasterPasswordField.setPromptText(LanguageManager.getBundle().getString("signupMasterPasswordField"));
-        signupConfirmMasterPasswordField.setPromptText(LanguageManager.getBundle().getString("signupConfirmMasterPasswordField"));
-        loginMailField.setPromptText(LanguageManager.getBundle().getString("loginMailField"));
-        loginPasswordField.setPromptText(LanguageManager.getBundle().getString("loginPasswordField"));
+        signupMailField.setPromptText(LanguageUtil.getBundle().getString("signupMailField"));
+        signupPasswordField.setPromptText(LanguageUtil.getBundle().getString("signupPasswordField"));
+        signupConfirmPasswordField.setPromptText(LanguageUtil.getBundle().getString("signupConfirmPasswordField"));
+        signupMasterPasswordField.setPromptText(LanguageUtil.getBundle().getString("signupMasterPasswordField"));
+        signupConfirmMasterPasswordField.setPromptText(LanguageUtil.getBundle().getString("signupConfirmMasterPasswordField"));
+        loginMailField.setPromptText(LanguageUtil.getBundle().getString("loginMailField"));
+        loginPasswordField.setPromptText(LanguageUtil.getBundle().getString("loginPasswordField"));
 
-        loginSectionButton.setText(LanguageManager.getBundle().getString("loginSectionButton"));
-        loginSectionButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_loginSectionButton")));
-        signupSectionButton.setText(LanguageManager.getBundle().getString("signupSectionButton"));
-        signupSectionButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_signupSectionButton")));
-        signupButton.setText(LanguageManager.getBundle().getString("signupButton"));
-        signupButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_signupButton")));
-        loginButton.setText(LanguageManager.getBundle().getString("loginButton"));
-        loginButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_loginButton")));
+        loginSectionButton.setText(LanguageUtil.getBundle().getString("loginSectionButton"));
+        loginSectionButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_loginSectionButton")));
+        signupSectionButton.setText(LanguageUtil.getBundle().getString("signupSectionButton"));
+        signupSectionButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_signupSectionButton")));
+        signupButton.setText(LanguageUtil.getBundle().getString("signupButton"));
+        signupButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_signupButton")));
+        loginButton.setText(LanguageUtil.getBundle().getString("loginButton"));
+        loginButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_loginButton")));
     }
 
     // Valida los campos del formulario de registro
@@ -254,7 +254,7 @@ public class AuthController {
         if (!pw.getStyleClass().contains("error-border")) pw.getStyleClass().add("error-border");
         if (!confirmPw.getStyleClass().contains("error-border")) confirmPw.getStyleClass().add("error-border");
 
-        errorLabel.setText(LanguageManager.getBundle().getString(messageKey));
+        errorLabel.setText(LanguageUtil.getBundle().getString(messageKey));
         errorLabel.setVisible(true);
         errorLabel.setManaged(true);
     }
@@ -277,7 +277,7 @@ public class AuthController {
             if (!field.getStyleClass().contains("error-border")) {
                 field.getStyleClass().add("error-border");
             }
-            errorLabel.setText(LanguageManager.getBundle().getString(errorMessageKey));
+            errorLabel.setText(LanguageUtil.getBundle().getString(errorMessageKey));
             errorLabel.setVisible(true);
             errorLabel.setManaged(true);
             return false;
@@ -298,7 +298,7 @@ public class AuthController {
         }
 
         // Mostrar mensaje de error
-        errorLabel.setText(LanguageManager.getBundle().getString(errorMessageKey));
+        errorLabel.setText(LanguageUtil.getBundle().getString(errorMessageKey));
         errorLabel.setVisible(true);
         errorLabel.setManaged(true);
     }

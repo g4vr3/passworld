@@ -1,19 +1,19 @@
 package passworld.service;
 
-import passworld.data.LocalAuthUtil;
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
+import passworld.utils.LanguageUtil;
 import passworld.utils.LogUtils;
+import passworld.utils.SecurityFilterUtils;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class PasswordManager {
 
-    private static final SecurityFilterManager securityFilterService = new SecurityFilterManager();
+    private static final SecurityFilterUtils securityFilterService = new SecurityFilterUtils();
 
     // Guardar una nueva contraseña localmente
     public static boolean savePassword(PasswordDTO newPasswordDTO) throws SQLException {
@@ -122,7 +122,7 @@ public class PasswordManager {
 
     // Validar los datos de la contraseña
     private static void validatePasswordData(PasswordDTO passwordDTO) {
-        ResourceBundle bundle = LanguageManager.getBundle();
+        ResourceBundle bundle = LanguageUtil.getBundle();
 
         if (passwordDTO.getPassword() == null || passwordDTO.getPassword().isEmpty()) {
             LogUtils.LOGGER.severe("Password is empty");

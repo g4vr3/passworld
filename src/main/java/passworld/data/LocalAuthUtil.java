@@ -1,6 +1,6 @@
 package passworld.data;
 
-import passworld.service.LanguageManager;
+import passworld.utils.LanguageUtil;
 import passworld.utils.LogUtils;
 
 import java.sql.Connection;
@@ -18,7 +18,7 @@ public class LocalAuthUtil {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             LogUtils.LOGGER.severe("Error saving master password hash: " + e);
-            throw new SQLException(LanguageManager.getBundle().getString("errorSavingMasterPassword"), e);
+            throw new SQLException(LanguageUtil.getBundle().getString("errorSavingMasterPassword"), e);
         }
     }
 
@@ -29,7 +29,7 @@ public class LocalAuthUtil {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             LogUtils.LOGGER.severe("Error clearing master password: " + e);
-            throw new SQLException(LanguageManager.getBundle().getString("errorClearingMasterPassword"), e);
+            throw new SQLException(LanguageUtil.getBundle().getString("errorClearingMasterPassword"), e);
         }
     }
 
@@ -43,7 +43,7 @@ public class LocalAuthUtil {
             }
         } catch (SQLException e) {
             LogUtils.LOGGER.severe("Error getting master password hash: " + e);
-            throw new Exception(LanguageManager.getBundle().getString("errorGettingMasterPasswordHash"), e);
+            throw new Exception(LanguageUtil.getBundle().getString("errorGettingMasterPasswordHash"), e);
         }
         return null;
     }

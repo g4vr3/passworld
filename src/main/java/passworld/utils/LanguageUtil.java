@@ -1,16 +1,15 @@
-package passworld.service;
+package passworld.utils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
-import passworld.utils.LogUtils;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
-public class LanguageManager {
-    private static final Preferences prefs = Preferences.userNodeForPackage(LanguageManager.class);
+public class LanguageUtil {
+    private static final Preferences prefs = Preferences.userNodeForPackage(LanguageUtil.class);
     private static ResourceBundle bundle;
     private static String currentLanguage;
 
