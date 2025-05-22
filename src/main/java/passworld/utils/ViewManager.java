@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import passworld.controller.AuthController;
+import passworld.controller.SplashScreenController;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -25,6 +26,9 @@ public class ViewManager {
         primaryStage.setOnCloseRequest(_ -> {
             Platform.exit(); // Detiene todos los hilos de JavaFX
             System.exit(0); // Finaliza
+            //Detiene todos los executores
+            SplashScreenController.getExecutorService().shutdownNow();
+
         });
     }
     public static Stage getPrimaryStage() {
