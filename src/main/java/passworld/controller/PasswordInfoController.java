@@ -82,7 +82,6 @@ public class PasswordInfoController {
 
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
             System.err.println("Error loading PasswordInfoController: " + e.getMessage());
             LogUtils.LOGGER.severe("Error loading passwordInfo view: " + e);
         }

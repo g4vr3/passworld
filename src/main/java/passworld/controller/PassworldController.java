@@ -298,7 +298,6 @@ public class PassworldController {
             } catch (Exception e) {
                 LogUtils.LOGGER.severe("Error while logging out: " + e);
                 System.err.println("Error al cerrar sesión: " + e.getMessage());
-                e.printStackTrace();
                 // Mostrar mensaje de error
                 Window window = savePasswordButton.getScene().getWindow();
                 Notifier.showNotification(window, LanguageUtil.getBundle().getString("toolTip_logout_error"));

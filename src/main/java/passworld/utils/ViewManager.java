@@ -8,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import passworld.controller.AuthController;
 import passworld.controller.SplashScreenController;
 
 import java.io.IOException;
@@ -52,7 +51,6 @@ public class ViewManager {
             primaryStage.show(); // Aseguramos que esté visible
 
         } catch (IOException e) {
-            e.printStackTrace();
             System.err.println("Error loading FXML file: " + e.getMessage());
             LogUtils.LOGGER.severe("Error loading FXML file: " + fxmlPath + "/n" + e);
         }
