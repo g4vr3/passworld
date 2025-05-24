@@ -14,6 +14,11 @@ public class HeaderConfigurator {
         logoImageView.setImage(logoImage);
         ThemeManager.applyThemeToImage(logoImageView);
 
+        // Acción del logo para mostrar el diálogo "Acerca de"
+        logoImageView.setOnMouseClicked(event -> {
+            DialogUtil.showAboutDialog();
+        });
+
         // Icono de ayuda
         Image helpIcon = new Image(Objects.requireNonNull(HeaderConfigurator.class.getResource("/passworld/images/help_icon.png")).toExternalForm());
         ImageView helpIconImageView = new ImageView(helpIcon);

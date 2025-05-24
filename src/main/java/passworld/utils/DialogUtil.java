@@ -267,4 +267,54 @@ public class DialogUtil {
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
     }
+
+    // Mostrar un cuadro de diálogo de información de la aplicación
+    public static void showAboutDialog() {
+        ResourceBundle bundle = LanguageManager.getBundle();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Passworld");
+        alert.setHeaderText(null);
+
+        // Icono del dialogo
+        ImageView infoIcon = new ImageView(new Image(
+                Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/info_icon.png")).toExternalForm()
+        ));
+        infoIcon.setFitWidth(40);
+        infoIcon.setFitHeight(40);
+        alert.setGraphic(infoIcon);
+
+        String versionText = "Passworld 1.0.0";
+        String iconsText = bundle.getString("about_icons");
+        String icons8Text = "icons8";
+        String icons8Url = "https://icons8.com/";
+
+        Label versionLabel = new Label(versionText);
+        Label iconsLabel = new Label(iconsText);
+        Hyperlink icons8Link = new Hyperlink(icons8Text);
+        icons8Link.setOnAction(e -> {
+            try {
+                java.awt.Desktop.getDesktop().browse(java.net.URI.create(icons8Url));
+            } catch (Exception ex) {
+                LogUtils.LOGGER.warning("Error opening URL: " + icons8Url);
+            }
+        });
+        icons8Link.setStyle("-fx-text-fill: #222; -fx-underline: true;");
+
+        HBox iconsBox = new HBox(iconsLabel, icons8Link);
+        iconsBox.setSpacing(2);
+        iconsBox.setAlignment(Pos.CENTER_LEFT);
+
+        VBox content = new VBox(10, versionLabel, iconsBox);
+
+        alert.getDialogPane().setContent(content);
+        alert.getDialogPane().setPrefWidth(220);
+        ThemeManager.applyCurrentTheme(alert.getDialogPane().getScene());
+
+        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.getStyleClass().add("primary");
+        }
+
+        alert.showAndWait();
+    }
 }
