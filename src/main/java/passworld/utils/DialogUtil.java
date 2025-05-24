@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import passworld.data.PasswordDTO;
 
 import java.util.Objects;
@@ -308,6 +309,36 @@ public class DialogUtil {
         String icons8Url = "https://icons8.com/";
 
         Label versionLabel = new Label(versionText);
+
+        // Desarrolladores
+        HBox devsBox = new HBox(5);
+        devsBox.setAlignment(Pos.CENTER_LEFT);
+
+        Hyperlink dev1 = getDevLink("g4vr3", "https://github.com/g4vr3");
+        Hyperlink dev2 = getDevLink("jagudo27", "https://github.com/jagudo27");
+
+        devsBox.getChildren().addAll(dev1, new Label(" - "), dev2);
+
+        // Créditos de iconos
+        HBox iconsBox = getIconsCreditsBox(iconsText, icons8Text, icons8Url);
+
+        VBox content = new VBox(10, versionLabel, devsBox, iconsBox);
+        content.setAlignment(Pos.CENTER_LEFT);
+
+        alert.getDialogPane().setContent(content);
+        alert.getDialogPane().setPrefWidth(260);
+        ThemeManager.applyCurrentTheme(alert.getDialogPane().getScene());
+
+        // Establecer estilo del diálogo
+        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.getStyleClass().add("primary");
+        }
+        alert.showAndWait();
+    }
+
+    // Devuelve un HBox con el texto de créditos de iconos y un enlace a icons8
+    private static HBox getIconsCreditsBox(String iconsText, String icons8Text, String icons8Url) {
         Label iconsLabel = new Label(iconsText);
         Hyperlink icons8Link = new Hyperlink(icons8Text);
         icons8Link.setOnAction(e -> {
@@ -318,22 +349,23 @@ public class DialogUtil {
             }
         });
         icons8Link.setStyle("-fx-text-fill: #222; -fx-underline: true;");
-
         HBox iconsBox = new HBox(iconsLabel, icons8Link);
         iconsBox.setSpacing(2);
         iconsBox.setAlignment(Pos.CENTER_LEFT);
+        return iconsBox;
+    }
 
-        VBox content = new VBox(10, versionLabel, iconsBox);
-
-        alert.getDialogPane().setContent(content);
-        alert.getDialogPane().setPrefWidth(220);
-        ThemeManager.applyCurrentTheme(alert.getDialogPane().getScene());
-
-        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
-        if (okButton != null) {
-            okButton.getStyleClass().add("primary");
-        }
-
-        alert.showAndWait();
+    // Devuelve un Hyperlink para un desarrollador con su nombre y enlace a GitHub
+    private static Hyperlink getDevLink(String name, String githubUrl) {
+        Hyperlink link = new Hyperlink(name);
+        link.setOnAction(e -> {
+            try {
+                java.awt.Desktop.getDesktop().browse(java.net.URI.create(githubUrl));
+            } catch (Exception ex) {
+                LogUtils.LOGGER.warning("Error opening URL: " + githubUrl);
+            }
+        });
+        link.setStyle("-fx-text-fill: #222; -fx-underline: true;");
+        return link;
     }
 }
