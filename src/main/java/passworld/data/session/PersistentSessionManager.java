@@ -57,7 +57,6 @@ public class PersistentSessionManager {
                 return true;
             } catch (Exception e) {
                 LogUtils.LOGGER.severe("Error fetching the refresh token: " + e.getMessage());
-                e.printStackTrace();
             }
         }
         return false;
@@ -115,7 +114,6 @@ public class PersistentSessionManager {
             }
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error refreshing token with Firebase: " + e);
-            e.printStackTrace();
         }
     }
 
@@ -129,7 +127,6 @@ public class PersistentSessionManager {
                 LogUtils.LOGGER.info("User id set successfully");
             } catch (Exception e) {
                 LogUtils.LOGGER.severe("Error setting the user id: " + e);
-                e.printStackTrace();
             }
         }
     }
@@ -187,7 +184,6 @@ public class PersistentSessionManager {
             return jsonObject.getString(key);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error extracting JSON value: " + e);
-            e.printStackTrace();
             return null;
         }
     }
@@ -266,7 +262,6 @@ public class PersistentSessionManager {
 
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error getting system UUID: " + e);
-            e.printStackTrace();
         }
 
         if (uuid == null) {
@@ -293,7 +288,6 @@ public class PersistentSessionManager {
             props.store(out, null);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error saving properties: " + e);
-            e.printStackTrace();
         }
     }
 }

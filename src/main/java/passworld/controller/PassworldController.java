@@ -9,7 +9,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.Window;
 import passworld.data.session.PersistentSessionManager;
-import passworld.service.LanguageManager;
+import passworld.utils.LanguageUtil;
 import passworld.service.PasswordManager;
 import passworld.utils.*;
 
@@ -17,7 +17,7 @@ import java.sql.SQLException;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-import static passworld.service.LanguageManager.setLanguageSupport;
+import static passworld.utils.LanguageUtil.setLanguageSupport;
 
 public class PassworldController {
 
@@ -190,7 +190,7 @@ public class PassworldController {
         String password = passwordField.getText();
 
         Window window = savePasswordButton.getScene().getWindow();
-        ResourceBundle bundle = LanguageManager.getBundle();
+        ResourceBundle bundle = LanguageUtil.getBundle();
 
         // Verifica si hay una contraseña en el TextField antes de copiar
         if (!password.isEmpty()) {
@@ -212,7 +212,7 @@ public class PassworldController {
         }
 
         Window window = savePasswordButton.getScene().getWindow();
-        ResourceBundle bundle = LanguageManager.getBundle();
+        ResourceBundle bundle = LanguageUtil.getBundle();
 
         if (!password.isEmpty()) {
             // Llama al método utilitario para mostrar el diálogo
@@ -246,12 +246,12 @@ public class PassworldController {
 
     // Establece los textos de la interfaz con los valores del ResourceBundle
     private void setUITexts() {
-        helpButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_helpButton")));
-        toggleThemeButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_toggleThemeButton")));
-        languageComboBox.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_languageComboBox")));
-        logoutButton.setTooltip(new Tooltip(LanguageManager.getBundle().getString("toolTip_logoutButton")));
+        helpButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_helpButton")));
+        toggleThemeButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_toggleThemeButton")));
+        languageComboBox.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_languageComboBox")));
+        logoutButton.setTooltip(new Tooltip(LanguageUtil.getBundle().getString("toolTip_logoutButton")));
 
-        ResourceBundle bundle = LanguageManager.getBundle();  // Obtener el ResourceBundle desde LanguageSupport
+        ResourceBundle bundle = LanguageUtil.getBundle();  // Obtener el ResourceBundle desde LanguageSupport
         passwordLabel.setText(bundle.getString("generatedPassword_label"));
         passwordField.setPromptText(bundle.getString("prompt_generatedPasswordField"));
         upperAndLowerCaseCheckbox.setText(bundle.getString("upperAndLowerCaseCheckbox"));
@@ -284,24 +284,23 @@ public class PassworldController {
 
         if (confirmed) {
             try {
-                // Borrar tokens y datos de sesión
+                // Borrar tokens y datos de sesión (incluido filtro de seguridad)
                 PersistentSessionManager.clearTokens();
 
                 // Notificar al usuario
                 Window window = savePasswordButton.getScene().getWindow();
 
                 LogUtils.LOGGER.info("Logout successful");
-                Notifier.showNotification(window, LanguageManager.getBundle().getString("toolTip_logout_success"));
+                Notifier.showNotification(window, LanguageUtil.getBundle().getString("toolTip_logout_success"));
 
                 // Cambiar a la vista de inicio de sesión
                 ViewManager.changeView("/passworld/authentication-view.fxml", "passworld");
             } catch (Exception e) {
                 LogUtils.LOGGER.severe("Error while logging out: " + e);
                 System.err.println("Error al cerrar sesión: " + e.getMessage());
-                e.printStackTrace();
                 // Mostrar mensaje de error
                 Window window = savePasswordButton.getScene().getWindow();
-                Notifier.showNotification(window, LanguageManager.getBundle().getString("toolTip_logout_error"));
+                Notifier.showNotification(window, LanguageUtil.getBundle().getString("toolTip_logout_error"));
             }
         }
     }

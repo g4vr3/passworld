@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 import passworld.data.PasswordDTO;
 import passworld.data.exceptions.EncryptionException;
 import passworld.data.session.UserSession;
-import passworld.service.LanguageManager;
+import passworld.utils.LanguageUtil;
 import passworld.service.PasswordManager;
 import passworld.utils.*;
 
@@ -82,7 +82,6 @@ public class PasswordInfoController {
 
             stage.showAndWait();
         } catch (IOException e) {
-            e.printStackTrace();
             System.err.println("Error loading PasswordInfoController: " + e.getMessage());
             LogUtils.LOGGER.severe("Error loading passwordInfo view: " + e);
         }
@@ -206,7 +205,7 @@ public class PasswordInfoController {
     }
 
     public void setUIText() {
-        ResourceBundle bundle = LanguageManager.getBundle();
+        ResourceBundle bundle = LanguageUtil.getBundle();
 
         descriptionLabel.setText(bundle.getString("description_label") + ":*");
         descriptionField.setPromptText(bundle.getString("description_prompt"));
@@ -462,6 +461,6 @@ public class PasswordInfoController {
     }
 
     private static ResourceBundle getBundle() {
-        return LanguageManager.getBundle();
+        return LanguageUtil.getBundle();
     }
 }

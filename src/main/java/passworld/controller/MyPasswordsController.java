@@ -20,8 +20,8 @@ import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
 import passworld.data.session.UserSession;
 import passworld.data.sync.SyncHandler;
-import passworld.service.LanguageManager;
-import passworld.service.SecurityFilterManager;
+import passworld.utils.LanguageUtil;
+import passworld.utils.SecurityFilterUtils;
 import passworld.utils.*;
 import passworld.service.PasswordManager;
 
@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 
 
 public class MyPasswordsController {
+    @FXML
+    private ImageView syncStatusImageView;
     @FXML
     ImageView logoImageView;
     @FXML
@@ -96,7 +98,7 @@ public class MyPasswordsController {
 
     // Auxiliar para obtener el ResourceBundle dinámicamente
     private static ResourceBundle getBundle() {
-        return LanguageManager.getBundle();
+        return LanguageUtil.getBundle();
     }
 
     public static void showView() {
@@ -175,6 +177,9 @@ public class MyPasswordsController {
         // Inicializar los contadores de contraseñas
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
         issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
+        syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/passworld/images/notsync_icon.png"))));
+        Tooltip notSyncTooltip = new Tooltip(getBundle().getString("tooltip_notsynced"));
+        Tooltip.install(syncStatusImageView, notSyncTooltip);
         syncPasswordsPeriodically();
     }
 
@@ -208,7 +213,7 @@ public class MyPasswordsController {
             List<PasswordDTO> passwords = PasswordDAO.readAllPasswordsDecrypted();
             passwordList.setAll(passwords); // Actualizar la lista observable
             issuePasswordsList.setAll(passwords.stream()
-                    .filter(SecurityFilterManager::hasPasswordSecurityIssues)
+                    .filter(SecurityFilterUtils::hasPasswordSecurityIssues)
                     .collect(Collectors.toList())); // Actualizar la lista de contraseñas con problemas
 
             // Restaurar la lista activa
@@ -447,7 +452,7 @@ public class MyPasswordsController {
                     setGraphic(null);
                 } else {
                     PasswordDTO password = getTableRow().getItem();
-                    if (SecurityFilterManager.hasPasswordSecurityIssues(password)) {
+                    if (SecurityFilterUtils.hasPasswordSecurityIssues(password)) {
                         setGraphic(warningIconView);
                     } else {
                         setGraphic(null);
@@ -609,18 +614,20 @@ public class MyPasswordsController {
 
                     // Solo sincronizar si está online y logueado
                     if (isOnline && isLoggedIn) {
-                        Thread.sleep(3000); // Esperar 3s antes de sincronizar
+                        Thread.sleep(2000); // Esperar 2s antes de sincronizar
                         if(TimeSyncManager.getOffset().isZero()){
                             TimeSyncManager.syncTimeWithUtcServer();
                         }
                         List<PasswordDTO> localPasswords = PasswordDAO.readAllPasswords();
                         SyncHandler.syncPasswords(localPasswords);
                         Platform.runLater(this::loadPasswords);
+                        Platform.runLater(() -> updateSyncStatus(true));
+                    } else {
+                        Platform.runLater(() -> updateSyncStatus(false));
                     }
 
                     // Detecta cambio de estado para debug/log (opcional)
                     if (lastOnlineStatus != isOnline || lastLoginStatus != isLoggedIn) {
-                        System.out.println("Estado actualizado: online=" + isOnline + ", login=" + isLoggedIn);
                         LogUtils.LOGGER.info("Updated status: online=" + isOnline + ", login=" + isLoggedIn);
                         lastOnlineStatus = isOnline;
                         lastLoginStatus = isLoggedIn;
@@ -631,8 +638,8 @@ public class MyPasswordsController {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (IOException | SQLException e) {
-                    System.out.println("Error during synchronization: " + e.getMessage());
                     LogUtils.LOGGER.severe("Error during synchronization: " + e);
+                    Platform.runLater(() -> updateSyncStatus(false));
                 }
             }
         }, "PasswordSyncThread").start();
@@ -723,6 +730,17 @@ public class MyPasswordsController {
                 adjustTableHeight(passwordTable.getItems().size()); // Ajustar la altura de la tabla
             });
             collapse.play();
+        }
+    }
+    public void updateSyncStatus(boolean isSynced) {
+        if (isSynced) {
+            syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/passworld/images/sync_icon.png"))));
+            Tooltip syncTooltip = new Tooltip(getBundle().getString("tooltip_sync"));
+            Tooltip.install(syncStatusImageView, syncTooltip);
+        } else {
+            Tooltip notSyncTooltip = new Tooltip(getBundle().getString("tooltip_notsynced"));
+            syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/passworld/images/notsync_icon.png"))));
+            Tooltip.install(syncStatusImageView, notSyncTooltip);
         }
     }
 }

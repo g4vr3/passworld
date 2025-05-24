@@ -2,6 +2,7 @@ package passworld.data.session;
 
 import passworld.data.LocalAuthUtil;
 import passworld.data.PasswordDAO;
+import passworld.utils.SecurityFilterUtils;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.sql.SQLException;
@@ -77,6 +78,7 @@ public class UserSession {
         clearMasterKey();
         LocalAuthUtil.clearMasterPassword();
         PasswordDAO.deleteAllPasswords();
+        SecurityFilterUtils.clearUniquePasswords();
 
     }
 

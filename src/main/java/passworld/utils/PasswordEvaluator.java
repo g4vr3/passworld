@@ -3,7 +3,6 @@ package passworld.utils;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.paint.Color;
-import passworld.service.LanguageManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -141,27 +140,27 @@ public class PasswordEvaluator {
         // En función de la fortaleza, cambia el color, el texto y los mensajes de ayuda
         switch (strength) {
             case 0:
-                passwordStrengthLabel.setText(LanguageManager.getBundle().getString("passwordStrengthLabel_0"));
+                passwordStrengthLabel.setText(LanguageUtil.getBundle().getString("passwordStrengthLabel_0"));
                 passwordStrengthLabel.setTextFill(Color.TOMATO);
                 passwordStrengthProgressBar.getStyleClass().add("red");
                 break;
             case 1:
-                passwordStrengthLabel.setText(LanguageManager.getBundle().getString("passwordStrengthLabel_1"));
+                passwordStrengthLabel.setText(LanguageUtil.getBundle().getString("passwordStrengthLabel_1"));
                 passwordStrengthLabel.setTextFill(Color.TOMATO);
                 passwordStrengthProgressBar.getStyleClass().add("red");
                 break;
             case 2:
-                passwordStrengthLabel.setText(LanguageManager.getBundle().getString("passwordStrengthLabel_2"));
+                passwordStrengthLabel.setText(LanguageUtil.getBundle().getString("passwordStrengthLabel_2"));
                 passwordStrengthLabel.setTextFill(Color.ORANGE);
                 passwordStrengthProgressBar.getStyleClass().add("orange");
                 break;
             case 3:
-                passwordStrengthLabel.setText(LanguageManager.getBundle().getString("passwordStrengthLabel_3"));
+                passwordStrengthLabel.setText(LanguageUtil.getBundle().getString("passwordStrengthLabel_3"));
                 passwordStrengthLabel.setTextFill(Color.YELLOWGREEN);
                 passwordStrengthProgressBar.getStyleClass().add("yellowgreen");
                 break;
             case 4:
-                passwordStrengthLabel.setText(LanguageManager.getBundle().getString("passwordStrengthLabel_4"));
+                passwordStrengthLabel.setText(LanguageUtil.getBundle().getString("passwordStrengthLabel_4"));
                 passwordStrengthLabel.setTextFill(Color.GREEN);
                 passwordStrengthProgressBar.getStyleClass().add("green");
                 break;

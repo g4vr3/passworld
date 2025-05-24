@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class SplashScreenController {
     private volatile boolean splashClosed = false;
     private boolean lastOnlineStatus = false;
+    private static ScheduledExecutorService connectionMonitorExecutor;
 
     @FXML
     private MediaView mediaView;
@@ -87,9 +88,8 @@ public class SplashScreenController {
         thread.start();
 
         // Iniciar monitor de conexión
-        try (ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor()) {
-            executor.scheduleAtFixedRate(createConnectionMonitorTask(), 0, 10, TimeUnit.SECONDS);
-        }
+        connectionMonitorExecutor = Executors.newSingleThreadScheduledExecutor();
+        connectionMonitorExecutor.scheduleAtFixedRate(createConnectionMonitorTask(), 0, 10, TimeUnit.SECONDS);
     }
 
     /** Se dispara al terminar el timeline de la Splash. */
@@ -137,14 +137,12 @@ public class SplashScreenController {
                     boolean session = PersistentSessionManager.tokenSavedLocally();
                     if (session) {
                         LogUtils.LOGGER.info("Session found after reconnection");
-                        System.out.println("Sesión encontrada tras reconexión");
                         // Si hay sesión y conexión, refrescamos el token
                         PersistentSessionManager.refreshToken();
                         SyncHandler.startTokenRefreshThread();
 
                     } else {
                         LogUtils.LOGGER.warning("No session found after reconnection");
-                        System.out.println("Sin sesión tras reconexión, redirigiendo a login");
                         AuthController.showView();
                     }
                 });
@@ -157,5 +155,8 @@ public class SplashScreenController {
             }
             lastOnlineStatus = online;
         };
+    }
+    public static ScheduledExecutorService getExecutorService() {
+        return connectionMonitorExecutor;
     }
 }

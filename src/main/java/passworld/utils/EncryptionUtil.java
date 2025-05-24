@@ -2,7 +2,6 @@ package passworld.utils;
 
 import passworld.data.exceptions.EncryptionException;
 import passworld.data.session.UserSession;
-import passworld.service.LanguageManager;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
@@ -30,7 +29,7 @@ public class EncryptionUtil {
             return Base64.getEncoder().encodeToString(hash);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error hashing master password: " + e);
-            throw new EncryptionException(LanguageManager.getBundle().getString("errorHashingMasterPassword"), e);
+            throw new EncryptionException(LanguageUtil.getBundle().getString("errorHashingMasterPassword"), e);
         }
     }
 
@@ -40,7 +39,7 @@ public class EncryptionUtil {
             return hashOfInput.equals(storedHashBase64);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error verifying master password: " + e);
-            throw new EncryptionException(LanguageManager.getBundle().getString("errorVerifyingMasterPassword"), e);
+            throw new EncryptionException(LanguageUtil.getBundle().getString("errorVerifyingMasterPassword"), e);
         }
     }
 
@@ -52,7 +51,7 @@ public class EncryptionUtil {
             return new SecretKeySpec(derivedKey, ALGORITHM);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error deriving AES key: " + e);
-            throw new EncryptionException(LanguageManager.getBundle().getString("errorDerivingAESKey"), e);
+            throw new EncryptionException(LanguageUtil.getBundle().getString("errorDerivingAESKey"), e);
         }
     }
 
@@ -60,7 +59,7 @@ public class EncryptionUtil {
     public static String encryptData(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
         if (plainPassword == null || masterKey == null) {
             LogUtils.LOGGER.severe("Error decrypting data: Data is null");
-            throw new EncryptionException(LanguageManager.getBundle().getString("nullEncryptionInput"));
+            return null;
         }
 
         try {
@@ -70,14 +69,14 @@ public class EncryptionUtil {
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error encrypting data: " + e);
-            throw new EncryptionException(LanguageManager.getBundle().getString("errorEncryptingPassword"), e);
+            throw new EncryptionException(LanguageUtil.getBundle().getString("errorEncryptingPassword"), e);
         }
     }
 
     public static String decryptData(String encryptedPassword, SecretKeySpec masterKey) throws EncryptionException {
         if (encryptedPassword == null || masterKey == null) {
             LogUtils.LOGGER.severe("Error decrypting data: Data is null");
-            throw new EncryptionException(LanguageManager.getBundle().getString("nullDecryptionInput"));
+            return null;
         }
 
         try {
@@ -87,7 +86,7 @@ public class EncryptionUtil {
             return new String(decrypted);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error decrypting data: " + e);
-            throw new EncryptionException(LanguageManager.getBundle().getString("errorDecryptingPassword"), e);
+            throw new EncryptionException(LanguageUtil.getBundle().getString("errorDecryptingPassword"), e);
         }
     }
 }
