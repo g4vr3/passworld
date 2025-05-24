@@ -257,6 +257,14 @@ public class DialogUtil {
         alert.setHeaderText(bundle.getString(headerKey));
         alert.setContentText(bundle.getString(messageKey));
 
+        // Icono del dialogo
+        ImageView infoIcon = new ImageView(new Image(
+                Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/question_icon.png")).toExternalForm()
+        ));
+        infoIcon.setFitWidth(40);
+        infoIcon.setFitHeight(40);
+        alert.setGraphic(infoIcon);
+
         // Establecer tema y clase al cuadro de diálogo
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(
