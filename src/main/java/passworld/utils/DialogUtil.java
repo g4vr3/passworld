@@ -256,7 +256,19 @@ public class DialogUtil {
         alert.setHeaderText(bundle.getString(headerKey));
         alert.setContentText(bundle.getString(messageKey));
 
-        // Icono del dialogo
+        // Botones
+        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.getStyleClass().add("primary");
+        }
+        ButtonType cancelButtonType = new ButtonType(bundle.getString("cancel_button"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        Button cancelButton = (Button) alert.getDialogPane().lookupButton(cancelButtonType);
+        if (cancelButton != null) {
+            cancelButton.getStyleClass().add("secondary");
+        }
+        alert.getButtonTypes().setAll(cancelButtonType, ButtonType.OK);
+
+        // Icono del diálogo
         ImageView infoIcon = new ImageView(new Image(
                 Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/question_icon.png")).toExternalForm()
         ));
@@ -277,7 +289,7 @@ public class DialogUtil {
 
     // Mostrar un cuadro de diálogo de información de la aplicación
     public static void showAboutDialog() {
-        ResourceBundle bundle = LanguageManager.getBundle();
+        ResourceBundle bundle = LanguageUtil.getBundle();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Passworld");
         alert.setHeaderText(null);
