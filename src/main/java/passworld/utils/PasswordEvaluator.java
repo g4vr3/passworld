@@ -79,7 +79,7 @@ public class PasswordEvaluator {
     }
 
     // Verificar si la contraseña contiene palabras comunes
-    private static boolean containsCommonWords(String password) {
+    public static boolean containsCommonWords(String password) {
         String lower = password.toLowerCase();
         for (int i = 0; i < lower.length(); i++) {
             for (int j = i + 1; j <= lower.length(); j++) {
