@@ -11,6 +11,7 @@ module passworld {
     requires jdk.jshell;
     requires java.net.http;
     requires org.apache.commons.net;
+    requires annotations;
 
 
     opens passworld to javafx.fxml;

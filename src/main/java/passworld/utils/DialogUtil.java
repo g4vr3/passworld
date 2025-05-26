@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import passworld.data.PasswordDTO;
 
 import java.util.Objects;
@@ -256,6 +257,26 @@ public class DialogUtil {
         alert.setHeaderText(bundle.getString(headerKey));
         alert.setContentText(bundle.getString(messageKey));
 
+        // Botones
+        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.getStyleClass().add("primary");
+        }
+        ButtonType cancelButtonType = new ButtonType(bundle.getString("cancel_button"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        Button cancelButton = (Button) alert.getDialogPane().lookupButton(cancelButtonType);
+        if (cancelButton != null) {
+            cancelButton.getStyleClass().add("secondary");
+        }
+        alert.getButtonTypes().setAll(cancelButtonType, ButtonType.OK);
+
+        // Icono del diálogo
+        ImageView infoIcon = new ImageView(new Image(
+                Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/question_icon.png")).toExternalForm()
+        ));
+        infoIcon.setFitWidth(40);
+        infoIcon.setFitHeight(40);
+        alert.setGraphic(infoIcon);
+
         // Establecer tema y clase al cuadro de diálogo
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(
@@ -265,5 +286,86 @@ public class DialogUtil {
 
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    // Mostrar un cuadro de diálogo de información de la aplicación
+    public static void showAboutDialog() {
+        ResourceBundle bundle = LanguageUtil.getBundle();
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Passworld");
+        alert.setHeaderText(null);
+
+        // Icono del dialogo
+        ImageView infoIcon = new ImageView(new Image(
+                Objects.requireNonNull(DialogUtil.class.getResource("/passworld/images/info_icon.png")).toExternalForm()
+        ));
+        infoIcon.setFitWidth(40);
+        infoIcon.setFitHeight(40);
+        alert.setGraphic(infoIcon);
+
+        String versionText = "Passworld 1.0.0";
+        String iconsText = bundle.getString("about_icons");
+        String icons8Text = "icons8";
+        String icons8Url = "https://icons8.com/";
+
+        Label versionLabel = new Label(versionText);
+
+        // Desarrolladores
+        HBox devsBox = new HBox(5);
+        devsBox.setAlignment(Pos.CENTER_LEFT);
+
+        Hyperlink dev1 = getDevLink("g4vr3", "https://github.com/g4vr3");
+        Hyperlink dev2 = getDevLink("jagudo27", "https://github.com/jagudo27");
+
+        devsBox.getChildren().addAll(dev1, new Label(" - "), dev2);
+
+        // Créditos de iconos
+        HBox iconsBox = getIconsCreditsBox(iconsText, icons8Text, icons8Url);
+
+        VBox content = new VBox(10, versionLabel, devsBox, iconsBox);
+        content.setAlignment(Pos.CENTER_LEFT);
+
+        alert.getDialogPane().setContent(content);
+        alert.getDialogPane().setPrefWidth(260);
+        ThemeManager.applyCurrentTheme(alert.getDialogPane().getScene());
+
+        // Establecer estilo del diálogo
+        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
+        if (okButton != null) {
+            okButton.getStyleClass().add("primary");
+        }
+        alert.showAndWait();
+    }
+
+    // Devuelve un HBox con el texto de créditos de iconos y un enlace a icons8
+    private static HBox getIconsCreditsBox(String iconsText, String icons8Text, String icons8Url) {
+        Label iconsLabel = new Label(iconsText);
+        Hyperlink icons8Link = new Hyperlink(icons8Text);
+        icons8Link.setOnAction(e -> {
+            try {
+                java.awt.Desktop.getDesktop().browse(java.net.URI.create(icons8Url));
+            } catch (Exception ex) {
+                LogUtils.LOGGER.warning("Error opening URL: " + icons8Url);
+            }
+        });
+        icons8Link.setStyle("-fx-text-fill: #222; -fx-underline: true;");
+        HBox iconsBox = new HBox(iconsLabel, icons8Link);
+        iconsBox.setSpacing(2);
+        iconsBox.setAlignment(Pos.CENTER_LEFT);
+        return iconsBox;
+    }
+
+    // Devuelve un Hyperlink para un desarrollador con su nombre y enlace a GitHub
+    private static Hyperlink getDevLink(String name, String githubUrl) {
+        Hyperlink link = new Hyperlink(name);
+        link.setOnAction(e -> {
+            try {
+                java.awt.Desktop.getDesktop().browse(java.net.URI.create(githubUrl));
+            } catch (Exception ex) {
+                LogUtils.LOGGER.warning("Error opening URL: " + githubUrl);
+            }
+        });
+        link.setStyle("-fx-text-fill: #222; -fx-underline: true;");
+        return link;
     }
 }
