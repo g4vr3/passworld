@@ -3,6 +3,7 @@ package passworld.utils;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import passworld.PassworldApplication;
 
 import java.util.Objects;
 
@@ -33,7 +34,7 @@ public class HeaderConfigurator {
         helpButton.setOnAction(_ -> {
             String url = "https://g4vr3.github.io/passworld-web/help.html";
             try {
-                java.awt.Desktop.getDesktop().browse(java.net.URI.create(url));
+                PassworldApplication.getHostServicesInstance().showDocument(url);
             } catch (Exception e) {
                 System.err.println("Error al abrir la URL de ayuda: " + url);
                 LogUtils.LOGGER.warning("Error opening help URL: " + url);

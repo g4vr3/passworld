@@ -1,6 +1,7 @@
 package passworld;
 
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,8 +17,12 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class PassworldApplication extends Application {
+    private static HostServices hostServices;
+
     @Override
     public void start(Stage stage) throws IOException {
+        hostServices = getHostServices();
+
         // Crear la base de datos si no existe
         DDL.createDatabase();
 
@@ -45,6 +50,10 @@ public class PassworldApplication extends Application {
 
         // Mostrar el splash
         splash.show();
+    }
+
+    public static HostServices getHostServicesInstance() {
+        return hostServices;
     }
 
     public static void main(String[] args) {
