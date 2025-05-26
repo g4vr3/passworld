@@ -138,18 +138,20 @@ public class SyncHandler {
         if (refreshThread != null && refreshThread.isAlive()) {
             return; // Ya hay un hilo corriendo
         }
-         refreshThread = new Thread(() -> {
+        refreshThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(10 * 60 * 1000);
-                    // ⏱ 50 minutos
+                    Thread.sleep(40 * 60 * 1000);
+
                     if (!hasInternetConnection()) continue;
+
                     LogUtils.LOGGER.info("Mostrando verificación de clave maestra para refrescar token");
 
                     boolean verified = VaultProtectionController.showAndVerifyPassword();
+
                     if (verified) {
                         LogUtils.LOGGER.info("Master key verificada. Refrescando token...");
-                        PersistentSessionManager.refreshToken(); //
+                        PersistentSessionManager.refreshToken();
                     } else {
                         LogUtils.LOGGER.warning("Master key no verificada. No se refresca el token.");
                     }
@@ -157,6 +159,8 @@ public class SyncHandler {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {
+                    LogUtils.LOGGER.severe("Error inesperado en refresco de token: " + e);
                 }
             }
         }, "TokenRefreshThread");

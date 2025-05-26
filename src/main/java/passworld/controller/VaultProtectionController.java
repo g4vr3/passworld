@@ -10,6 +10,8 @@ import passworld.data.session.UserSession;
 import passworld.utils.LanguageUtil;
 import passworld.utils.*;
 
+import java.util.concurrent.CountDownLatch;
+
 import static passworld.utils.LanguageUtil.getBundle;
 import static passworld.utils.LanguageUtil.setLanguageSupport;
 
@@ -152,19 +154,30 @@ public class VaultProtectionController {
     }
 
     public static boolean showAndVerifyPassword() {
+        passwordVerified = false; // Reiniciar estado antes de mostrar la vista
+        CountDownLatch latch = new CountDownLatch(1);
 
+        // Hilo que vigila passwordVerified sin bloquear la UI
+        new Thread(() -> {
+            while (!passwordVerified) {
+                try {
+                    Thread.sleep(100); // Pequeña espera para no consumir CPU en exceso
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+            latch.countDown(); // Libera el latch cuando passwordVerified cambie
+        }).start();
 
-        // Muestra la vista en el hilo de JavaFX
+        // Mostrar la vista en el hilo JavaFX
         Platform.runLater(VaultProtectionController::showView);
 
-        // Espera hasta que la verificación haya ocurrido
-        while (!passwordVerified) {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return false;
-            }
+        try {
+            latch.await(); // Espera aquí hasta que passwordVerified cambie
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
         }
 
         return passwordVerified;
