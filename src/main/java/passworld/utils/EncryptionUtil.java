@@ -5,13 +5,15 @@ import passworld.data.session.UserSession;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class EncryptionUtil {
 
-    private static final String ALGORITHM = "AES";
+    private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
     private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA256";
     private static final int ITERATIONS = 10000;
     private static final int KEY_LENGTH = 256;
@@ -48,7 +50,7 @@ public class EncryptionUtil {
             PBEKeySpec spec = new PBEKeySpec(masterPassword.toCharArray(), getSalt(), ITERATIONS, KEY_LENGTH);
             SecretKeyFactory factory = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
             byte[] derivedKey = factory.generateSecret(spec).getEncoded();
-            return new SecretKeySpec(derivedKey, ALGORITHM);
+            return new SecretKeySpec(derivedKey, "AES");
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error deriving AES key: " + e);
             throw new EncryptionException(LanguageUtil.getBundle().getString("errorDerivingAESKey"), e);
@@ -58,14 +60,15 @@ public class EncryptionUtil {
     // === CIFRADO Y DESCIFRADO ===
     public static String encryptData(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
         if (plainPassword == null || masterKey == null) {
-            LogUtils.LOGGER.severe("Error decrypting data: Data is null");
+            LogUtils.LOGGER.severe("Error encrypting data: Data is null");
             return null;
         }
 
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, masterKey);
-            byte[] encrypted = cipher.doFinal(plainPassword.getBytes());
+            IvParameterSpec ivSpec = new IvParameterSpec(new byte[16]); // IV de 16 bytes = 0
+            cipher.init(Cipher.ENCRYPT_MODE, masterKey, ivSpec);
+            byte[] encrypted = cipher.doFinal(plainPassword.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encrypted);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error encrypting data: " + e);
@@ -81,9 +84,10 @@ public class EncryptionUtil {
 
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, masterKey);
+            IvParameterSpec ivSpec = new IvParameterSpec(new byte[16]); // mismo IV
+            cipher.init(Cipher.DECRYPT_MODE, masterKey, ivSpec);
             byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedPassword));
-            return new String(decrypted);
+            return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error decrypting data: " + e);
             throw new EncryptionException(LanguageUtil.getBundle().getString("errorDecryptingPassword"), e);
