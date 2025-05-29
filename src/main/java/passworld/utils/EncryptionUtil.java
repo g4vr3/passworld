@@ -9,6 +9,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.Base64;
 
 public class EncryptionUtil {
@@ -58,35 +59,54 @@ public class EncryptionUtil {
     }
 
     // === CIFRADO Y DESCIFRADO ===
-    public static String encryptData(String plainPassword, SecretKeySpec masterKey) throws EncryptionException {
-        if (plainPassword == null || masterKey == null) {
+    public static String encryptData(String plainText, SecretKeySpec masterKey) throws EncryptionException {
+        if (plainText == null || masterKey == null) {
             LogUtils.LOGGER.severe("Error encrypting data: Data is null");
             return null;
         }
 
         try {
             Cipher cipher = Cipher.getInstance(ALGORITHM);
-            IvParameterSpec ivSpec = new IvParameterSpec(new byte[16]); // IV de 16 bytes = 0
+            byte[] iv = new byte[16];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(iv);
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
             cipher.init(Cipher.ENCRYPT_MODE, masterKey, ivSpec);
-            byte[] encrypted = cipher.doFinal(plainPassword.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(encrypted);
+
+            byte[] encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+
+            // Concatenamos IV + cifrado y codificamos en Base64
+            byte[] combined = new byte[iv.length + encrypted.length];
+            System.arraycopy(iv, 0, combined, 0, iv.length);
+            System.arraycopy(encrypted, 0, combined, iv.length, encrypted.length);
+
+            return Base64.getEncoder().encodeToString(combined);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error encrypting data: " + e);
             throw new EncryptionException(LanguageUtil.getBundle().getString("errorEncryptingPassword"), e);
         }
     }
 
-    public static String decryptData(String encryptedPassword, SecretKeySpec masterKey) throws EncryptionException {
-        if (encryptedPassword == null || masterKey == null) {
+
+    public static String decryptData(String encryptedData, SecretKeySpec masterKey) throws EncryptionException {
+        if (encryptedData == null || masterKey == null) {
             LogUtils.LOGGER.severe("Error decrypting data: Data is null");
             return null;
         }
 
         try {
+            byte[] combined = Base64.getDecoder().decode(encryptedData);
+            byte[] iv = new byte[16];
+            byte[] encryptedBytes = new byte[combined.length - 16];
+
+            System.arraycopy(combined, 0, iv, 0, 16);
+            System.arraycopy(combined, 16, encryptedBytes, 0, encryptedBytes.length);
+
             Cipher cipher = Cipher.getInstance(ALGORITHM);
-            IvParameterSpec ivSpec = new IvParameterSpec(new byte[16]); // mismo IV
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, masterKey, ivSpec);
-            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedPassword));
+
+            byte[] decrypted = cipher.doFinal(encryptedBytes);
             return new String(decrypted, StandardCharsets.UTF_8);
         } catch (Exception e) {
             LogUtils.LOGGER.severe("Error decrypting data: " + e);
