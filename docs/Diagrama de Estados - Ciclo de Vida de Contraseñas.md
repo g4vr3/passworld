@@ -3,12 +3,6 @@
 ## Descripción General
 Este diagrama muestra todos los estados posibles que puede tener una contraseña durante su ciclo de vida completo en el sistema PASSWORLD, desde su creación hasta su eliminación definitiva, incluyendo procesos de validación, encriptación, sincronización y análisis de seguridad.
 
-**Análisis de Seguridad Automático**: El sistema ejecuta análisis de seguridad automáticamente en múltiples momentos:
-- **Durante la creación** (estado `AnalizandoSeguridad`): Evaluación inicial obligatoria
-- **Periódicamente** (estado `AnalizandoSeguridadPeriodico`): Cada 7 segundos en escritorio, cada 10 segundos en extensión web
-- **Durante modificaciones**: Re-análisis automático al actualizar contraseñas
-- **Post-eliminación**: Análisis de contraseñas restantes tras eliminar una
-
 ## Diagrama de Estados
 
 ```mermaid
