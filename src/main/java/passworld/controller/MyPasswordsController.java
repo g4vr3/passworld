@@ -178,6 +178,7 @@ public class MyPasswordsController {
         allPasswordsCountLabel.setText(String.valueOf(passwordList.size()));
         issuePasswordsCountLabel.setText(String.valueOf(issuePasswordsList.size()));
         syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/passworld/images/notsync_icon.png"))));
+        ThemeManager.applyThemeToImage(syncStatusImageView);
         Tooltip notSyncTooltip = new Tooltip(getBundle().getString("tooltip_notsynced"));
         Tooltip.install(syncStatusImageView, notSyncTooltip);
         syncPasswordsPeriodically();
@@ -735,11 +736,13 @@ public class MyPasswordsController {
     public void updateSyncStatus(boolean isSynced) {
         if (isSynced) {
             syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/passworld/images/sync_icon.png"))));
+            ThemeManager.applyThemeToImage(syncStatusImageView);
             Tooltip syncTooltip = new Tooltip(getBundle().getString("tooltip_sync"));
             Tooltip.install(syncStatusImageView, syncTooltip);
         } else {
             Tooltip notSyncTooltip = new Tooltip(getBundle().getString("tooltip_notsynced"));
             syncStatusImageView.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/passworld/images/notsync_icon.png"))));
+            ThemeManager.applyThemeToImage(syncStatusImageView);
             Tooltip.install(syncStatusImageView, notSyncTooltip);
         }
     }

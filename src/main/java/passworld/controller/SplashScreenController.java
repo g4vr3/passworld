@@ -6,7 +6,11 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -42,14 +46,39 @@ public class SplashScreenController {
 
     @FXML
     public void initialize() {
-        // 1) Reproducir vídeo + barra de progreso
-        String videoPath = Objects.requireNonNull(
-                getClass().getResource("/passworld/videos/splash_screen.mp4")
-        ).toExternalForm();
-        mediaPlayer = new MediaPlayer(new Media(videoPath));
-        mediaView.setMediaPlayer(mediaPlayer);
-        mediaPlayer.setAutoPlay(true);
-        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("mac")) {
+            ImageView imageView = new ImageView(new Image(
+                    Objects.requireNonNull(getClass().getResource("/passworld/images/passworld_logo.png")).toExternalForm()
+            ));
+            imageView.setPreserveRatio(true);
+            imageView.setSmooth(true);
+            imageView.setCache(true);
+            imageView.setFitWidth(300);
+            imageView.setFitHeight(300);
+
+            Parent parent = mediaView.getParent();
+            if (parent instanceof Pane pane) {
+                int index = pane.getChildren().indexOf(mediaView);
+                if (index != -1) {
+                    pane.getChildren().set(index, imageView);
+                } else {
+                    pane.getChildren().add(imageView);
+                    mediaView.setVisible(false);
+                }
+            } else {
+                LogUtils.LOGGER.warning("SplashScreenController called with unsupported parent");
+                mediaView.setVisible(false);
+            }
+        } else {
+            String videoPath = Objects.requireNonNull(
+                    getClass().getResource("/passworld/videos/splash_screen.mp4")
+            ).toExternalForm();
+            mediaPlayer = new MediaPlayer(new Media(videoPath));
+            mediaView.setMediaPlayer(mediaPlayer);
+            mediaPlayer.setAutoPlay(true);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+        }
 
         // Crear un Task para cargar el Trie en segundo plano
         Task<Void> loadTrieTask = new Task<>() {
@@ -67,7 +96,6 @@ public class SplashScreenController {
         progressTimeline.setCycleCount(1);
         progressTimeline.play();
 
-        // Cuando la carga del Trie termine
         loadTrieTask.setOnSucceeded(_ -> {
             progressTimeline.stop();
             loadingBar.setProgress(1.0);
@@ -78,7 +106,7 @@ public class SplashScreenController {
         });
 
         loadTrieTask.setOnFailed(_ -> {
-            mediaPlayer.stop();
+            if (mediaPlayer != null) mediaPlayer.stop();
             LogUtils.LOGGER.severe("Failed to load trie file");
             throw new RuntimeException("Error al cargar el Trie", loadTrieTask.getException());
         });
@@ -87,12 +115,13 @@ public class SplashScreenController {
         thread.setDaemon(true);
         thread.start();
 
-        // Iniciar monitor de conexión
         connectionMonitorExecutor = Executors.newSingleThreadScheduledExecutor();
         connectionMonitorExecutor.scheduleAtFixedRate(createConnectionMonitorTask(), 0, 10, TimeUnit.SECONDS);
     }
 
-    /** Se dispara al terminar el timeline de la Splash. */
+    /**
+     * Se dispara al terminar el timeline de la Splash.
+     */
     private void onSplashFinished() {
         // 1. Detener vídeo y cerrar Splash
         if (mediaPlayer != null) mediaPlayer.stop();
@@ -103,7 +132,7 @@ public class SplashScreenController {
             st.close();
         }
         // 2. Enrutamiento inicial
-        boolean online  = PersistentSessionManager.hasInternet();
+        boolean online = PersistentSessionManager.hasInternet();
         boolean session = PersistentSessionManager.tokenSavedLocally();
 
         if (online) {
@@ -125,7 +154,9 @@ public class SplashScreenController {
         lastOnlineStatus = online;
     }
 
-    /** Tarea periódica que solo reacciona tras cerrar la Splash */
+    /**
+     * Tarea periódica que solo reacciona tras cerrar la Splash
+     */
     private Runnable createConnectionMonitorTask() {
         return () -> {
             if (!splashClosed) return;  // aún estamos en la Splash, ignorar
@@ -156,6 +187,7 @@ public class SplashScreenController {
             lastOnlineStatus = online;
         };
     }
+
     public static ScheduledExecutorService getExecutorService() {
         return connectionMonitorExecutor;
     }
