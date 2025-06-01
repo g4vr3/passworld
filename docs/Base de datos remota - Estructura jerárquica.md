@@ -4,9 +4,8 @@ flowchart TD
     Users --> UserID["{userId}/"]
     UserID --> Passwords["passwords/"] & MasterPassword["masterPassword"]
     Passwords --> PasswordID["{passwordId}/"]
-    PasswordID --> Description["description: STRING<br>(ENCRIPTADO)"] & Username["username: STRING<br>(ENCRIPTADO)"] & URL["url: STRING <br>(ENCRIPTADO)"] & Password["password: STRING<br>(ENCRIPTADO)"] & IsWeak["isWeak: BOOLEAN"] & IsDuplicate["isDuplicate: BOOLEAN"] & IsCompromised["isCompromised: BOOLEAN"] & IsUrlUnsafe["isUrlUnsafe: BOOLEAN"] & LastModified["lastModified: TIMESTAMP"]
-    MasterPassword --> Hash["hash: STRING"]
-
+    PasswordID --> Description["**description**<br>STRING<br>(ENCRIPTADO)"] & Username["**username**<br>STRING<br>(ENCRIPTADO)"] & URL["**url**<br>STRING <br>(ENCRIPTADO)"] & Password["**password**<br>STRING<br>(ENCRIPTADO)"] & IsWeak["**isWeak**<br>BOOLEAN"] & IsDuplicate["**isDuplicate**<br>BOOLEAN"] & IsCompromised["**isCompromised**<br>BOOLEAN"] & IsUrlUnsafe["**isUrlUnsafe**<br>BOOLEAN"] & LastModified["**lastModified**<br>TIMESTAMP"]
+    MasterPassword --> Hash["**hash**<br>STRING"]
      Root:::structure
      Users:::structure
      UserID:::structure
