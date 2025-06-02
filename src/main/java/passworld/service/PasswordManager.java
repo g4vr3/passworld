@@ -2,6 +2,7 @@ package passworld.service;
 
 import passworld.data.PasswordDAO;
 import passworld.data.PasswordDTO;
+import passworld.data.sync.SyncHandler;
 import passworld.utils.LanguageUtil;
 import passworld.utils.LogUtils;
 import passworld.utils.SecurityFilterUtils;
@@ -53,6 +54,7 @@ public class PasswordManager {
 
     // Actualizar una contraseña existente localmente
     public static boolean updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) throws SQLException {
+        SyncHandler.startLocalUpdate();
         PasswordDTO updatedPasswordDTO = new PasswordDTO(description, username, url, password);
         updatedPasswordDTO.setId(passwordToUpdate.getId());
         updatedPasswordDTO.setIdFb(passwordToUpdate.getIdFb());
@@ -72,7 +74,9 @@ public class PasswordManager {
         if (updated) {
             updateAllPasswordsSecurity();
         }
+        SyncHandler.finishLocalUpdate();
         return updated;
+
     }
 
     public static void updatePasswordByRemote(PasswordDTO updatedPasswordDTO) throws SQLException {

@@ -16,11 +16,32 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SyncHandler {
     private static Thread refreshThread = null;
+    // Variable estática para controlar si hay operaciones locales en curso
+    private static final AtomicBoolean localUpdateInProgress = new AtomicBoolean(false);
+
+
+    // Métodos para controlar el estado de las operaciones locales
+    public static void startLocalUpdate() {
+        localUpdateInProgress.set(true);
+    }
+
+    public static void finishLocalUpdate() {
+        localUpdateInProgress.set(false);
+    }
+
+    public static boolean isLocalUpdateInProgress() {
+        return localUpdateInProgress.get();
+    }
 
     public static void syncPasswords(List<PasswordDTO> localPasswords) throws IOException, SQLException {
+        if (localUpdateInProgress.get()) {
+            LogUtils.LOGGER.info("Sincronización cancelada: hay operaciones locales en progreso");
+            return;
+        }
         String userId = UserSession.getInstance().getUserId();
 
         // 1. ELIMINAR en remoto lo que se eliminó en local (evita que vuelva a descargarse)
