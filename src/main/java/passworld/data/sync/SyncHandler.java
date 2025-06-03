@@ -86,7 +86,7 @@ public class SyncHandler {
             }
 
             if (!local.isSynced()) {
-                local.setLastModified(TimeSyncManager.correctLocalTime(local));
+                local.setLastModified(TimeSyncManager.correctLocalTimeToUtc(local));
 
                 if (local.getIdFb() == null || local.getIdFb().isEmpty()) {
                     // CREAR
@@ -168,20 +168,23 @@ public class SyncHandler {
 
                     LogUtils.LOGGER.info("Mostrando verificación de clave maestra para refrescar token");
 
-                    boolean verified = VaultProtectionController.showAndVerifyPassword();
+                    // Activar la bandera antes de mostrar el diálogo
+                    startLocalUpdate();
+                    try {
+                        boolean verified = VaultProtectionController.showAndVerifyPassword();
 
-                    if (verified) {
-                        LogUtils.LOGGER.info("Master key verificada. Refrescando token...");
-                        PersistentSessionManager.refreshToken();
-                    } else {
-                        LogUtils.LOGGER.warning("Master key no verificada. No se refresca el token.");
+                        if (verified) {
+                            LogUtils.LOGGER.info("Master key verificada. Refrescando token...");
+                            PersistentSessionManager.refreshToken();
+                        } else {
+                            LogUtils.LOGGER.warning("Master key no verificada. No se refresca el token.");
+                        }
+                    } finally {
+                        // Desactivar la bandera al terminar (pase lo que pase)
+                        finishLocalUpdate();
                     }
-
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    break;
-                } catch (Exception e) {
-                    LogUtils.LOGGER.severe("Error inesperado en refresco de token: " + e);
+                    // ...resto del código...
                 }
             }
         }, "TokenRefreshThread");

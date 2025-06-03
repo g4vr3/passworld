@@ -9,6 +9,7 @@ import passworld.utils.LogUtils;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -185,12 +186,19 @@ public class PasswordsApiClient {
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
         } else if (lastModifiedObj instanceof String) {
+            String str = (String) lastModifiedObj;
             try {
-                return LocalDateTime.parse((String) lastModifiedObj);
-            } catch (Exception e) {
-                LogUtils.LOGGER.warning("Error parsing lastModified: " + e);
-                // Manejo de error si el formato no es válido
-                return null;
+                // Intentar parsear como LocalDateTime (sin zona)
+                return LocalDateTime.parse(str);
+            } catch (Exception e1) {
+                try {
+                    // Si falla, intentar parsear con zona (OffsetDateTime) y luego obtener LocalDateTime
+                    OffsetDateTime odt = OffsetDateTime.parse(str);
+                    return odt.toLocalDateTime();
+                } catch (Exception e2) {
+                    LogUtils.LOGGER.warning("Error parsing lastModified with OffsetDateTime: " + e2);
+                    return null;
+                }
             }
         }
         return null;
