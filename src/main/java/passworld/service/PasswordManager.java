@@ -27,7 +27,6 @@ public class PasswordManager {
         boolean created = PasswordDAO.createPassword(newPasswordDTO);
 
         if (created) {
-            securityFilterService.addUniquePassword(newPasswordDTO.getPassword());
             updateAllPasswordsSecurity();
             return true;
         }
@@ -47,7 +46,6 @@ public class PasswordManager {
         boolean created = PasswordDAO.createFromRemote(newPasswordDTO);
 
         if (created) {
-            securityFilterService.addUniquePassword(newPasswordDTO.getPassword());
             updateAllPasswordsSecurity();
         }
     }
@@ -67,7 +65,6 @@ public class PasswordManager {
 
         validatePasswordData(updatedPasswordDTO);
 
-        securityFilterService.removeUniquePassword(passwordToUpdate.getPassword());
 
         boolean updated = PasswordDAO.updatePassword(updatedPasswordDTO);
 
@@ -82,8 +79,6 @@ public class PasswordManager {
     public static void updatePasswordByRemote(PasswordDTO updatedPasswordDTO) throws SQLException {
         // No modificar lastModified ni isSynced aquí, ya vienen del servidor
         validatePasswordData(updatedPasswordDTO);
-
-        securityFilterService.removeUniquePassword(updatedPasswordDTO.getPassword());
         updatedPasswordDTO.setSynced(true);
 
         boolean updated = PasswordDAO.updatePasswordFromRemote(updatedPasswordDTO);
@@ -95,7 +90,6 @@ public class PasswordManager {
     public static void updatePasswordById(PasswordDTO updatedPasswordDTO) throws SQLException {
         validatePasswordData(updatedPasswordDTO);
 
-        securityFilterService.removeUniquePassword(updatedPasswordDTO.getPassword());
 
         boolean updated = PasswordDAO.updatePasswordById(updatedPasswordDTO);
 
@@ -142,14 +136,8 @@ public class PasswordManager {
     private static void updateAllPasswordsSecurity() {
         try {
             List<PasswordDTO> allPasswords = getAllPasswords();
-            for (PasswordDTO passwordDTO : allPasswords) {
-                System.out.println(passwordDTO.toString());
-            }
-            securityFilterService.clearUniquePasswords();
-
+            SecurityFilterUtils.analyzePasswordList(allPasswords);
             for (PasswordDTO dto : allPasswords) {
-                securityFilterService.analyzePasswordSecurity(dto);
-                // Actualizar la contraseña en la base de datos
                 PasswordDAO.updatePasswordSecurity(dto);
             }
         } catch (Exception e) {

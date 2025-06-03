@@ -2,20 +2,41 @@ package passworld.utils;
 
 import passworld.data.PasswordDTO;
 
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
 public class SecurityFilterUtils {
 
-    // Conjunto que mantiene las contraseñas únicas activas
-    private static final Set<String> uniquePasswords = new HashSet<>();
+    /**
+     * Analiza la seguridad de una lista de contraseñas.
+     * Detecta duplicados dentro del mismo lote y evalúa cada aspecto de seguridad.
+     *
+     * @param passwordList lista de PasswordDTO a analizar
+     */
+    public static void analyzePasswordList(List<PasswordDTO> passwordList) {
+        Set<String> seenPasswords = new HashSet<>();
 
-    // Analizar la seguridad de una contraseña, usuario y URL
-    public static void analyzePasswordSecurity(PasswordDTO passwordDTO) {
-        boolean isWeak = isWeakPassword(passwordDTO.getPassword());
-        boolean isDuplicate = isDuplicatePassword(passwordDTO.getPassword());
-        boolean isCompromised = isCompromisedPassword(passwordDTO.getPassword());
-        boolean isUrlUnsafe = isUrlUnsafe(passwordDTO.getUrl());
+        for (PasswordDTO passwordDTO : passwordList) {
+            analyzePasswordSecurity(passwordDTO, seenPasswords);
+        }
+    }
+
+    /**
+     * Analiza la seguridad de una contraseña individual usando el conjunto de contraseñas ya vistas
+     * para detectar duplicados en el lote.
+     *
+     * @param passwordDTO  objeto con datos de la contraseña
+     * @param seenPasswords conjunto de contraseñas ya vistas
+     */
+    private static void analyzePasswordSecurity(PasswordDTO passwordDTO, Set<String> seenPasswords) {
+        String password = passwordDTO.getPassword();
+        String url = passwordDTO.getUrl();
+
+        boolean isWeak = isWeakPassword(password);
+        boolean isDuplicate = !seenPasswords.add(password);  // Si no se pudo añadir, es duplicada
+        boolean isCompromised = isCompromisedPassword(password);
+        boolean isUrlUnsafe = isUrlUnsafe(url);
 
         passwordDTO.setWeak(isWeak);
         passwordDTO.setDuplicate(isDuplicate);
@@ -23,19 +44,22 @@ public class SecurityFilterUtils {
         passwordDTO.setUrlUnsafe(isUrlUnsafe);
     }
 
-    // Verificar si la contraseña es débil
+    /**
+     * Evalúa si una contraseña es débil según el criterio de fuerza.
+     *
+     * @param password la contraseña a evaluar
+     * @return true si es débil, false en caso contrario
+     */
     private static boolean isWeakPassword(String password) {
         return PasswordEvaluator.calculateStrength(password) < 3;
     }
 
-    // Verificar si la contraseña está duplicada
-    private static boolean isDuplicatePassword(String password) {
-        // Si ya está en el conjunto de contraseñas únicas, se marca como duplicada
-        return !uniquePasswords.add(password);  // Si no se puede agregar, es duplicada
-    }
-
-
-    // Verificar si la contraseña ha sido comprometida
+    /**
+     * Consulta si una contraseña está comprometida.
+     *
+     * @param password la contraseña a verificar
+     * @return true si está comprometida, false si no o si hay error
+     */
     private static boolean isCompromisedPassword(String password) {
         try {
             return CompromisedPasswordChecker.isCompromisedPassword(password);
@@ -46,27 +70,26 @@ public class SecurityFilterUtils {
         }
     }
 
-    // Eliminar una contraseña de la lista de contraseñas únicas
-    public void removeUniquePassword(String password) {
-        uniquePasswords.remove(password);
-    }
-
-    // Agregar una contraseña a la lista de contraseñas únicas
-    public void addUniquePassword(String password) {
-        uniquePasswords.add(password);
-    }
-
-    // Limpiar la lista de contraseñas únicas
-    public static void clearUniquePasswords() {
-        uniquePasswords.clear();
-    }
-
-    // Verificar si la URL es insegura
+    /**
+     * Verifica si una URL es insegura.
+     *
+     * @param url la URL a evaluar
+     * @return true si es insegura, false en caso contrario
+     */
     public static boolean isUrlUnsafe(String url) {
         return UnsafeUrlChecker.isUnsafe(url);
     }
 
+    /**
+     * Comprueba si la contraseña presenta problemas de seguridad.
+     *
+     * @param passwordDTO objeto con la contraseña ya analizada
+     * @return true si tiene algún problema (débil, duplicada, comprometida o URL insegura)
+     */
     public static boolean hasPasswordSecurityIssues(PasswordDTO passwordDTO) {
-        return passwordDTO.isWeak() || passwordDTO.isDuplicate() || passwordDTO.isCompromised() || passwordDTO.isUrlUnsafe();
+        return passwordDTO.isWeak() ||
+                passwordDTO.isDuplicate() ||
+                passwordDTO.isCompromised() ||
+                passwordDTO.isUrlUnsafe();
     }
 }

@@ -78,7 +78,6 @@ public class UserSession {
         clearMasterKey();
         LocalAuthUtil.clearMasterPassword();
         PasswordDAO.deleteAllPasswords();
-        SecurityFilterUtils.clearUniquePasswords();
 
     }
 
