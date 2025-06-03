@@ -14,8 +14,6 @@ import java.util.ResourceBundle;
 
 public class PasswordManager {
 
-    private static final SecurityFilterUtils securityFilterService = new SecurityFilterUtils();
-
     // Guardar una nueva contraseña localmente
     public static boolean savePassword(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
@@ -31,13 +29,13 @@ public class PasswordManager {
             return true;
         }
         return false;
-    }
-    // Guardar una nueva contraseña desde remoto
+    }    // Guardar una nueva contraseña desde remoto
     public static void savePasswordFromRemote(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
 
         // Evitar duplicados por idFb con consulta directa
         if (newPasswordDTO.getIdFb() != null && PasswordDAO.existsByIdFb(newPasswordDTO.getIdFb())) {
+            LogUtils.LOGGER.info("Password with idFb " + newPasswordDTO.getIdFb() + " already exists locally, skipping insertion");
             return; // Ya existe, no insertar
         }
 
@@ -46,7 +44,10 @@ public class PasswordManager {
         boolean created = PasswordDAO.createFromRemote(newPasswordDTO);
 
         if (created) {
+            LogUtils.LOGGER.info("Password successfully saved from remote with idFb: " + newPasswordDTO.getIdFb());
             updateAllPasswordsSecurity();
+        } else {
+            LogUtils.LOGGER.warning("Failed to save password from remote with idFb: " + newPasswordDTO.getIdFb());
         }
     }
 
@@ -116,6 +117,20 @@ public class PasswordManager {
     // Obtener todas las contraseñas locales
     public static List<PasswordDTO> getAllPasswords() throws SQLException {
         return PasswordDAO.readAllPasswordsDecrypted();
+    }
+
+    // Método para detectar duplicados físicos
+    public static List<PasswordDTO> findPhysicalDuplicates() throws SQLException {
+        return PasswordDAO.findPhysicalDuplicates();
+    }
+
+    // Método para limpiar duplicados físicos
+    public static int cleanPhysicalDuplicates() throws SQLException {
+        int cleanedCount = PasswordDAO.cleanPhysicalDuplicates();
+        if (cleanedCount > 0) {
+            updateAllPasswordsSecurity();
+        }
+        return cleanedCount;
     }
 
     // Validar los datos de la contraseña

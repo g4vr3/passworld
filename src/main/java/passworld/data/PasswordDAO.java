@@ -114,10 +114,11 @@ public class PasswordDAO {
                 return false;
             }
         }
-    }
-    // Método para actualizar una contraseña sin encriptar
+    }    // Método para actualizar una contraseña sin encriptar
     public static boolean updatePasswordFromRemote(PasswordDTO password) throws SQLException {
+        // Intentar primero por idFb, luego por id si falla
         String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE idFb = ?";
+        
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -136,11 +137,34 @@ public class PasswordDAO {
 
             int rowsUpdated = stmt.executeUpdate();
 
+            // Si no se actualizó por idFb, intentar por id local
+            if (rowsUpdated == 0 && password.getId() > 0) {
+                LogUtils.LOGGER.info("Update by idFb failed, trying by local ID: " + password.getId());
+                String sqlById = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE id = ?";
+                
+                try (PreparedStatement stmtById = conn.prepareStatement(sqlById)) {
+                    stmtById.setString(1, password.getDescription());
+                    stmtById.setString(2, password.getUsername());
+                    stmtById.setString(3, password.getUrl());
+                    stmtById.setString(4, password.getPassword());
+                    stmtById.setBoolean(5, password.isWeak());
+                    stmtById.setBoolean(6, password.isDuplicate());
+                    stmtById.setBoolean(7, password.isCompromised());
+                    stmtById.setBoolean(8, password.isUrlUnsafe());
+                    stmtById.setString(9, password.getLastModified() != null ? password.getLastModified().toString() : null);
+                    stmtById.setBoolean(10, true);
+                    stmtById.setString(11, password.getIdFb());
+                    stmtById.setInt(12, password.getId());
+                    
+                    rowsUpdated = stmtById.executeUpdate();
+                }
+            }
+
             if (rowsUpdated > 0) {
                 LogUtils.LOGGER.info("Password updated successfully locally with ID: " + password.getId());
                 return true;
             } else {
-                LogUtils.LOGGER.warning("Failed to update password with ID: " + password.getId());
+                LogUtils.LOGGER.warning("Failed to update password with ID: " + password.getId() + " and idFb: " + password.getIdFb());
                 return false;
             }
         }
@@ -280,9 +304,7 @@ public class PasswordDAO {
                 return false;
             }
         }
-    }
-
-    private static PasswordDTO mapResultSetToPasswordDTO(ResultSet rs) throws SQLException {
+    }    private static PasswordDTO mapResultSetToPasswordDTO(ResultSet rs) throws SQLException {
         PasswordDTO password = new PasswordDTO(
                 rs.getString("description"),
                 rs.getString("username"),
@@ -290,7 +312,6 @@ public class PasswordDAO {
                 rs.getString("password") // sin desencriptar
         );
         password.setId(rs.getInt("id"));
-        System.out.println("ID readall: " + password.getId());
         password.setWeak(rs.getBoolean("isWeak"));
         password.setDuplicate(rs.getBoolean("isDuplicate"));
         password.setCompromised(rs.getBoolean("isCompromised"));
@@ -303,8 +324,7 @@ public class PasswordDAO {
             password.setLastModified(java.time.LocalDateTime.parse(lastModifiedStr));
         }
         return password;
-    }
-    public static void updatePasswordSecurity(PasswordDTO password) throws SQLException {
+    }    public static void updatePasswordSecurity(PasswordDTO password) throws SQLException {
         String sql = "UPDATE passwords SET isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -315,7 +335,7 @@ public class PasswordDAO {
             stmt.setBoolean(4, password.isUrlUnsafe());
             stmt.setInt(5, password.getId());
 
-            int rowsUpdated = stmt.executeUpdate();
+            stmt.executeUpdate();
         }
     }
 
@@ -351,6 +371,72 @@ public class PasswordDAO {
             try (var rs = stmt.executeQuery()) {
                 return rs.next() && rs.getInt(1) > 0;
             }
+        }
+    }    // Método para detectar contraseñas físicamente duplicadas
+    public static List<PasswordDTO> findPhysicalDuplicates() throws SQLException {
+        // Obtener todas las contraseñas desencriptadas
+        List<PasswordDTO> allPasswords = readAllPasswordsDecrypted();
+        List<PasswordDTO> duplicates = new ArrayList<>();
+        
+        // Comparar cada contraseña con todas las demás
+        for (int i = 0; i < allPasswords.size(); i++) {
+            PasswordDTO p1 = allPasswords.get(i);
+            for (int j = i + 1; j < allPasswords.size(); j++) {
+                PasswordDTO p2 = allPasswords.get(j);
+                
+                // Comparar campos desencriptados
+                if (arePasswordsEqual(p1, p2)) {
+                    // Añadir ambas si no están ya en la lista
+                    if (!duplicates.stream().anyMatch(d -> d.getId() == p1.getId())) {
+                        duplicates.add(p1);
+                    }
+                    if (!duplicates.stream().anyMatch(d -> d.getId() == p2.getId())) {
+                        duplicates.add(p2);
+                    }
+                }
+            }
+        }
+        
+        LogUtils.LOGGER.info("Found " + duplicates.size() + " physical duplicates");
+        return duplicates;
+    }
+    
+    // Método auxiliar para comparar si dos contraseñas son iguales
+    private static boolean arePasswordsEqual(PasswordDTO p1, PasswordDTO p2) {
+        return safeEquals(p1.getDescription(), p2.getDescription()) &&
+               safeEquals(p1.getUsername(), p2.getUsername()) &&
+               safeEquals(p1.getUrl(), p2.getUrl()) &&
+               safeEquals(p1.getPassword(), p2.getPassword());
+    }
+    
+    // Método auxiliar para comparación segura de strings (manejando nulls)
+    private static boolean safeEquals(String s1, String s2) {
+        if (s1 == null && s2 == null) return true;
+        if (s1 == null || s2 == null) return false;
+        return s1.equals(s2);
+    }
+    
+    // Método para limpiar duplicados físicos manteniendo el más reciente
+    public static int cleanPhysicalDuplicates() throws SQLException {
+        String sql = """
+            DELETE FROM passwords WHERE id IN (
+                SELECT p1.id FROM passwords p1 
+                INNER JOIN passwords p2 ON p1.id != p2.id 
+                AND p1.description = p2.description 
+                AND p1.username = p2.username 
+                AND p1.url = p2.url 
+                AND p1.password = p2.password
+                AND (p1.lastModified < p2.lastModified OR 
+                     (p1.lastModified = p2.lastModified AND p1.id > p2.id))
+            )
+            """;
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             Statement stmt = conn.createStatement()) {
+            
+            int deletedCount = stmt.executeUpdate(sql);
+            LogUtils.LOGGER.info("Cleaned " + deletedCount + " physical duplicates");
+            return deletedCount;
         }
     }
 }
