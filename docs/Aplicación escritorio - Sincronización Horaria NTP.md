@@ -17,7 +17,7 @@ flowchart TD
     
     E -- No --> F["Error: no se pudo sincronizar<br/>Se sigue con la hora local"]
     E -- Sí --> G["Obtener hora UTC<br/>desde el servidor"]
-    G --> H["Comparar con<br/>hora UTC del sistema"]
+    G --> H["Comparar con<br/>hora del sistema"]
     H --> I["Calcular Offset:<br/>Offset = (servidor - sistema)"]
     I --> J["Aplicar Offset<br/>a las fechas locales"]
     J --> K["Usar hora UTC<br/>corregida para sincronización"]
