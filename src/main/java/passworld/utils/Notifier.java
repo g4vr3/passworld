@@ -22,59 +22,52 @@ public class Notifier {
     public static void showNotification(Window window, String message) {
         // Limpiar popups anteriores para evitar superposición
         clearPreviousNotifications();
-        
+
         // Crear un Popup en lugar de un Tooltip para evitar bloqueos de la UI
         Popup popup = new Popup();
-        popup.setAutoHide(false); // Controlaremos manualmente cuando ocultarlo
-        popup.setAutoFix(false); // Evitar que el popup se mueva automáticamente
-        popup.setHideOnEscape(false); // No ocultar con ESC para evitar interferencias
-        popup.setConsumeAutoHidingEvents(false); // No consumir eventos que podrían ocultar el popup
-        
+        popup.setAutoHide(false);
+        popup.setAutoFix(false);
+        popup.setHideOnEscape(false);
+        popup.setConsumeAutoHidingEvents(false);
+
         // Crear el contenido de la notificación
         Label messageLabel = new Label(message);
         messageLabel.setTextFill(Color.WHITE);
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(300);
         messageLabel.getStyleClass().add("notification-label");
-        
-        // Container con fondo semi-transparente
+
         StackPane container = new StackPane();
         container.getChildren().add(messageLabel);
         container.setPadding(new Insets(10, 15, 10, 15));
         container.setBackground(new Background(new BackgroundFill(
-            Color.rgb(50, 50, 50, 0.9), 
-            new CornerRadii(8), 
-            Insets.EMPTY
+                Color.rgb(50, 50, 50, 0.9),
+                new CornerRadii(8),
+                Insets.EMPTY
         )));
         container.setAlignment(Pos.CENTER);
         container.getStyleClass().add("notification-container");
-        
-        // Hacer que el container no capture eventos de ratón
-        container.setMouseTransparent(false);
-        container.setPickOnBounds(false);
-        
+
         popup.getContent().add(container);
-        
-        // Agregar el popup a la lista de activos
         activePopups.add(popup);
-        
-        // Mostrar el popup centrado en la ventana
+
+        // Mostrar el popup siempre centrado en la ventana
         if (window != null && window.getScene() != null) {
-            double centerX = window.getX() + window.getWidth() / 2;
-            double centerY = window.getY() + window.getHeight() / 2;
-            
-            popup.show(window, centerX - 150, centerY - 25); // Aprox centrado
+            double centerX = window.getX() + window.getWidth() / 2 - container.getWidth() / 2;
+            double centerY = window.getY() + window.getHeight() / 2 - container.getHeight() / 2;
+
+            popup.show(window, centerX, centerY);
         } else {
             popup.show(window);
         }
-        
+
         // Animación de entrada (fade in)
         FadeTransition fadeIn = new FadeTransition(Duration.millis(200), container);
         fadeIn.setFromValue(0.0);
         fadeIn.setToValue(1.0);
         fadeIn.play();
-        
-        // Programar el ocultado automático después de 2.5 segundos (un poco más de tiempo)
+
+        // Programar el ocultado automático después de 2.5 segundos
         PauseTransition pause = new PauseTransition(Duration.seconds(2.5));
         pause.setOnFinished(_ -> hideNotification(popup, container));
         pause.play();
