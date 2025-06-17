@@ -91,10 +91,7 @@ public class SyncHandler {
                     boolean isDuplicate = false;
                     for (PasswordDTO remote : remotePasswords) {
                         if (arePasswordsContentEqual(local, remote)) {
-                            // Ya existe en remoto con el mismo contenido, actualizar local con el idFb remoto
-                            local.setIdFb(remote.getIdFb());
-                            local.setSynced(true);
-                            PasswordManager.updatePasswordById(local);
+                            PasswordManager.updatePasswordByRemote(remote);
                             isDuplicate = true;
                             LogUtils.LOGGER.info("Found duplicate content in remote, linking local password ID " + local.getId() + " with remote idFb " + remote.getIdFb());
                             break;
@@ -147,10 +144,27 @@ public class SyncHandler {
             if (local == null) {
                 // Verificar una vez más que no existe por idFb antes de insertar
                 if (!PasswordDAO.existsByIdFb(remote.getIdFb())) {
-                    // No existe en local → insertar
-                    PasswordManager.savePasswordFromRemote(remote);
+                    // Verificar si existe una contraseña con el mismo contenido en local
+                    boolean existeContenidoDuplicado = false;
+                    for (PasswordDTO localPassword : localPasswords) {
+                        if (arePasswordsContentEqual(remote, localPassword)) {
+                            // Encontrado duplicado por contenido, vincular con el idFb remoto
+                            localPassword.setIdFb(remote.getIdFb());
+                            localPassword.setSynced(true);
+                            PasswordManager.updatePasswordById(localPassword);
+                            LogUtils.LOGGER.info("Encontrado contenido duplicado, vinculando contraseña local con idFb remoto: " + remote.getIdFb());
+                            existeContenidoDuplicado = true;
+                            break;
+                        }
+                    }
+
+                    if (!existeContenidoDuplicado) {
+                        // No existe en local ni por idFb ni por contenido → insertar
+                        PasswordManager.savePasswordFromRemote(remote);
+                        LogUtils.LOGGER.info("Inserted new password from remote with idFb: " + remote.getIdFb());
+                    }
                 }
-            } else {
+            }  else {
                 // Existe en ambos → comparar última modificación
                 if (remote.getLastModified() != null &&
                         (local.getLastModified() == null ||
