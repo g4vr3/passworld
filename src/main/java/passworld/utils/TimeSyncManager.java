@@ -22,17 +22,10 @@ public class TimeSyncManager {
             Instant serverUtcTime = getNtpUtcTime(NTP_SERVER);
             if (serverUtcTime != null) {
                 Instant systemUtcTime = Instant.now();
-
                 timeOffset = Duration.between(systemUtcTime, serverUtcTime);
-
-                System.out.println("[TimeSyncManager] Hora sistema UTC    : " + systemUtcTime);
-                System.out.println("[TimeSyncManager] Hora servidor UTC   : " + serverUtcTime);
-                System.out.println("[TimeSyncManager] Offset reloj local  : " + timeOffset.getSeconds() + " segundos");
-
                 LogUtils.LOGGER.info("[TimeSyncManager] Offset reloj local: " + timeOffset.getSeconds() + " seconds");
             }
         } catch (Exception e) {
-            System.err.println("[TimeSyncManager] Error al sincronizar hora: " + e.getMessage());
             LogUtils.LOGGER.warning("[TimeSyncManager] Error syncing time: " + e);
         }
     }
@@ -51,7 +44,6 @@ public class TimeSyncManager {
             InetAddress address = InetAddress.getByName(server);
             TimeInfo timeInfo = client.getTime(address);
             timeInfo.computeDetails();
-
             long serverTimeMillis = timeInfo.getMessage().getTransmitTimeStamp().getTime();
             return Instant.ofEpochMilli(serverTimeMillis);
         } finally {
