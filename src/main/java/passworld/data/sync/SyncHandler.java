@@ -73,47 +73,43 @@ public class SyncHandler {
                     !DeletedPasswordsDAO.existsByIdFb(local.getIdFb())) {
                 PasswordDAO.deletePasswordLocalOnly(local.getId());
             }
-        }        // 5. Subir contraseñas locales no sincronizadas
+        }        
+        
+        // 5. Subir contraseñas locales no sincronizadas
         for (PasswordDTO local : new ArrayList<>(localPasswords)) { // Crear copia para evitar modificaciones concurrentes
             // IGNORAR si está eliminada en remoto y registrada como eliminada
             if (local.getIdFb() != null && DeletedPasswordsDAO.existsByIdFb(local.getIdFb())) {
                 continue;
-            }            if (!local.isSynced()) {
-                local.setLastModified(TimeSyncManager.correctLocalTimeToUtc(local));                if (local.getIdFb() == null || local.getIdFb().isEmpty()) {
+            } 
+            
+            // Si no está sincronizada, significa que es nueva o ha sido modificada
+            if (!local.isSynced()) {
+                local.setLastModified(TimeSyncManager.correctLocalTimeToUtc(local));                
+                if (local.getIdFb() == null || local.getIdFb().isEmpty()) {
                     // CREAR en remoto
                     String idFb = PasswordsApiClient.createPassword(userId, local);
                     if (idFb != null) {
                         local.setIdFb(idFb);
-                        // NO marcar como sincronizada aún, para mantener prioridad local en el paso 6
                         PasswordManager.updatePasswordById(local);
                         LogUtils.LOGGER.info("Created new password in remote with idFb: " + idFb);
                     }} else {
                     // Verifica si aún existe en remoto antes de intentar update
                     if (remoteByIdFb.containsKey(local.getIdFb())) {
                         // UPDATE - La contraseña existe en remoto, actualizar con los cambios locales
-                        PasswordsApiClient.updatePassword(
-                                userId,
-                                local.getIdFb(),
-                                local.getDescription(),
-                                local.getUsername(),
-                                local.getUrl(),
-                                local.getPassword(),
-                                local.isWeak(),
-                                local.isDuplicate(),
-                                local.isCompromised(),
-                                local.isUrlUnsafe(),
-                                local.getLastModified().toString()                        );
-                        // NO marcar como sincronizada aún, para mantener prioridad local en el paso 6
+                        PasswordsApiClient.updatePassword(userId, local.getIdFb(), local.getDescription(), local.getUsername(),
+                                local.getUrl(), local.getPassword(), local.isWeak(), local.isDuplicate(), local.isCompromised(), 
+                                local.isUrlUnsafe(), local.getLastModified().toString());
                         PasswordManager.updatePasswordById(local); // Usar updatePasswordById en lugar de updatePasswordByRemote
                         LogUtils.LOGGER.info("Updated password in remote with local changes for idFb: " + local.getIdFb());
                     } else {
-                        // ID existe en local pero no en remoto → se borro en otro lado → descartar
+                        // ID existe en local pero no en remoto, entonces se borro en otro lado, descartar
                         PasswordDAO.deletePasswordLocalOnly(local.getId());
                         LogUtils.LOGGER.info("Deleted local password ID " + local.getId() + " as it no longer exists in remote");
                     }
                 }
             }
-        }        // 6. Sincronizar diferencias desde el servidor hacia local
+        }        
+        // 6. Sincronizar diferencias desde el servidor hacia local
         for (PasswordDTO remote : remotePasswords) {
             // Ignorar si fue eliminado por el usuario (no debe volver a aparecer)
             if (DeletedPasswordsDAO.existsByIdFb(remote.getIdFb())) continue;
@@ -128,18 +124,19 @@ public class SyncHandler {
                 }            
             } else {
                 // Existe en ambos → verificar si el local tiene cambios no sincronizados
-                if (!local.isSynced()) {
+                if (!local.isSynced() && local.getIdFb() != null && local.getIdFb().equals(remote.getIdFb())) {
                     // El local tiene cambios pendientes (recién creado o editado), priorizar local sobre remoto
                     LogUtils.LOGGER.info("Local password has unsynchronized changes, keeping local version for idFb: " + local.getIdFb());
                 } else if (remote.getLastModified() != null &&
                         (local.getLastModified() == null || remote.getLastModified().isAfter(local.getLastModified()))) {
-                    // Control normal por timestamp para contraseñas ya sincronizadas
+                    // Control normal por timestamp para contraseñas ya sincronizadas al menos una 
                     remote.setId(local.getId());
                     PasswordManager.updatePasswordByRemote(remote);
                     LogUtils.LOGGER.info("Updated local password from remote for idFb: " + remote.getIdFb());
                 }
             }
-        }        // 7. Marcar como sincronizadas todas las contraseñas que se subieron exitosamente
+        }        
+        // 7. Marcar como sincronizadas todas las contraseñas que se subieron exitosamente
         for (PasswordDTO local : localPasswords) {
             if (!local.isSynced() && local.getIdFb() != null && !local.getIdFb().isEmpty()) {
                 local.setSynced(true);
