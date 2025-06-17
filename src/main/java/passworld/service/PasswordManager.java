@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class PasswordManager {    
-    
-    // Guardar una nueva contraseña localmente
+public class PasswordManager {
+
+            // Guardar una nueva contraseña localmente
     public static boolean savePassword(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
-
+        
 
         newPasswordDTO.setLastModified(java.time.LocalDateTime.now());
         newPasswordDTO.setSynced(false);
@@ -154,24 +154,8 @@ public class PasswordManager {
             for (PasswordDTO dto : allPasswords) {
                 PasswordDAO.updatePasswordSecurity(dto);
             }
-        } catch (Exception e) {
-            LogUtils.LOGGER.severe("Error updating passwords security: " + e);
+        } catch (Exception e) {            LogUtils.LOGGER.severe("Error updating passwords security: " + e);
             e.printStackTrace();
         }
-    }
-
-    // Método auxiliar para comparar contenido de contraseñas (sin considerar IDs ni timestamps)
-    private static boolean arePasswordsContentEqual(PasswordDTO p1, PasswordDTO p2) {
-        return safeEquals(p1.getDescription(), p2.getDescription()) &&
-               safeEquals(p1.getUsername(), p2.getUsername()) &&
-               safeEquals(p1.getUrl(), p2.getUrl()) &&
-               safeEquals(p1.getPassword(), p2.getPassword());
-    }
-    
-    // Método auxiliar para comparación segura de strings (manejando nulls)
-    private static boolean safeEquals(String s1, String s2) {
-        if (s1 == null && s2 == null) return true;
-        if (s1 == null || s2 == null) return false;
-        return s1.equals(s2);
     }
 }

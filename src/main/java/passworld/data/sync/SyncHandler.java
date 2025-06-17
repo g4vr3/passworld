@@ -75,58 +75,22 @@ public class SyncHandler {
             }
         }        // 5. Subir contraseñas locales no sincronizadas
         for (PasswordDTO local : new ArrayList<>(localPasswords)) { // Crear copia para evitar modificaciones concurrentes
-            // Saltar si está eliminada en remoto (y registrada como eliminada)
+            // IGNORAR si está eliminada en remoto y registrada como eliminada
             if (local.getIdFb() != null && DeletedPasswordsDAO.existsByIdFb(local.getIdFb())) {
                 continue;
-            }
-
-            if (!local.isSynced()) {
-                local.setLastModified(TimeSyncManager.correctLocalTimeToUtc(local));
-
-                if (local.getIdFb() == null || local.getIdFb().isEmpty()) {
-                    // CREAR - Verificar que no hay duplicados por contenido antes de crear
-                    boolean isDuplicate = false;
-                    for (PasswordDTO remote : remotePasswords) {
-                        if (arePasswordsContentEqual(local, remote)) {
-                            // Encontrado duplicado por contenido, vincular con el existente remoto
-                            local.setIdFb(remote.getIdFb());
-                            local.setSynced(true);
-                            PasswordManager.updatePasswordById(local);
-                            isDuplicate = true;
-                            LogUtils.LOGGER.info("Found duplicate content in remote, linking local password ID " + local.getId() + " with remote idFb " + remote.getIdFb());
-                            break;
-                        }
-                    }
-                    
-                    if (!isDuplicate) {
-                        // Verificar nuevamente que no existe en la base de datos local por contenido antes de crear
-                        List<PasswordDTO> currentLocalPasswords = PasswordDAO.readAllPasswordsDecrypted();
-                        boolean hasLocalDuplicate = false;
-                        for (PasswordDTO existingLocal : currentLocalPasswords) {
-                            if (existingLocal.getId() != local.getId() && arePasswordsContentEqual(local, existingLocal)) {
-                                LogUtils.LOGGER.warning("Found local duplicate content for password ID " + local.getId() + ", marking both as synced to avoid remote creation");
-                                local.setSynced(true);
-                                PasswordManager.updatePasswordById(local);
-                                hasLocalDuplicate = true;
-                                break;
-                            }
-                        }
-                        
-                        if (!hasLocalDuplicate) {
-                            // No hay duplicados, crear en remoto
-                            String idFb = PasswordsApiClient.createPassword(userId, local);
-                            if (idFb != null) {
-                                local.setIdFb(idFb);
-                                local.setSynced(true);
-                                PasswordManager.updatePasswordById(local);
-                                LogUtils.LOGGER.info("Created new password in remote with idFb: " + idFb);
-                            }
-                        }
-                    }
-                } else {
+            }            if (!local.isSynced()) {
+                local.setLastModified(TimeSyncManager.correctLocalTimeToUtc(local));                if (local.getIdFb() == null || local.getIdFb().isEmpty()) {
+                    // CREAR en remoto
+                    String idFb = PasswordsApiClient.createPassword(userId, local);
+                    if (idFb != null) {
+                        local.setIdFb(idFb);
+                        // NO marcar como sincronizada aún, para mantener prioridad local en el paso 6
+                        PasswordManager.updatePasswordById(local);
+                        LogUtils.LOGGER.info("Created new password in remote with idFb: " + idFb);
+                    }} else {
                     // Verifica si aún existe en remoto antes de intentar update
                     if (remoteByIdFb.containsKey(local.getIdFb())) {
-                        // UPDATE
+                        // UPDATE - La contraseña existe en remoto, actualizar con los cambios locales
                         PasswordsApiClient.updatePassword(
                                 userId,
                                 local.getIdFb(),
@@ -138,11 +102,10 @@ public class SyncHandler {
                                 local.isDuplicate(),
                                 local.isCompromised(),
                                 local.isUrlUnsafe(),
-                                local.getLastModified().toString()
-                        );
-                        local.setSynced(true);
-                        PasswordManager.updatePasswordByRemote(local);
-                        LogUtils.LOGGER.info("Updated password in remote with idFb: " + local.getIdFb());
+                                local.getLastModified().toString()                        );
+                        // NO marcar como sincronizada aún, para mantener prioridad local en el paso 6
+                        PasswordManager.updatePasswordById(local); // Usar updatePasswordById en lugar de updatePasswordByRemote
+                        LogUtils.LOGGER.info("Updated password in remote with local changes for idFb: " + local.getIdFb());
                     } else {
                         // ID existe en local pero no en remoto → se borro en otro lado → descartar
                         PasswordDAO.deletePasswordLocalOnly(local.getId());
@@ -156,79 +119,37 @@ public class SyncHandler {
             if (DeletedPasswordsDAO.existsByIdFb(remote.getIdFb())) continue;
 
             PasswordDTO local = localByIdFb.get(remote.getIdFb());
-            if (local == null) {
-                // Verificar una vez más que no existe por idFb antes de insertar
-                if (!PasswordDAO.existsByIdFb(remote.getIdFb())) {
-                    // Verificar si existe una contraseña con el mismo contenido en local
-                    boolean duplicateContentExists = false;
-                    List<PasswordDTO> currentLocalPasswords = PasswordDAO.readAllPasswordsDecrypted();
-                    for (PasswordDTO localPassword : currentLocalPasswords) {
-                        if (arePasswordsContentEqual(remote, localPassword)) {
-                            // Encontrado duplicado por contenido, vincular con el idFb remoto
-                            localPassword.setIdFb(remote.getIdFb());
-                            localPassword.setSynced(true);
-                            // Si el remoto es más reciente, actualizar también el contenido
-                            if (remote.getLastModified() != null && 
-                                (localPassword.getLastModified() == null || 
-                                 remote.getLastModified().isAfter(localPassword.getLastModified()))) {
-                                remote.setId(localPassword.getId());
-                                PasswordManager.updatePasswordByRemote(remote);
-                            } else {
-                                PasswordManager.updatePasswordById(localPassword);
-                            }
-                            LogUtils.LOGGER.info("Encontrado contenido duplicado, vinculando contraseña local con idFb remoto: " + remote.getIdFb());
-                            duplicateContentExists = true;
-                            break;
-                        }
-                    }
 
-                    if (!duplicateContentExists) {
-                        // No existe en local ni por idFb ni por contenido → insertar
-                        PasswordManager.savePasswordFromRemote(remote);
-                        LogUtils.LOGGER.info("Inserted new password from remote with idFb: " + remote.getIdFb());
-                    }                }
+            if (local == null) {
+                // No existe en local → insertar
+                if (!PasswordDAO.existsByIdFb(remote.getIdFb())) {
+                    PasswordManager.savePasswordFromRemote(remote);
+                    LogUtils.LOGGER.info("Inserted new password from remote with idFb: " + remote.getIdFb());
+                }            
             } else {
-                // Existe en ambos → comparar última modificación
-                if (remote.getLastModified() != null &&
-                        (local.getLastModified() == null ||
-                                remote.getLastModified().isAfter(local.getLastModified()))) {
-                    // Asegurarse de que el ID local esté asignado para evitar duplicación
+                // Existe en ambos → verificar si el local tiene cambios no sincronizados
+                if (!local.isSynced()) {
+                    // El local tiene cambios pendientes (recién creado o editado), priorizar local sobre remoto
+                    LogUtils.LOGGER.info("Local password has unsynchronized changes, keeping local version for idFb: " + local.getIdFb());
+                } else if (remote.getLastModified() != null &&
+                        (local.getLastModified() == null || remote.getLastModified().isAfter(local.getLastModified()))) {
+                    // Control normal por timestamp para contraseñas ya sincronizadas
                     remote.setId(local.getId());
                     PasswordManager.updatePasswordByRemote(remote);
+                    LogUtils.LOGGER.info("Updated local password from remote for idFb: " + remote.getIdFb());
                 }
             }
-        }
-        
-        // Limpiar duplicados después de la sincronización
-        cleanupDuplicates();
-    }
-
-    // Método para limpiar automáticamente duplicados después de operaciones de sincronización
-    public static void cleanupDuplicates() throws SQLException {
-        try {
-            int duplicatesFound = PasswordManager.cleanPhysicalDuplicates();
-            if (duplicatesFound > 0) {
-                LogUtils.LOGGER.info("Cleaned up " + duplicatesFound + " duplicate passwords during sync");
+        }        // 7. Marcar como sincronizadas todas las contraseñas que se subieron exitosamente
+        for (PasswordDTO local : localPasswords) {
+            if (!local.isSynced() && local.getIdFb() != null && !local.getIdFb().isEmpty()) {
+                local.setSynced(true);
+                PasswordManager.updatePasswordById(local);
+                LogUtils.LOGGER.info("Marked password as synced for idFb: " + local.getIdFb());
             }
-        } catch (SQLException e) {
-            LogUtils.LOGGER.warning("Error cleaning duplicates during sync: " + e.getMessage());
         }
     }
 
-    // Método auxiliar para comparar el contenido de dos contraseñas (sin considerar IDs ni timestamps)
-    private static boolean arePasswordsContentEqual(PasswordDTO p1, PasswordDTO p2) {
-        return safeEquals(p1.getDescription(), p2.getDescription()) &&
-               safeEquals(p1.getUsername(), p2.getUsername()) &&
-               safeEquals(p1.getUrl(), p2.getUrl()) &&
-               safeEquals(p1.getPassword(), p2.getPassword());
-    }
-    
-    // Método auxiliar para comparación segura de strings (manejando nulls)
-    private static boolean safeEquals(String s1, String s2) {
-        if (s1 == null && s2 == null) return true;
-        if (s1 == null || s2 == null) return false;
-        return s1.equals(s2);
-    }    public static boolean hasInternetConnection() {
+    public static boolean hasInternetConnection() {
         try {
             final URL url = java.net.URI.create("https://www.google.com").toURL();
             final URLConnection conn = url.openConnection();
@@ -253,7 +174,7 @@ public class SyncHandler {
 
                     LogUtils.LOGGER.info("Mostrando verificación de clave maestra para refrescar token");
 
-                    // Activar la bandera antes de mostrar el diálogo
+                    // Activar la flag antes de mostrar el diálogo
                     startLocalUpdate();
                     try {
                         boolean verified = VaultProtectionController.showAndVerifyPassword();
@@ -265,11 +186,10 @@ public class SyncHandler {
                             LogUtils.LOGGER.warning("Master key no verificada. No se refresca el token.");
                         }
                     } finally {
-                        // Desactivar la bandera al terminar (pase lo que pase)
+                        // Desactivar la flag al terminar (pase lo que pase)
                         finishLocalUpdate();
                     }
                 } catch (InterruptedException e) {
-                    // ...resto del código...
                 }
             }
         }, "TokenRefreshThread");
