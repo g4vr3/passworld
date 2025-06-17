@@ -35,12 +35,28 @@ public class UnsafeUrlChecker {
 
             if (response.statusCode() == 200) {
                 String responseBody = response.body();
-                return responseBody != null && !responseBody.trim().isEmpty();
+                
+                // Si la respuesta está vacía o no contiene datos, la URL es segura
+                if (responseBody == null || responseBody.trim().isEmpty()) {
+                    return false; // URL segura
+                }
+                
+                // Si hay contenido en la respuesta, verificar si contiene amenazas
+                try {
+                    JSONObject jsonResponse = new JSONObject(responseBody);
+                    return jsonResponse.has("matches"); // Si tiene "matches", es insegura
+                } catch (Exception e) {
+                    // Si no se puede parsear como JSON, asumir que es segura
+                    return false;
+                }
+            } else {
+                LogUtils.LOGGER.warning("Safe Browsing API error: " + response.statusCode());
             }
         } catch (Exception e) {
-            System.err.println("Error checking URL safety: " + e.getMessage());
             LogUtils.LOGGER.warning("Error checking URL safety: " + e);
         }
+        
+        // En caso de error, asumir que es segura para no bloquear innecesariamente
         return false;
     }
 }
