@@ -11,9 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PasswordDAO {
-    private static final String DB_URL = DDL.getDbUrl();
-
+    private static final String DB_URL = DDL.getDbUrl();    
+    
     public static boolean createPassword(PasswordDTO password) throws SQLException {
+        // Verificar duplicados por contenido antes de crear
+        if (hasContentDuplicate(password)) {
+            LogUtils.LOGGER.warning("Attempting to create password with duplicate content, creation aborted");
+            return false;
+        }
+        
         String sql = "INSERT INTO passwords(description, username, url, password, isWeak, isDuplicate, isCompromised, isUrlUnsafe, lastModified, isSynced, idFb) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -83,9 +89,13 @@ public class PasswordDAO {
             LogUtils.LOGGER.warning("Failed to create password.");
             return false;
         }
-    }
-
-    public static boolean updatePassword(PasswordDTO password) throws SQLException {
+    }    public static boolean updatePassword(PasswordDTO password) throws SQLException {
+        // Verificar duplicados por contenido antes de actualizar (excluyendo el ID actual)
+        if (hasContentDuplicate(password, password.getId())) {
+            LogUtils.LOGGER.warning("Update would create duplicate content for password ID: " + password.getId() + ", update aborted");
+            return false;
+        }
+        
         String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -114,7 +124,7 @@ public class PasswordDAO {
                 return false;
             }
         }
-    }    // Método para actualizar una contraseña sin encriptar
+    }// Método para actualizar una contraseña sin encriptar
     public static boolean updatePasswordFromRemote(PasswordDTO password) throws SQLException {
         // Intentar primero por idFb, luego por id si falla
         String sql = "UPDATE passwords SET description = ?, username = ?, url = ?, password = ?, isWeak = ?, isDuplicate = ?, isCompromised = ?, isUrlUnsafe = ?, lastModified = ?, isSynced = ?, idFb = ? WHERE idFb = ?";
@@ -438,5 +448,29 @@ public class PasswordDAO {
             LogUtils.LOGGER.info("Cleaned " + deletedCount + " physical duplicates");
             return deletedCount;
         }
+    }
+    
+    // Método adicional para verificar duplicados por contenido antes de insertar
+    public static boolean hasContentDuplicate(PasswordDTO password, int excludeId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM passwords WHERE id != ? AND description = ? AND username = ? AND url = ? AND password = ?";
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, excludeId);
+            stmt.setString(2, encryptData(password.getDescription()));
+            stmt.setString(3, encryptData(password.getUsername()));
+            stmt.setString(4, encryptData(password.getUrl()));
+            stmt.setString(5, encryptData(password.getPassword()));
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        }
+    }
+
+    // Método para verificar duplicados por contenido sin excluir ningún ID
+    public static boolean hasContentDuplicate(PasswordDTO password) throws SQLException {
+        return hasContentDuplicate(password, -1);
     }
 }

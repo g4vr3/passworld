@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class PasswordManager {
-
+public class PasswordManager {    
+    
     // Guardar una nueva contraseña localmente
     public static boolean savePassword(PasswordDTO newPasswordDTO) throws SQLException {
         validatePasswordData(newPasswordDTO);
@@ -49,32 +49,31 @@ public class PasswordManager {
         } else {
             LogUtils.LOGGER.warning("Failed to save password from remote with idFb: " + newPasswordDTO.getIdFb());
         }
-    }
-
-    // Actualizar una contraseña existente localmente
+    }    // Actualizar una contraseña existente localmente
     public static boolean updatePassword(PasswordDTO passwordToUpdate, String description, String username, String url, String password) throws SQLException {
         SyncHandler.startLocalUpdate();
-        PasswordDTO updatedPasswordDTO = new PasswordDTO(description, username, url, password);
-        updatedPasswordDTO.setId(passwordToUpdate.getId());
-        updatedPasswordDTO.setIdFb(passwordToUpdate.getIdFb());
-        updatedPasswordDTO.setLastModified(LocalDateTime.now());
-        updatedPasswordDTO.setSynced(false); // Marcar como no sincronizada tras cambios
-        updatedPasswordDTO.setWeak(passwordToUpdate.isWeak());
-        updatedPasswordDTO.setDuplicate(passwordToUpdate.isDuplicate());
-        updatedPasswordDTO.setCompromised(passwordToUpdate.isCompromised());
-        updatedPasswordDTO.setUrlUnsafe(passwordToUpdate.isUrlUnsafe());
+        try {
+            PasswordDTO updatedPasswordDTO = new PasswordDTO(description, username, url, password);
+            updatedPasswordDTO.setId(passwordToUpdate.getId());
+            updatedPasswordDTO.setIdFb(passwordToUpdate.getIdFb());
+            updatedPasswordDTO.setLastModified(LocalDateTime.now());
+            updatedPasswordDTO.setSynced(false); // Marcar como no sincronizada tras cambios
+            updatedPasswordDTO.setWeak(passwordToUpdate.isWeak());
+            updatedPasswordDTO.setDuplicate(passwordToUpdate.isDuplicate());
+            updatedPasswordDTO.setCompromised(passwordToUpdate.isCompromised());
+            updatedPasswordDTO.setUrlUnsafe(passwordToUpdate.isUrlUnsafe());
 
-        validatePasswordData(updatedPasswordDTO);
+            validatePasswordData(updatedPasswordDTO);
 
+            boolean updated = PasswordDAO.updatePassword(updatedPasswordDTO);
 
-        boolean updated = PasswordDAO.updatePassword(updatedPasswordDTO);
-
-        if (updated) {
-            updateAllPasswordsSecurity();
+            if (updated) {
+                updateAllPasswordsSecurity();
+            }
+            return updated;
+        } finally {
+            SyncHandler.finishLocalUpdate();
         }
-        SyncHandler.finishLocalUpdate();
-        return updated;
-
     }
 
     public static void updatePasswordByRemote(PasswordDTO updatedPasswordDTO) throws SQLException {
@@ -159,5 +158,20 @@ public class PasswordManager {
             LogUtils.LOGGER.severe("Error updating passwords security: " + e);
             e.printStackTrace();
         }
+    }
+
+    // Método auxiliar para comparar contenido de contraseñas (sin considerar IDs ni timestamps)
+    private static boolean arePasswordsContentEqual(PasswordDTO p1, PasswordDTO p2) {
+        return safeEquals(p1.getDescription(), p2.getDescription()) &&
+               safeEquals(p1.getUsername(), p2.getUsername()) &&
+               safeEquals(p1.getUrl(), p2.getUrl()) &&
+               safeEquals(p1.getPassword(), p2.getPassword());
+    }
+    
+    // Método auxiliar para comparación segura de strings (manejando nulls)
+    private static boolean safeEquals(String s1, String s2) {
+        if (s1 == null && s2 == null) return true;
+        if (s1 == null || s2 == null) return false;
+        return s1.equals(s2);
     }
 }
