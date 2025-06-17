@@ -106,11 +106,4 @@ public class Notifier {
         }
         activePopups.clear();
     }
-    
-    /**
-     * Método para limpiar todas las notificaciones inmediatamente (útil al cambiar de vista)
-     */
-    public static void clearAllNotifications() {
-        clearPreviousNotifications();
-    }
 }

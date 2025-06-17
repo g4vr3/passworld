@@ -33,9 +33,6 @@ public class SyncHandler {
         localUpdateInProgress.set(false);
     }
 
-    public static boolean isLocalUpdateInProgress() {
-        return localUpdateInProgress.get();
-    }
 
     public static void syncPasswords(List<PasswordDTO> localPasswords) throws IOException, SQLException {
         if (localUpdateInProgress.get()) {
